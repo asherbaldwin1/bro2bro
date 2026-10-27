@@ -31,6 +31,9 @@ Keep the app a single self-contained `index.html`. No build step, no bundler, no
   - Player profiles: each user can edit only their own.
   - Rounds: created with yourself as host. Only the host or an admin can delete.
   - `friends/{uidA~uidB}`: `{a, b, from, status, created, since}`. Writable only by those two users.
+  - `blocked/{uid}`: `{at, by}`. Admin-only writes. Every other rule checks `active()` (signed in and not blocked; the admin can't be blocked). A blocked player sees a "Your account has been blocked" screen.
+  - `emails/{uid}`: `{email, pw}`. Each player saves their own on load (must match their login email); only the admin can read them, for password resets.
+  - `bags/{uid}`: `{clubs: [up to 14 club ids], dist: {clubId: {avg, shots, at}}}`. Private: only that user can read or write it.
   - Must be signed in to read anything. The admin is matched by Firebase account ID (UID), not email, and that UID is hard-coded in both `config.js` and `firestore.rules`. Keep them in sync.
 - **Course data:** about 12,700 real US courses from a one-time snapshot of github.com/lukhed/yardage-hub-data (about 350 fake/duplicate entries removed). Arizona is shown by default, other states are searchable. Pars and rating/slope added during a round are shared with the group.
 
@@ -45,9 +48,9 @@ Keep the app a single self-contained `index.html`. No build step, no bundler, no
 ## Features (current)
 
 - **Navigation:**
-  - Home has the centered brand header, then Play (full width), then Rounds, Friends, Leaderboards and Settings.
-  - Each page has a top bar with "‹ Home" plus the page title. Hash routes: `#play`, `#rounds`, `#people`, `#leaders`, `#settings`, and the back button works.
-  - Top-right on every page: a light/dark toggle (saved per device, light by default) and an account menu.
+  - Home has the centered brand header, then Play (full width), then Rounds, Friends, Leaderboards and Range. A lone last card stretches full width.
+  - Each page has a top bar with "‹ Home" plus the page title. Hash routes: `#play`, `#rounds`, `#people`, `#leaders`, `#range`, `#settings`, and the back button works.
+  - Top-right on every page: a light/dark toggle (saved per device, light by default) and an account menu (photo or person icon). Settings lives in that menu, not on Home.
 - **Friends:**
   - Every user has a friend code like `RXA-2WW`. Search by name or code, plus "People you've played with" suggestions.
   - Flow: Add → Requested → Accept/Decline. Sent requests can be cancelled and friends removed.
@@ -61,6 +64,8 @@ Keep the app a single self-contained `index.html`. No build step, no bundler, no
   - The bottom bar has Save round and Discard round (danger color), or Leave round for non-starters.
   - Scoring works for solo or group rounds. Each player can score on their own phone, or one person can score for everyone.
 - **Leaderboards (first version):** All time / season toggle and a "Club leader" banner. Boards: Handicap index, Best round, Scoring average, Birdies or better, Par or better %, Rounds played. Guests are excluded. **Asher will give more detail; don't redesign this without him.**
+- **Range:** pick up to 14 clubs (Driver through Lob Wedge, plus Putter). Tap a club, enter 5 range shots in yards, and Save average stores the rounded average. A club that already has data first asks "Add to my average" (combines with saved shots, keeping the latest 100) or "Start fresh" (its erase warning is on the same page; Asher wants one choice page, no extra confirm step). Putter has no distance.
+- **Admin (`#admin`, admin only):** reached from Settings → Manage players or the account menu. Lists every player (search by name or code). A player's page shows stats and lets the admin rename them, send a password reset email (password accounts only), block or unblock them, remove their photo, or remove their player profile (deletes `players/{uid}`; their login stays and must be deleted in Firebase Console → Authentication). It can't edit friend links or bags. Changing someone's email or password directly needs the Admin SDK (paid Blaze plan), so it isn't offered.
 - **Settings:**
   - Account card, sign-in info with Sign out, invite instructions with Copy site link.
   - Device preferences: home state (AZ) and usual tees (Red, White, Blue, Black or Gold; White by default).

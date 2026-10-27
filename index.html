@@ -147,7 +147,7 @@ table.sc thead th{border-top:0}
 .cardwrap{background:#fff;border-radius:14px;box-shadow:inset 0 0 0 1px var(--line)}
 .note{background:linear-gradient(135deg,rgba(255,200,61,.18),rgba(255,200,61,.08));border:0;border-radius:16px;padding:12px 14px}
 .box.note{box-shadow:none}
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:20;max-width:calc(100% - 32px);background:rgba(20,35,26,.88);color:#fff;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-radius:999px;padding:12px 20px;box-shadow:0 10px 30px rgba(0,0,0,.2);animation:pop .25s ease-out}
+.toast{width:max-content;position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:20;max-width:calc(100% - 32px);background:rgba(20,35,26,.88);color:#fff;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-radius:999px;padding:12px 20px;box-shadow:0 10px 30px rgba(0,0,0,.2);animation:pop .25s ease-out}
 @keyframes pop{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
 .view-in{animation:rise .28s ease-out}
 @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
@@ -291,7 +291,7 @@ label{margin-top:4px}
 
 /* ---- account menu ---- */
 html,body{overflow-x:clip}
-.mast{overflow:visible}
+.mast{overflow:visible;z-index:30}/* keeps the account menu above the Home cards */
 .mast::before{inset:0}
 .tools{display:flex;align-items:center;gap:8px;justify-self:end}
 .acctw{position:relative}
@@ -370,7 +370,7 @@ body.has-bar .toast{bottom:calc(92px + env(safe-area-inset-bottom,0px))}
 .iconbtn:hover,.iconbtn:active{background:rgba(217,72,43,.1);color:var(--bad)}
 .delc{margin-top:12px;padding:14px;border-radius:16px;background:rgba(217,72,43,.08)}
 .delc .sub{margin:6px 0 12px}
-.delc .btn{flex:1}
+.delc .btn{flex:1;white-space:nowrap}
 .pill{display:inline-block;vertical-align:2px;margin-left:4px;padding:2px 8px;border-radius:999px;background:rgba(255,200,61,.3);color:var(--ink);font:600 11.5px "Public Sans",sans-serif}
 h2.sect{font-size:20px;margin:6px 4px 10px;color:var(--mute)}
 
@@ -392,6 +392,18 @@ h2.sect{font-size:20px;margin:6px 4px 10px;color:var(--mute)}
 .lbhero .fav.lg{background:#F7F3EA;color:#0F3D2E}
 ol.lb li{grid-template-columns:36px 30px 1fr auto}
 .plwho{display:flex;align-items:center;gap:10px;min-width:0}
+.clubgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+.clubgrid .chip{padding:8px 4px;white-space:nowrap}.clubgrid .chip:disabled{opacity:.35;cursor:default}
+.rhead .an{font:700 26px/1.1 "Barlow Condensed","Arial Narrow",sans-serif}
+.bagn{font-size:32px;line-height:1}.bagn small{font-size:16px;color:var(--mute)}
+.shots{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px}
+.shot{display:flex;flex-direction:column;align-items:center;gap:4px;margin:0}.shot small{color:var(--mute);font-size:12px;white-space:nowrap}
+.shot input{width:100%;margin:0;padding:12px 2px;text-align:center;font-size:20px;font-weight:600}
+.ravg{display:flex;align-items:baseline;justify-content:center;gap:8px;margin:18px 0 6px}.ravg b{font-size:52px;line-height:1}
+.srow.opt span:first-child{display:flex;flex-direction:column;gap:3px;min-width:0}.srow.opt small{color:var(--mute);font-size:13.5px;line-height:1.35}.srow.opt{padding:14px}.srow.opt small.warn{color:var(--bad)}
+.admrow{width:100%;background:none;border-left:0;border-right:0;border-bottom:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.srow .sv.uid{font-size:12px;font-family:ui-monospace,Menlo,monospace}
+.srow .yds{color:var(--ink);font-size:17px}
 .srow.photo{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .srow.photo .btn{margin:0;display:inline-flex;align-items:center;justify-content:center;vertical-align:middle}
 .frow .hcp{font-size:30px;min-width:40px;text-align:right}
@@ -633,11 +645,11 @@ ol.lb li.first .pos{background:#D9B77E}
  function wQ(q){return{where:(a,b,c)=>wQ(q.where(a,b,c)),orderBy:(f,d)=>wQ(q.orderBy(f,d)),limit:n=>wQ(q.limit(n)),get:()=>q.get(),onSnapshot:(n,e)=>q.onSnapshot(n,e)}}
  function wCol(c){const w=wQ(c);w.path=c.path;w.doc=id=>wDoc(id?c.doc(id):c.doc());w.add=d=>c.add(d).then(wDoc);return w}
  const DB={doc:p=>wDoc(fs.doc(p)),collection:p=>wCol(fs.collection(p))};
- const me=()=>{const u=auth.currentUser;return{id:u.uid,name:u.displayName||'',email:u.email||'',avatarUrl:u.photoURL||'',color:color(u.uid),isOwner:isAdmin(u),canEdit:isAdmin(u)}};
+ const me=()=>{const u=auth.currentUser;return{id:u.uid,name:u.displayName||'',email:u.email||'',avatarUrl:u.photoURL||'',color:color(u.uid),isOwner:isAdmin(u),canEdit:isAdmin(u),pw:u.providerData.some(p=>p.providerId==='password')}};
  const USER={me:async()=>me(),id:async()=>auth.currentUser&&auth.currentUser.uid,name:async()=>me().name,email:async()=>me().email,
   isOwner:async()=>isAdmin(auth.currentUser),canEdit:async()=>isAdmin(auth.currentUser),can:async()=>true,search:async()=>[],
   profiles:async ids=>Object.fromEntries([].concat(ids).map(i=>[i,{id:i,name:'',avatarUrl:'',color:color(i),email:null,isMe:!!auth.currentUser&&i===auth.currentUser.uid,guest:false}]))};
- window.B2B={signOut:()=>auth.signOut()};
+ window.B2B={signOut:()=>auth.signOut(),resetPassword:e=>auth.sendPasswordResetEmail(e)};
  window.claude={use:async n=>{await signedIn;return n==='db'?DB:n==='user'?USER:null}};
 })();
 </script>
@@ -694,18 +706,22 @@ function afterData(){
  db=d;user=u;
  if(u){const m=await u.me();me=m.id;meName=m.name||'';owner=m.isOwner;meEmail=m.email||'';meAvatar=m.avatarUrl||'';const c=await u.can('data.write');if(c===false)canWrite=false}
  if(!db||!me){state='nodb';render();return}
+ if(!owner){try{const b=await db.doc('blocked/'+me).get();if(b.exists){state='blocked';render();return}}catch(e){}}
  state='ok';
+ {const m=await u.me();if(m.email)db.doc('emails/'+me).get().then(x=>{const d=x.exists?x.data():null;if(!d||d.email!==m.email||d.pw!==!!m.pw)db.doc('emails/'+me).set({email:m.email,pw:!!m.pw}).catch(()=>{})}).catch(()=>{})}
+ if(owner)['blocked','emails'].forEach(c=>db.collection(c).onSnapshot(x=>{for(const k of Object.keys(D))if(k.startsWith(c+'/'))delete D[k];x.docs.forEach(d=>D[c+'/'+d.id]=d.data());render()},()=>{}));
  sub('players',db.collection('players'));
  sub('rounds',db.collection('rounds').orderBy('created','desc').limit(500));
  sub('courseinfo',db.collection('courseinfo'));
  sub('friends',db.collection('friends'));
+ db.doc('bags/'+me).onSnapshot(x=>{if(x.exists)D['bags/'+me]=x.data();else delete D['bags/'+me];render()},()=>{});
  render();
 })();
 
 /* ---------- per-viewer UI state ---------- */
 let curId=null;try{curId=localStorage.getItem('weekend-round-cur')}catch(e){}
 const setCur=id=>{curId=id;try{id?localStorage.setItem('weekend-round-cur',id):localStorage.removeItem('weekend-round-cur')}catch(e){}};
-let conf=null,tab=(()=>{try{const h=location.hash.slice(1);return ['play','rounds','people','leaders','settings'].includes(h)?h:'home'}catch(e){return 'home'}})(),mode='hole',q='',st=(()=>{try{return localStorage.getItem('ww-state')||'AZ'}catch(e){return 'AZ'}})(),pick=null,teeSel=(()=>{try{return localStorage.getItem('ww-tee')||'White'}catch(e){return 'White'}})(),holes=18,sel=new Set(),guests=[],chartP=null,ask=null,adding=false,err='',af={n:'',c:'',s:'AZ'},openRound=null,editName=false,scope='mine',impSel=null;
+let conf=null,tab=(()=>{try{const h=location.hash.slice(1);return ['play','rounds','people','leaders','range','settings','admin'].includes(h)?h:'home'}catch(e){return 'home'}})(),mode='hole',q='',st=(()=>{try{return localStorage.getItem('ww-state')||'AZ'}catch(e){return 'AZ'}})(),pick=null,teeSel=(()=>{try{return localStorage.getItem('ww-tee')||'White'}catch(e){return 'White'}})(),holes=18,sel=new Set(),guests=[],chartP=null,ask=null,adding=false,err='',af={n:'',c:'',s:'AZ'},openRound=null,editName=false,scope='mine',impSel=null;
 const hole={};
 let OLD=null;try{const x=JSON.parse(localStorage.getItem('weekend-round-v2')||'null');if(x&&x.rounds&&x.rounds.length&&!localStorage.getItem('weekend-round-imported'))OLD=x}catch(e){}
 
@@ -781,8 +797,9 @@ function toolsHTML(here=true){
   card:'<svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 10h16M10 10v9" stroke="currentColor" stroke-width="2"/></svg>',
   inv:'<svg viewBox="0 0 24 24"><circle cx="10" cy="8.5" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 20c.5-3.4 3.1-5.4 6.5-5.4 1.4 0 2.7.3 3.7 1M18 13v6M15 16h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
   gear:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  shield:'<svg viewBox="0 0 24 24"><path d="M12 3l7 3v5.5c0 4.4-3 8-7 9.5-4-1.5-7-5.1-7-9.5V6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   sliders:'<svg viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="15" cy="7" r="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="17" r="2" fill="none" stroke="currentColor" stroke-width="2"/></svg>'};
- const menu=menuOpen&&here?`<div class="amenu" role="menu" aria-label="Account"><div class="ahead"><span class="aav">${av}</span><span class="atx"><b>${esc(nm)}</b><small>${esc(meEmail||'Signed in')}</small></span></div>${item('settings',I.gear,'Settings')}${state==='ok'&&canWrite?item('name',I.pen,'Change display name'):''}${item('friends',I.inv,'Friends')+item('mine',I.card,'My rounds')}${item('invite',I.inv,'Invite friends')}${item('prefs',I.sliders,'Preferences')}</div>`:'';
+ const menu=menuOpen&&here?`<div class="amenu" role="menu" aria-label="Account"><div class="ahead"><span class="aav">${av}</span><span class="atx"><b>${esc(nm)}</b><small>${esc(meEmail||'Signed in')}</small></span></div>${item('settings',I.gear,'Settings')}${state==='ok'&&canWrite?item('name',I.pen,'Change display name'):''}${item('friends',I.inv,'Friends')+item('mine',I.card,'My rounds')}${item('invite',I.inv,'Invite friends')}${item('prefs',I.sliders,'Preferences')}${owner?item('admin',I.shield,'Admin'):''}</div>`:'';
  return `<div class="tools">${themeHTML()}<div class="acctw"><button class="acctbtn" data-acct aria-haspopup="menu" aria-expanded="${menuOpen}" aria-label="Account menu">${av}</button>${menu}</div></div>`;
 }
 function closeMenu(){if(menuOpen){menuOpen=false;lastNav=null;render()}}
@@ -793,6 +810,7 @@ document.addEventListener('click',e=>{
  if(mi){menuOpen=false;const k=mi.dataset.menu;lastNav=null;
   if(k==='mine'){scope='mine';go('rounds')}
   else if(k==='friends'){go('people')}
+  else if(k==='admin'){go('admin')}
   else{if(k==='name')editName=true;go('settings');if(k==='invite'||k==='prefs')setTimeout(()=>{const t=[...document.querySelectorAll('.box b')].find(b=>b.textContent===(k==='invite'?'Invite friends':'Preferences'));if(t)t.closest('.box').scrollIntoView({behavior:'smooth',block:'start'})},60)}
   return}
  if(menuOpen&&!e.target.closest('.amenu'))closeMenu();
@@ -802,18 +820,20 @@ const box=h=>`<div class="box">${h}</div>`;
 const ro=()=>canWrite?'':`<p class="note">You can see everyone’s scores, but this page is view-only for you. Ask the owner to invite you as an Editor to keep score.</p>`;
 function main(){
  if(state==='loading')return box('<p class="empty">Loading…</p>');
+ if(state==='blocked')return box('<p><b>Your account has been blocked.</b></p><p class="sub">The club admin has turned off your access to Bro 2 Bro. If you think this is a mistake, reach out to them directly.</p><button class="btn alt" id="signout" style="width:100%;margin-top:6px">Sign out</button>');
  if(state==='nodb')return box('<p><b>Sign in to keep score with friends.</b></p><p class="sub">Reload the page to sign in. Rounds are saved online, so everyone in your group sees the same live scorecard.</p>');
  if(real.players&&canWrite&&!doc('players/'+me))return nameForm(true);
  if(tab==='home')return home();
  if(tab==='play'){const r=curId&&R(curId);return r&&r.status==='live'&&r.pl[me]?scorecard(r):setup()}
- return tab==='rounds'?roundsView():tab==='leaders'?leaders():tab==='settings'?settings():people();
+ return tab==='rounds'?roundsView():tab==='leaders'?leaders():tab==='settings'?settings():tab==='range'?rangeView():tab==='admin'?adminView():people();
 }
 function nameForm(first){return box(`<label for="myn"><b>${first?'What should your friends call you?':'Your name'}</b></label><p class="sub">This name shows on every scorecard you’re on.</p><input id="myn" maxlength="24" value="${esc(first?meName:pname(me))}">${err?`<p class="over">${esc(err)}</p>`:''}<button class="btn" id="mysave">Save</button>${first?'':' <button class="btn alt" id="mycancel">Cancel</button>'}`)}
 function importBox(){if(!OLD||!canWrite)return '';const ps=OLD.players||[];return box(`<b>Rounds saved on this device</b><p class="sub">${OLD.rounds.length} round${OLD.rounds.length===1?'':'s'} from the earlier version live only in this browser. Bring them in so they count toward your handicap. Which player was you?</p><div class="row">${ps.map(p=>`<button class="chip" aria-pressed="${impSel===p.id}" data-imp="${esc(p.id)}">${esc(p.name)}</button>`).join('')}</div><p><button class="btn" id="impgo" ${impSel?'':'disabled'}>Import rounds</button> <button class="btn alt" id="impno">Not now</button></p>`)}
-const PAGES={play:'Play',rounds:'Rounds',people:'Friends',leaders:'Leaderboards',settings:'Settings'};
-function go(t,push=true){menuOpen=false;tab=t;ask=null;err='';conf=null;if(push){try{history.pushState({t},'',t==='home'?location.pathname+location.search:'#'+t)}catch(e){}}window.scrollTo(0,0);lastView=null;render();const v=$('view');v.classList.remove('view-in');void v.offsetWidth;v.classList.add('view-in')}
+const PAGES={play:'Play',rounds:'Rounds',people:'Friends',leaders:'Leaderboards',range:'Range',settings:'Settings',admin:'Admin'};
+function go(t,push=true){menuOpen=false;rClub=null;rMode=null;admUid=null;admConf=false;admBlk=false;bagEdit=false;bagSel=null;tab=t;ask=null;err='';conf=null;if(push){try{history.pushState({t},'',t==='home'?location.pathname+location.search:'#'+t)}catch(e){}}window.scrollTo(0,0);lastView=null;render();const v=$('view');v.classList.remove('view-in');void v.offsetWidth;v.classList.add('view-in')}
 window.addEventListener('popstate',e=>{const t=(e.state&&e.state.t)||(location.hash.slice(1))||'home';go(PAGES[t]?t:'home',false)});
 const ICON={
+ range:'<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="10" r="6.5" fill="currentColor"/><path d="M12 18.5h8l-2.4 3v5h-3.2v-5z" fill="currentColor"/><path d="M5 27.5h22" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".55"/></svg>',
  play:'<svg viewBox="0 0 32 32" aria-hidden="true"><ellipse cx="14" cy="26" rx="9" ry="2.6" fill="currentColor" opacity=".25"/><path d="M12 26V5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M13 5l12 4.5L13 14z" fill="currentColor"/></svg>',
  rounds:'<svg viewBox="0 0 32 32" aria-hidden="true"><rect x="5" y="6" width="22" height="20" rx="4" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M5 12h22M12 12v14M19 12v14" stroke="currentColor" stroke-width="2"/></svg>',
  leaders:'<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M10 5h12v6a6 6 0 0 1-12 0z" fill="currentColor"/><path d="M10 7H5.5a4.5 4.5 0 0 0 5 5M22 7h4.5a4.5 4.5 0 0 1-5 5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M14.5 17h3v5h-3z" fill="currentColor"/><rect x="10" y="22" width="12" height="4" rx="1.5" fill="currentColor"/></svg>',
@@ -831,6 +851,7 @@ function home(){
  {const nf=friends().length,ni=incoming().length;h+=card('people','c-people','Friends',nf?`${nf} friend${nf===1?'':'s'}`:'Add your buddies.',ni?`<b class="badge">${ni} request${ni===1?'':'s'}</b>`:ix!=null?`Your index <b>${ix}</b>`:'')}
  const lb=handicapBoard()[0];
  h+=card('leaders','c-leaders','Leaderboards','See who’s on top.',lb?'Leader: <b>'+esc(pname(lb.id))+'</b>':'');
+ {const b=bag(),n=b.clubs.filter(c=>b.dist[c]).length;h+=card('range','c-rounds','Range',b.clubs.length?`${b.clubs.length} club${b.clubs.length===1?'':'s'} in bag`:'Club distances.',b.clubs.length?`<b>${n}</b> of ${b.clubs.filter(c=>c!=='pt').length} measured`:'')}
  return h+'</div>';
 }
 /* ---------- leaderboards ---------- */
@@ -864,6 +885,60 @@ function leaders(){
  h+=board('Rounds played','Finished rounds',desc('played'),r=>r.v);
  return h+'<p class="sub">Showing you and your friends. Guests aren’t ranked. Handicap index uses rounds with a course rating and slope.</p>';
 }
+/* ---------- range ---------- */
+const CLUBS=[['dr','Driver','Driver'],['3w','3 Wood','3W'],['5w','5 Wood','5W'],['7w','7 Wood','7W'],['2h','2 Hybrid','2H'],['3h','3 Hybrid','3H'],['4h','4 Hybrid','4H'],['5h','5 Hybrid','5H'],
+ ['2i','2 Iron','2i'],['3i','3 Iron','3i'],['4i','4 Iron','4i'],['5i','5 Iron','5i'],['6i','6 Iron','6i'],['7i','7 Iron','7i'],['8i','8 Iron','8i'],['9i','9 Iron','9i'],
+ ['pw','Pitching Wedge','PW'],['gw','Gap Wedge','GW'],['sw','Sand Wedge','SW'],['lw','Lob Wedge','LW'],['pt','Putter','Putter']];
+const CLUB=Object.fromEntries(CLUBS.map(([k,n,sh])=>[k,{n,sh}])),MAXBAG=14,SHOTS=5;
+const bag=()=>{const d=me&&doc('bags/'+me)||{};return{clubs:(d.clubs||[]).filter(k=>CLUB[k]).sort((a,b)=>CLUBS.findIndex(c=>c[0]===a)-CLUBS.findIndex(c=>c[0]===b)),dist:d.dist||{}}};
+let bagEdit=false,bagSel=null,rClub=null,rMode=null;/* rMode: null (choosing), 'merge' or 'fresh' */
+const MAXSHOTS=100;/* merged averages keep the most recent 100 shots */
+const shotVals=()=>Array.from({length:SHOTS},(_,i)=>{const e=$('sh'+i),v=e?parseInt(e.value,10):NaN;return v>0&&v<=450?v:null});
+const fmtDay=t=>new Date(t).toLocaleDateString(undefined,{month:'short',day:'numeric'});
+function rangeView(){
+ const b=bag();
+ if(!canWrite)return box('<p class="empty">The range is view-only for you.</p>');
+ if(bagEdit||!b.clubs.length){
+  if(!bagSel)bagSel=new Set(b.clubs);
+  const full=bagSel.size>=MAXBAG;
+  return box(`<div class="rhead"><div><b>What’s in your bag?</b><br><span class="sub">Pick up to ${MAXBAG} clubs.</span></div><span class="bagn num">${bagSel.size}<small>/${MAXBAG}</small></span></div><div class="clubgrid">${CLUBS.map(([k,,sh])=>{const on=bagSel.has(k);return `<button class="chip" data-club="${k}" aria-pressed="${on}" ${!on&&full?'disabled':''}>${sh}</button>`}).join('')}</div>${full?'<p class="sub" style="margin-top:12px">Your bag is full. Tap a club to take it out.</p>':''}<div class="row" style="margin-top:14px"><button class="btn" id="bagsave" ${bagSel.size?'':'disabled'}>Save bag</button>${b.clubs.length?'<button class="btn alt" id="bagcancel">Cancel</button>':''}</div>`);
+ }
+ if(rClub&&CLUB[rClub]){const c=CLUB[rClub],d=b.dist[rClub],n=d&&d.shots?d.shots.length:0;
+  if(!d)rMode='fresh';
+  const head=`<div class="rhead"><div><b class="an">${c.n}</b><br><span class="sub">${d?`Current average <b>${d.avg} yds</b> · ${n} shot${n===1?'':'s'} · ${fmtDay(d.at)}`:'No distance yet'}</span></div></div>`;
+  if(!rMode)return box(`${head}<p class="sub" style="margin-top:12px">How do you want to log this session?</p><div class="slist"><button class="srow opt" data-rmode="merge"><span><b>Add to my average</b><small>Your next ${SHOTS} shots join the ${n} already saved.</small></span><span class="chev2"></span></button><button class="srow opt" data-rmode="fresh"><span><b>Start fresh</b><small>Replace your average with just these ${SHOTS} shots.</small><small class="warn">Erases all ${n} saved shot${n===1?'':'s'} and your ${d.avg} yd average. This can’t be undone.</small></span><span class="chev2"></span></button></div><div class="row" style="margin-top:14px"><button class="btn alt" id="shotback">Back</button></div>`);
+  const merge=rMode==='merge';
+  return box(`${head}<p class="sub" style="margin-top:12px">${merge?`Adding to your average. `:''}Hit ${SHOTS} shots and enter how far each one carried, in yards.</p><div class="shots">${Array.from({length:SHOTS},(_,i)=>`<label class="shot"><small>Shot ${i+1}</small><input id="sh${i}" inputmode="numeric" pattern="[0-9]*" maxlength="3" enterkeyhint="${i<SHOTS-1?'next':'done'}" autocomplete="off" aria-label="Shot ${i+1} yards"></label>`).join('')}</div><div class="ravg"><span class="sub">${merge?'New average':'Average'}</span><b class="num" id="ravg">–</b><span class="sub">yds</span></div>${merge?'<p class="sub" id="ravgsub" style="text-align:center;margin:0 0 6px">&nbsp;</p>':''}<div class="row endrow"><button class="btn" id="shotsave" disabled>Save average</button><button class="btn alt" id="shotback">Back</button></div>`);
+ }
+ rClub=null;
+ const rows=b.clubs.map(k=>{const c=CLUB[k],d=b.dist[k];
+  if(k==='pt')return `<div class="srow static"><span>${c.n}</span><span class="sv">No distance</span></div>`;
+  return `<button class="srow" data-rclub="${k}"><span>${c.n}</span><span class="sv">${d?`<b class="yds">${d.avg}</b> yds`:'Add distance'}</span><span class="chev2"></span></button>`}).join('');
+ return box(`<div class="rhead"><div><b>Your bag</b><br><span class="sub">${b.clubs.length} club${b.clubs.length===1?'':'s'} · average carry</span></div><button class="btn alt sm" id="bagedit">Edit bag</button></div><div class="slist">${rows}</div>`)+'<p class="sub">Tap a club to log 5 range shots. The new average replaces the old one.</p>';
+}
+/* ---------- admin ---------- */
+let admUid=null,admConf=false,admQ='',admBlk=false;
+const isBlocked=uid=>!!D['blocked/'+uid];
+function pstats(uid){const rs=rounds().filter(r=>r.pl[uid]),done=rs.filter(r=>r.status==='done'),last=done.slice().sort(byDate).pop(),
+ fr=Object.keys(D).filter(k=>k.startsWith('friends/')&&k.includes(uid)).map(k=>doc(k)).filter(f=>f&&f.status==='accepted'&&(f.a===uid||f.b===uid)).length;
+ return{rounds:done.length,live:rs.length-done.length,last,friends:fr,ix:index(uid)}}
+function adminView(){
+ if(!owner)return box('<p class="empty">This page is only for the club admin.</p>');
+ const p=admUid&&doc('players/'+admUid);
+ if(admUid&&!p)admUid=null;
+ if(admUid){const uid=admUid,st=pstats(uid),self=uid===me,pic=picOf(uid);
+  let h=box(`<div class="acct">${face(uid,'','xl')}<div class="grow"><b class="an">${esc(pname(uid))}${self?' <span class="sub">(you)</span>':''}</b><span class="sub">Code ${fcode(uid)}${p.joined?' · joined '+fmtDay(p.joined):''}</span></div></div><div class="slist"><div class="srow static"><span>Rounds saved</span><span class="sv">${st.rounds}${st.live?' · '+st.live+' unfinished':''}</span></div><div class="srow static"><span>Last round</span><span class="sv">${st.last?esc(st.last.cn)+' · '+st.last.date:'None yet'}</span></div><div class="srow static"><span>Handicap index</span><span class="sv">${st.ix==null?'Not yet':st.ix}</span></div><div class="srow static"><span>Friends</span><span class="sv">${st.friends}</span></div><div class="srow static"><span>Account ID</span><span class="sv uid">${esc(uid)}</span></div></div>`);
+  h+=box(`<label for="admn"><b>Display name</b></label><div class="row" style="flex-wrap:nowrap"><input id="admn" maxlength="24" value="${esc(pname(uid))}" style="flex:1;margin:0;min-width:0"><button class="btn" id="admsave">Save</button></div>${pic?`<div class="slist"><div class="srow photo"><span>Profile photo</span><button class="btn alt sm" id="admpic">Remove photo</button></div></div>`:''}`);
+  {const em=doc('emails/'+uid);
+   h+=box(`<b>Sign-in</b><div class="slist"><div class="srow static"><span>Email</span><span class="sv">${em?esc(em.email):'Not on file yet'}</span></div><div class="srow static"><span>Signs in with</span><span class="sv">${em?(em.pw?'Email and password':'Google or email link'):'Unknown'}</span></div></div>${em&&em.pw?`<button class="btn alt" id="admreset" style="width:100%;margin-top:12px">Send password reset email</button><p class="sub" style="margin-top:8px">Firebase emails them a link to choose a new password.</p>`:`<p class="sub" style="margin-top:10px">${em?'They don’t use a password, so there’s nothing to reset.':'Their email is saved the next time they open the site.'} Changing someone’s email or password directly needs Firebase’s paid plan.</p>`}`)}
+  if(!self){const bl=D['blocked/'+uid];
+   h+=box(bl?`<b>Blocked</b><p class="sub" style="margin-top:6px">Blocked since ${fmtDay(bl.at)}. They can sign in but can’t see or change anything.</p><button class="btn alt" id="admunblock" style="width:100%">Unblock player</button>`:admBlk?`<div class="delc" style="margin:0"><b>Block ${esc(pname(uid))}?</b><p class="sub">They’ll see a “Your account has been blocked” screen and can’t view or change anything in the club. Their profile and rounds stay. You can unblock them anytime.</p><div class="row"><button class="btn danger" id="admblkyes">Block player</button><button class="btn alt" id="admblkno">Cancel</button></div></div>`:`<b>Block from site</b><p class="sub" style="margin-top:6px">Stops them from using Bro 2 Bro without deleting anything.</p><button class="btn danger" id="admblk" style="width:100%">Block player</button>`)}
+  if(!self)h+=box(admConf?`<div class="delc" style="margin:0"><b>Remove ${esc(pname(uid))} from the club?</b><p class="sub">Their name and photo are deleted, and they drop off friends lists and leaderboards. Rounds they played stay, but show them as “Friend”. If they sign in again they’ll be asked for a name and start over. This can’t be undone.</p><div class="row"><button class="btn danger" id="admrmyes">Remove player</button><button class="btn alt" id="admrmno">Cancel</button></div></div>`:`<b>Remove from club</b><p class="sub" style="margin-top:6px">Deletes their player profile. To also delete their login, use Firebase Console → Authentication.</p><button class="btn danger" id="admrm" style="width:100%">Remove player</button>`);
+  return h+`<p><button class="btn alt" id="admback">All players</button></p>`;
+ }
+ const k=admQ.toLowerCase().trim(),ps=players().filter(p=>!k||pname(p.id).toLowerCase().includes(k)||fcode(p.id).toLowerCase().includes(k)).sort((a,b)=>(b.joined||0)-(a.joined||0));
+ return box(`<div class="rhead"><div><b>Players</b><br><span class="sub">${players().length} in the club · newest first</span></div></div><input id="admq" type="search" placeholder="Search by name or friend code" value="${esc(admQ)}" style="margin-top:12px">${ps.map(p=>{const st=pstats(p.id);return `<button class="frow admrow" data-adm="${p.id}">${face(p.id)}<span class="fwho"><b>${esc(pname(p.id))}${p.id===me?' <span class="sub">(you)</span>':''}${isBlocked(p.id)?' <span class="pill">Blocked</span>':''}</b><small>${fcode(p.id)} · ${st.rounds} round${st.rounds===1?'':'s'} · ${st.friends} friend${st.friends===1?'':'s'}</small></span><span class="chev2"></span></button>`}).join('')||'<p class="empty">No one matches.</p>'}`)+'<p class="sub">Only you can see this page. Tap a player to rename them, send a password reset, block them or remove them from the club.</p>';
+}
 /* ---------- settings ---------- */
 function settings(){
  let h='';
@@ -873,6 +948,7 @@ function settings(){
  if(editName)h+=nameForm(false);
  else h+=box(`<div class="acct">${av}<div class="grow"><b class="an">${esc(me&&doc('players/'+me)?pname(me):(meName||'Not set up yet'))}</b><span class="sub">${meEmail?esc(meEmail):'Signed in'}</span></div></div><div class="slist"><button class="srow" id="edname"><span>Display name</span><span class="sv">${esc(me?pname(me):'')}</span><span class="chev2"></span></button>${photo}</div>`);
  h+=box(`<b>Sign-in</b><p class="sub" style="margin-top:6px">You’re signed in${meEmail?' as <b>'+esc(meEmail)+'</b>':''}. You stay signed in on this device until you sign out.</p><div class="slist"><div class="srow static"><span>Status</span><span class="sv">${state==='ok'?'Signed in':'Not signed in'}</span></div><div class="srow static"><span>Access</span><span class="sv">${owner?'Admin':canWrite?'Can keep score':'View only'}</span></div></div><p style="margin:14px 0 0"><button class="btn alt" id="signout" style="width:100%">Sign out</button></p>`);
+ if(owner)h+=box(`<b>Admin</b><p class="sub" style="margin-top:6px">Only you can see this.</p><div class="slist"><button class="srow" data-go="admin"><span>Manage players</span><span class="sv">${players().length}</span><span class="chev2"></span></button></div>`);
  h+=box(`<b>Invite friends</b><p class="sub" style="margin-top:6px">Send your friends the link to this site. They sign in with Google or their email, pick a name, and then you add each other on the Friends page.</p><button class="btn alt" id="copylink" style="width:100%">Copy site link</button>`);
  h+=box(`<b>Preferences</b><p class="sub" style="margin-top:6px">Saved on this device.</p><label for="pst">Home state for course search</label><select id="pst"><option value="">All states</option>${STATES.map(x=>`<option ${x===st?'selected':''}>${x}</option>`).join('')}</select><label for="ptee">Usual tees</label><select id="ptee">${STD.map(x=>`<option ${x===teeSel?'selected':''}>${x}</option>`).join('')}</select>`);
  h+=box(`<b>About</b><div class="slist"><div class="srow static"><span>App</span><span class="sv">Bro 2 Bro Golf Club</span></div><div class="srow static"><span>Courses</span><span class="sv">${COURSES.length.toLocaleString()} US courses</span></div><div class="srow static"><span>Handicap</span><span class="sv">Best 8 of last 20</span></div></div><p class="sub" style="margin-top:10px">Handicap index follows the World Handicap System: each 18-hole round becomes a differential, (113 ÷ slope) × (score − course rating), and your index averages the best of your recent differentials. You need 3 counted rounds to get one. Scores aren’t capped per hole yet, so it can run a little high after blow-up holes.</p>`);
@@ -1038,6 +1114,33 @@ function bind(){
  click('mysave',async()=>{const n=$('myn').value.trim();if(!n){err='Enter a name.';render();return}err='';try{await db.doc('players/'+me).update({name:n,joined:(doc('players/'+me)||{}).joined||Date.now()})}catch(e){fail(e);return}editName=false;render()});
  click('mycancel',()=>{editName=false;err='';render()});
  click('edname',()=>{editName=true;render()});
+ on('[data-adm]',b=>b.onclick=()=>{admUid=b.dataset.adm;admConf=false;render();window.scrollTo(0,0)});
+ click('admback',()=>{admUid=null;admConf=false;render()});
+ {const q=$('admq');if(q)q.oninput=()=>{admQ=q.value;render()}}
+ click('admsave',()=>{const n=$('admn').value.trim();if(!n)return say('Enter a name.');patch('players/'+admUid,{name:n});say('Name saved.')});
+ click('admpic',()=>{patch('players/'+admUid,{pic:''});say('Photo removed.')});
+ click('admrm',()=>{admConf=true;render()});
+ click('admblk',()=>{admBlk=true;render()});
+ click('admblkno',()=>{admBlk=false;render()});
+ click('admblkyes',async()=>{const uid=admUid;$('admblkyes').disabled=true;const v={at:Date.now(),by:me};try{await db.doc('blocked/'+uid).set(v)}catch(e){fail(e);render();return}D['blocked/'+uid]=v;admBlk=false;say(pname(uid)+' is blocked.')});
+ click('admunblock',async()=>{const uid=admUid;$('admunblock').disabled=true;try{await db.doc('blocked/'+uid).delete()}catch(e){fail(e);render();return}delete D['blocked/'+uid];render();say(pname(uid)+' is unblocked.')});
+ click('admreset',async()=>{const em=doc('emails/'+admUid);if(!em||!window.B2B)return;const b=$('admreset');b.disabled=true;try{await B2B.resetPassword(em.email);say('Reset email sent to '+em.email+'.')}catch(e){say(e&&e.code==='auth/too-many-requests'?'Too many reset emails. Try again later.':'Couldn’t send the reset email.');b.disabled=false}});
+ click('admrmno',()=>{admConf=false;render()});
+ click('admrmyes',async()=>{const uid=admUid,n=pname(uid);$('admrmyes').disabled=true;try{await db.doc('players/'+uid).delete()}catch(e){fail(e);return}delete D['players/'+uid];admUid=null;admConf=false;say(n+' was removed.')});
+ on('[data-club]',b=>b.onclick=()=>{const k=b.dataset.club;bagSel.has(k)?bagSel.delete(k):bagSel.size<MAXBAG&&bagSel.add(k);render()});
+ click('bagsave',()=>{patch('bags/'+me,{clubs:[...bagSel]});bagEdit=false;bagSel=null;render()});
+ click('bagcancel',()=>{bagEdit=false;bagSel=null;render()});
+ click('bagedit',()=>{bagEdit=true;bagSel=null;render();window.scrollTo(0,0)});
+ on('[data-rclub]',b=>b.onclick=()=>{rClub=b.dataset.rclub;rMode=null;render();window.scrollTo(0,0);const f=$('sh0');if(f)f.focus()});
+ on('[data-rmode]',b=>b.onclick=()=>{rMode=b.dataset.rmode||null;render();window.scrollTo(0,0);const f=$('sh0');if(f)f.focus()});
+ click('shotback',()=>{rClub=null;rMode=null;render()});
+ {const old=()=>rMode==='merge'&&rClub&&(bag().dist[rClub]||{}).shots||[];
+  const upd=()=>{const v=shotVals(),ok=v.every(x=>x!=null),got=v.filter(x=>x!=null),all=old().concat(got).slice(-MAXSHOTS);$('ravg').textContent=got.length?Math.round(sum(all)/all.length):'–';$('shotsave').disabled=!ok;
+   const ss=$('ravgsub');if(ss)ss.textContent=got.length?`This session ${Math.round(sum(got)/got.length)} · ${all.length} shots total`:`Was ${(bag().dist[rClub]||{}).avg} yds`};
+  for(let i=0;i<SHOTS;i++){const e=$('sh'+i);if(!e)continue;e.oninput=()=>{e.value=e.value.replace(/\D/g,'').slice(0,3);upd()};e.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();const n=$('sh'+(i+1));if(n)n.focus();else if(!$('shotsave').disabled)$('shotsave').click();else e.blur()}}}
+  if($('sh0'))upd()}
+ click('shotsave',()=>{const v=shotVals();if(!v.every(x=>x!=null))return;const k=rClub,prev=rMode==='merge'&&(bag().dist[k]||{}).shots||[],all=prev.concat(v).slice(-MAXSHOTS),avg=Math.round(sum(all)/all.length);
+  patch('bags/'+me,{dist:{[k]:{avg,shots:all,at:Date.now()}}});rClub=null;rMode=null;say(`${CLUB[k].n} saved: ${avg} yds`)});
  {const f=$('picin');if(f)f.onchange=async()=>{const file=f.files&&f.files[0];if(!file)return;let pic;try{pic=await shrinkPic(file)}catch(e){say('Couldn’t read that photo. Try a different one.');return}patch('players/'+me,{pic})}}
  click('picrm',()=>patch('players/'+me,{pic:''}));
  on('[data-c]',b=>b.onclick=()=>{pick=b.dataset.c;render()});

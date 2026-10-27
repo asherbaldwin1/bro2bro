@@ -9,12 +9,34 @@ service cloud.firestore {
     // Admin is matched by account ID (UID), not email. Keep in sync with adminUids in config.js.
     function isAdmin() { return signedIn() && me() in ['luHWGpswl8MhxYuWJEHos7sqN8R2']; }
     function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
+    // Signed in and not blocked by the admin. The admin can never be blocked.
+    function active() { return signedIn() && (isAdmin() || !exists(/databases/$(database)/documents/blocked/$(me()))); }
+
+    // Sign-in emails: { email, pw }. Each player saves their own (it must match their login),
+    // and only the admin can read them, for sending password resets.
+    match /emails/{uid} {
+      allow read: if isAdmin() || (signedIn() && me() == uid);
+      allow create, update: if signedIn() && me() == uid
+        && request.resource.data.keys().hasOnly(['email', 'pw'])
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.pw is bool;
+      allow delete: if isAdmin();
+    }
+
+    // Blocked players: { at, by }. Only the admin can add or remove one.
+    // A player can read their own entry so the app can tell them they're blocked.
+    match /blocked/{uid} {
+      allow read: if signedIn() && (me() == uid || isAdmin());
+      allow create, update: if isAdmin() && uid != me()
+        && request.resource.data.keys().hasOnly(['at', 'by']);
+      allow delete: if isAdmin();
+    }
 
     // Player profiles: { name, joined, pic }. Everyone signed in can read; you can only write your own.
     // pic is a small square JPEG stored as text (about 10-20 KB), or '' when removed.
     match /players/{uid} {
-      allow read: if signedIn();
-      allow create, update: if signedIn() && (me() == uid || isAdmin())
+      allow read: if active();
+      allow create, update: if active() && (me() == uid || isAdmin())
         && request.resource.data.keys().hasOnly(['name', 'joined', 'pic'])
         && request.resource.data.name is string
         && request.resource.data.name.size() > 0
@@ -25,6 +47,16 @@ service cloud.firestore {
                 && request.resource.data.pic.size() <= 100000
                 && request.resource.data.pic.matches('^data:image/jpeg;base64,[A-Za-z0-9+/=]+$')));
       allow delete: if isAdmin();
+    }
+
+    // Range: { clubs: [up to 14 club ids], dist: { clubId: { avg, shots, at } } }.
+    // Private for now: only you can read or change your own bag.
+    match /bags/{uid} {
+      allow read, delete: if active() && me() == uid;
+      allow create, update: if active() && me() == uid
+        && request.resource.data.keys().hasOnly(['clubs', 'dist'])
+        && (!('clubs' in request.resource.data) || (request.resource.data.clubs is list && request.resource.data.clubs.size() <= 14))
+        && (!('dist' in request.resource.data) || (request.resource.data.dist is map && request.resource.data.dist.size() <= 25));
     }
 
     // Rounds. The host and the players in a round can edit it. Anyone else
@@ -40,12 +72,12 @@ service cloud.firestore {
           && request.resource.data.players.diff(resource.data.get('players', {})).affectedKeys().hasOnly([me()])
           && request.resource.data.players[me()].uid == me();
       }
-      allow read: if signedIn();
-      allow create: if signedIn() && request.resource.data.host == me();
-      allow update: if signedIn()
+      allow read: if active();
+      allow create: if active() && request.resource.data.host == me();
+      allow update: if active()
         && request.resource.data.host == resource.data.host
         && (inRound() || joiningOnly() || isAdmin());
-      allow delete: if signedIn() && (resource.data.host == me() || isAdmin());
+      allow delete: if active() && (resource.data.host == me() || isAdmin());
     }
 
     // Shared course details people add during rounds (pars, tee ratings, new courses).
@@ -56,10 +88,10 @@ service cloud.firestore {
           && (!('pn' in request.resource.data) || request.resource.data.pn is int)
           && (!('tees' in request.resource.data) || (request.resource.data.tees is map && request.resource.data.tees.size() <= 20));
       }
-      allow read: if signedIn();
-      allow create: if signedIn() && shapeOk();
+      allow read: if active();
+      allow create: if active() && shapeOk();
       // A course someone added can't be renamed or removed by others later.
-      allow update: if signedIn() && shapeOk() && !changed().hasAny(['added']);
+      allow update: if active() && shapeOk() && !changed().hasAny(['added']);
       allow delete: if isAdmin();
     }
 
@@ -68,21 +100,21 @@ service cloud.firestore {
     match /friends/{id} {
       function body() { return request.resource.data; }
       function idOk() { return body().a < body().b && id == body().a + '~' + body().b; }
-      allow read: if signedIn();
+      allow read: if active();
       // Sending a request: it must come from you and start as pending.
-      allow create: if signedIn() && idOk()
+      allow create: if active() && idOk()
         && me() in [body().a, body().b]
         && body().from == me()
         && body().status == 'pending';
       // Accepting: only the person who did NOT send the request can accept it.
-      allow update: if signedIn() && idOk()
+      allow update: if active() && idOk()
         && me() in [resource.data.a, resource.data.b]
         && body().a == resource.data.a && body().b == resource.data.b
         && body().from == resource.data.from
         && body().status in ['pending', 'accepted']
         && (body().status == 'pending' || resource.data.status == 'accepted' || resource.data.from != me());
       // Cancel, decline or unfriend: either person.
-      allow delete: if signedIn() && me() in [resource.data.a, resource.data.b];
+      allow delete: if active() && me() in [resource.data.a, resource.data.b];
     }
   }
 }
