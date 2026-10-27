@@ -590,8 +590,8 @@ ol.lb li.first .pos{background:#D9B77E}
  const auth=firebase.auth(),fs=firebase.firestore();
  fs.enablePersistence({synchronizeTabs:true}).catch(()=>{});
  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
- const admins=(cfg.adminEmails||[]).map(e=>String(e).toLowerCase().trim());
- const isAdmin=u=>!!u&&admins.includes(String(u.email||'').toLowerCase());
+ const admins=(cfg.adminUids||[]).map(String);
+ const isAdmin=u=>!!u&&admins.includes(u.uid);
  const color=id=>{let h=0;for(const c of String(id))h=(h*31+c.charCodeAt(0))>>>0;return `hsl(${h%360} 42% 36%)`};
  const nice=e=>{const c=(e&&e.code)||'';return ({
   'auth/invalid-email':'That email doesn’t look right.','auth/missing-password':'Enter your password.',

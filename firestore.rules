@@ -1,0 +1,82 @@
+rules_version = '2';
+// Bro 2 Bro Golf Club: Firestore security rules.
+// Editing this file does nothing on its own. Paste it into
+// Firebase Console -> Firestore -> Rules and click Publish.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function me() { return request.auth.uid; }
+    // Admin is matched by account ID (UID), not email. Keep in sync with adminUids in config.js.
+    function isAdmin() { return signedIn() && me() in ['luHWGpswl8MhxYuWJEHos7sqN8R2']; }
+    function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
+
+    // Player profiles: { name, joined }. Everyone signed in can read; you can only write your own.
+    match /players/{uid} {
+      allow read: if signedIn();
+      allow create, update: if signedIn() && (me() == uid || isAdmin())
+        && request.resource.data.keys().hasOnly(['name', 'joined'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 40;
+      allow delete: if isAdmin();
+    }
+
+    // Rounds. The host and the players in a round can edit it. Anyone else
+    // can only add themselves (joining). Nobody can change who the host is.
+    match /rounds/{id} {
+      function inRound() {
+        return me() == resource.data.host
+          || (me() in resource.data.get('players', {})
+              && resource.data.players[me()] != null);
+      }
+      function joiningOnly() {
+        return changed().hasOnly(['players'])
+          && request.resource.data.players.diff(resource.data.get('players', {})).affectedKeys().hasOnly([me()])
+          && request.resource.data.players[me()].uid == me();
+      }
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.host == me();
+      allow update: if signedIn()
+        && request.resource.data.host == resource.data.host
+        && (inRound() || joiningOnly() || isAdmin());
+      allow delete: if signedIn() && (resource.data.host == me() || isAdmin());
+    }
+
+    // Shared course details people add during rounds (pars, tee ratings, new courses).
+    match /courseinfo/{id} {
+      function shapeOk() {
+        return request.resource.data.keys().hasOnly(['par', 'pn', 'tees', 'added'])
+          && (!('par' in request.resource.data) || (request.resource.data.par is map && request.resource.data.par.size() <= 27))
+          && (!('pn' in request.resource.data) || request.resource.data.pn is int)
+          && (!('tees' in request.resource.data) || (request.resource.data.tees is map && request.resource.data.tees.size() <= 20));
+      }
+      allow read: if signedIn();
+      allow create: if signedIn() && shapeOk();
+      // A course someone added can't be renamed or removed by others later.
+      allow update: if signedIn() && shapeOk() && !changed().hasAny(['added']);
+      allow delete: if isAdmin();
+    }
+
+    // Friend links. The document ID must be the two account IDs in sorted
+    // order joined by "~", and only those two people can touch it.
+    match /friends/{id} {
+      function body() { return request.resource.data; }
+      function idOk() { return body().a < body().b && id == body().a + '~' + body().b; }
+      allow read: if signedIn();
+      // Sending a request: it must come from you and start as pending.
+      allow create: if signedIn() && idOk()
+        && me() in [body().a, body().b]
+        && body().from == me()
+        && body().status == 'pending';
+      // Accepting: only the person who did NOT send the request can accept it.
+      allow update: if signedIn() && idOk()
+        && me() in [resource.data.a, resource.data.b]
+        && body().a == resource.data.a && body().b == resource.data.b
+        && body().from == resource.data.from
+        && body().status in ['pending', 'accepted']
+        && (body().status == 'pending' || resource.data.status == 'accepted' || resource.data.from != me());
+      // Cancel, decline or unfriend: either person.
+      allow delete: if signedIn() && me() in [resource.data.a, resource.data.b];
+    }
+  }
+}

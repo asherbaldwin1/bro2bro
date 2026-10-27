@@ -14,8 +14,8 @@ A website where a small group of friends in Arizona track golf rounds, scores, h
 | File | What it is | Notes |
 |---|---|---|
 | `index.html` | The whole app: HTML, CSS and JS in one file, plus the login screen and the Firebase bridge | Almost all changes happen here |
-| `config.js` | Firebase project keys plus the admin email | **Never overwrite or regenerate this.** Edit only if asked. The Firebase web `apiKey` is public by design (see Security) |
-| `firestore.rules` | Firestore security rules (may not be in the repo) | Changes do NOTHING until pasted into Firebase Console → Firestore → Rules → Publish. Tell Asher when this is needed |
+| `config.js` | Firebase project keys plus the admin account ID (`adminUids`) | **Never overwrite or regenerate this.** Edit only if asked. The Firebase web `apiKey` is public by design (see Security) |
+| `firestore.rules` | Firestore security rules | Changes do NOTHING until pasted into Firebase Console → Firestore → Rules → Publish. Tell Asher when this is needed |
 | `README.md` | Original setup guide | |
 
 Keep the app a single self-contained `index.html`. No build step, no bundler, no npm. Load libraries from a CDN with pinned versions.
@@ -30,7 +30,7 @@ Keep the app a single self-contained `index.html`. No build step, no bundler, no
   - Player profiles: each user can edit only their own.
   - Rounds: created with yourself as host. Only the host or an admin can delete.
   - `friends/{uidA~uidB}`: `{a, b, from, status, created, since}`. Writable only by those two users.
-  - Must be signed in to read anything. The admin email is hard-coded in both `config.js` and `firestore.rules`.
+  - Must be signed in to read anything. The admin is matched by Firebase account ID (UID), not email, and that UID is hard-coded in both `config.js` and `firestore.rules`. Keep them in sync.
 - **Course data:** about 12,700 real US courses from a one-time snapshot of github.com/lukhed/yardage-hub-data (about 350 fake/duplicate entries removed). Arizona is shown by default, other states are searchable. Pars and rating/slope added during a round are shared with the group.
 
 ## Security
