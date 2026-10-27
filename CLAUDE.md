@@ -16,7 +16,8 @@ A website where a small group of friends in Arizona track golf rounds, scores, h
 | `index.html` | The whole app: HTML, CSS and JS in one file, plus the login screen and the Firebase bridge | Almost all changes happen here |
 | `config.js` | Firebase project keys plus the admin account ID (`adminUids`) | **Never overwrite or regenerate this.** Edit only if asked. The Firebase web `apiKey` is public by design (see Security) |
 | `firestore.rules` | Firestore security rules | Changes do NOTHING until pasted into Firebase Console → Firestore → Rules → Publish. Tell Asher when this is needed |
-| `README.md` | Original setup guide | |
+| `README.md` | Public description of the project shown on GitHub | Keep it accurate when features change |
+| `LICENSE` | All rights reserved, Asher Baldwin | Don't replace with an open-source license unless asked |
 
 Keep the app a single self-contained `index.html`. No build step, no bundler, no npm. Load libraries from a CDN with pinned versions.
 
@@ -38,6 +39,8 @@ Keep the app a single self-contained `index.html`. No build step, no bundler, no
 - GitHub secret scanning flags the Firebase `apiKey` in `config.js`. It's a public identifier, not a secret. Real protection comes from the Firestore rules, Auth authorized domains and an HTTP-referrer restriction on the key in Google Cloud Console.
 - **Never** add a Firebase service-account JSON (anything with `"private_key"`), passwords or tokens to the repo.
 - If you change data shapes, check that `firestore.rules` still allows the writes, and remind Asher to publish the rules.
+- The rules restrict fields: `players` docs may only hold `name` and `joined`; `courseinfo` only `par`, `pn`, `tees` and `added`. Adding a new field means updating the rules too, or saves will fail with "Couldn't save that change."
+- The API key is locked (HTTP referrer) to `https://asherbaldwin1.github.io/*`, `https://bro2bro-4d153.firebaseapp.com/*` and `http://localhost/*`. A new address (custom domain, another host) must be added to the key in Google Cloud Console → Credentials → Browser key, and to Firebase Auth → Authorized domains.
 
 ## Features (current)
 
@@ -99,6 +102,17 @@ Upscale, clean, simple, elegant, with some color. Rejected directions: bright fa
 3. Summarize the change in plain words and ask Asher before committing and pushing to `main`.
 4. After pushing, remind him to hard-refresh the live site (Pages can take a minute or two).
 5. User data lives in Firebase, so deploying a new `index.html` never wipes rounds or accounts.
+
+### Tools on this machine
+
+- git is installed and pushes to GitHub over HTTPS using the GitHub CLI's sign-in.
+- The GitHub CLI is at `~/bin/gh` and is **not** on the PATH. Call it by full path (for example `~/bin/gh repo view`).
+- No Node.js, npm or Java, so the Firebase emulator isn't available locally.
+
+### Testing on the live site
+
+- Asher's bro2bro account signs in with **email and password**. Don't use "Continue with Google" to test as Asher: it could create a second account or change how his account signs in. Ask Asher to sign in himself.
+- Asher's account is the admin, so it can't prove the regular-player limits. Clean up any test data you create.
 
 ## Wishlist
 
