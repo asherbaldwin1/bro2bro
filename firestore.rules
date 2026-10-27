@@ -32,6 +32,33 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Feedback: { by, name, kind, text, page, ua, scr, at, status, notes, closed }.
+    // Anyone active can send one as themselves. Only the admin can read, add notes, clear or delete.
+    match /feedback/{id} {
+      function fbOk() {
+        let d = request.resource.data;
+        return d.keys().hasOnly(['by', 'name', 'kind', 'text', 'page', 'ua', 'scr', 'at', 'status', 'notes', 'closed'])
+          && d.kind in ['bug', 'idea']
+          && d.text is string && d.text.size() > 0 && d.text.size() <= 2000
+          && d.name is string && d.name.size() <= 40
+          && d.page is string && d.page.size() <= 80
+          && d.ua is string && d.ua.size() <= 300
+          && d.scr is string && d.scr.size() <= 20
+          && d.at is int
+          && d.status in ['open', 'done'];
+      }
+      allow read, delete: if isAdmin();
+      allow create: if active() && fbOk()
+        && request.resource.data.by == me()
+        && request.resource.data.status == 'open'
+        && !('notes' in request.resource.data)
+        && !('closed' in request.resource.data);
+      allow update: if isAdmin() && fbOk()
+        && !changed().hasAny(['by', 'at'])
+        && (!('notes' in request.resource.data) || (request.resource.data.notes is map && request.resource.data.notes.size() <= 200))
+        && (!('closed' in request.resource.data) || request.resource.data.closed is int);
+    }
+
     // Player profiles: { name, joined, pic }. Everyone signed in can read; you can only write your own.
     // pic is a small square JPEG stored as text (about 10-20 KB), or '' when removed.
     match /players/{uid} {

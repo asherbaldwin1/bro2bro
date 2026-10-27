@@ -14,6 +14,7 @@ A website where a small group of friends tracks golf rounds, scores, handicaps a
 - **Leaderboards:** handicap index, best round, scoring average, birdies and more.
 - **Range:** pick the clubs in your bag, log 5 range shots per club, and keep an average distance for each.
 - **Profile photos:** add a photo in Settings; it shows on scorecards, friends lists and leaderboards.
+- **Feedback:** a Feedback button at the top left of every page sends bug reports and ideas straight to the club admin.
 - **Courses:** about 12,700 US courses built in, with Arizona shown first.
 
 On iPhone, open the site in Safari and tap **Share → Add to Home Screen** to get an app icon.
