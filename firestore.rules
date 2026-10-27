@@ -45,7 +45,7 @@ service cloud.firestore {
           && d.ua is string && d.ua.size() <= 300
           && d.scr is string && d.scr.size() <= 20
           && d.at is int
-          && d.status in ['open', 'done'];
+          && d.status in ['open', 'prog', 'done'];
       }
       allow read, delete: if isAdmin();
       allow create: if active() && fbOk()

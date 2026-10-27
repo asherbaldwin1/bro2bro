@@ -582,6 +582,9 @@ textarea:focus{outline:none;background:var(--card);box-shadow:0 0 0 3px rgba(184
 .fbnote p{margin:2px 0 0;white-space:pre-wrap;word-break:break-word}
 .pill.bug{background:rgba(122,31,43,.12);color:#7A1F2B}:root[data-theme="dark"] .pill.bug{background:rgba(224,117,131,.16);color:#E07583}
 .amenu .pill{margin-left:auto}
+.adot{position:absolute;top:-1px;right:-1px;width:11px;height:11px;border-radius:50%;background:#D93F3F;box-shadow:0 0 0 2px var(--bg);pointer-events:none}
+.fbst-new{background:rgba(217,63,63,.13);color:#B3262B}.fbst-prog{background:rgba(15,61,46,.1);color:#0F3D2E}
+:root[data-theme="dark"] .fbst-new{background:rgba(240,110,110,.16);color:#F08A8A}:root[data-theme="dark"] .fbst-prog{background:rgba(217,183,126,.16);color:#D9B77E}
 .chip,.fbsheet .btn{white-space:nowrap}
 </style>
 </head>
@@ -832,14 +835,13 @@ function toolsHTML(here=true){
  const mp=picOf(me)||meAvatar,av=mp?`<img src="${esc(mp)}" alt="">`:PERSON;
  const item=(k,icon,label)=>`<button role="menuitem" data-menu="${k}"><span class="mi">${icon}</span>${label}</button>`;
  const I={acct:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 20c.6-3.6 3.4-5.6 7-5.6s6.4 2 7 5.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
-  pen:'<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+  ppl:'<svg viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 20c.5-3.3 2.9-5.2 6-5.2s5.5 1.9 6 5.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M15.5 5.6a3.3 3.3 0 0 1 0 6M17.5 14.9c1.9.6 3.2 2.3 3.5 5.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
   card:'<svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 10h16M10 10v9" stroke="currentColor" stroke-width="2"/></svg>',
   inv:'<svg viewBox="0 0 24 24"><circle cx="10" cy="8.5" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 20c.5-3.4 3.1-5.4 6.5-5.4 1.4 0 2.7.3 3.7 1M18 13v6M15 16h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
   gear:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
-  shield:'<svg viewBox="0 0 24 24"><path d="M12 3l7 3v5.5c0 4.4-3 8-7 9.5-4-1.5-7-5.1-7-9.5V6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  sliders:'<svg viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="15" cy="7" r="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="17" r="2" fill="none" stroke="currentColor" stroke-width="2"/></svg>'};
- const menu=menuOpen&&here?`<div class="amenu" role="menu" aria-label="Account"><div class="ahead"><span class="aav">${av}</span><span class="atx"><b>${esc(nm)}</b><small>${esc(meEmail||'Signed in')}</small></span></div>${item('settings',I.gear,'Settings')}${state==='ok'&&canWrite?item('name',I.pen,'Change display name'):''}${item('friends',I.inv,'Friends')+item('mine',I.card,'My rounds')}${item('invite',I.inv,'Invite friends')}${item('prefs',I.sliders,'Preferences')}${owner?item('admin',I.shield,'Admin'+(fbOpenN()?`<span class="pill">${fbOpenN()}</span>`:'')):''}</div>`:'';
- return `<div class="tools">${themeHTML()}<div class="acctw"><button class="acctbtn" data-acct aria-haspopup="menu" aria-expanded="${menuOpen}" aria-label="Account menu">${av}</button>${menu}</div></div>`;
+  shield:'<svg viewBox="0 0 24 24"><path d="M12 3l7 3v5.5c0 4.4-3 8-7 9.5-4-1.5-7-5.1-7-9.5V6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'};
+ const menu=menuOpen&&here?`<div class="amenu" role="menu" aria-label="Account"><div class="ahead"><span class="aav">${av}</span><span class="atx"><b>${esc(nm)}</b><small>${esc(meEmail||'Signed in')}</small></span></div>${item('settings',I.gear,'Settings')+item('friends',I.ppl,'Friends')+item('mine',I.card,'My rounds')+item('invite',I.inv,'Invite friends')}${owner?item('admin',I.shield,'Admin'+(fbOpenN()?`<span class="pill">${fbOpenN()}</span>`:'')):''}</div>`:'';
+ return `<div class="tools">${themeHTML()}<div class="acctw"><button class="acctbtn" data-acct aria-haspopup="menu" aria-expanded="${menuOpen}" aria-label="Account menu${fbOpenN()?', new feedback':''}">${av}</button>${fbOpenN()?'<span class="adot" aria-hidden="true"></span>':''}${menu}</div></div>`;
 }
 function closeMenu(){if(menuOpen){menuOpen=false;lastNav=null;render()}}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
@@ -850,7 +852,7 @@ document.addEventListener('click',e=>{
   if(k==='mine'){scope='mine';go('rounds')}
   else if(k==='friends'){go('people')}
   else if(k==='admin'){go('admin')}
-  else{if(k==='name')editName=true;go('settings');if(k==='invite'||k==='prefs')setTimeout(()=>{const t=[...document.querySelectorAll('.box b')].find(b=>b.textContent===(k==='invite'?'Invite friends':'Preferences'));if(t)t.closest('.box').scrollIntoView({behavior:'smooth',block:'start'})},60)}
+  else{go('settings');if(k==='invite')setTimeout(()=>{const t=[...document.querySelectorAll('.box b')].find(b=>b.textContent==='Invite friends');if(t)t.closest('.box').scrollIntoView({behavior:'smooth',block:'start'})},60)}
   return}
  if(menuOpen&&!e.target.closest('.amenu'))closeMenu();
 });
@@ -871,7 +873,7 @@ function importBox(){if(!OLD||!canWrite)return '';const ps=OLD.players||[];retur
 const PAGES={play:'Play',rounds:'Rounds',people:'Friends',leaders:'Leaderboards',range:'Range',settings:'Settings',admin:'Admin'};
 function go(t,push=true){menuOpen=false;admFb=null;admFbDel=false;rClub=null;rMode=null;admUid=null;admConf=false;admBlk=false;bagEdit=false;bagSel=null;tab=t;ask=null;err='';conf=null;if(push){try{history.pushState({t},'',t==='home'?location.pathname+location.search:'#'+t)}catch(e){}}window.scrollTo(0,0);lastView=null;render();const v=$('view');v.classList.remove('view-in');void v.offsetWidth;v.classList.add('view-in')}
 window.addEventListener('popstate',e=>{const st=e.state||{},t=st.t||(location.hash.slice(1))||'home';go(PAGES[t]?t:'home',false);
- if(t==='admin'&&(st.adm||st.fb)){if(st.adm){admTab='players';admUid=st.adm}else{admTab='feedback';admFb=st.fb}render()}});
+ if(t==='admin'&&(st.adm||st.fb)){if(st.adm){admTab='players';admUid=st.adm}else{admTab='fb';admFb=st.fb}render()}});
 // Opening a player or ticket adds a history step, so the phone's back gesture returns to the list
 function admOpen(k,id){try{history.pushState({t:'admin',[k]:id},'','#admin')}catch(e){}}
 function admBack(){const st=history.state;if(st&&(st.adm||st.fb)){history.back();return true}return false}
@@ -964,7 +966,9 @@ let fbOpen=false,fbKind='bug',fbText='',admTab='players',admFb=null,admFbDel=fal
 const FBI='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h14a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2h-7.5L7 20.5V17H5a2 2 0 0 1-2-2V6.5a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 8v3.6M12 14.3v.1" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
 const fbBtn=()=>state==='ok'?`<button class="fbbtn" data-fb aria-label="Send feedback">${FBI}<span>Feedback</span></button>`:'';
 const fbs=()=>Object.keys(D).filter(k=>k.startsWith('feedback/')).map(k=>({id:k.slice(9),...doc(k)})).filter(f=>f.text).sort((a,b)=>(b.at||0)-(a.at||0));
-const fbOpenN=()=>owner?fbs().filter(f=>f.status!=='done').length:0;
+const fbOpenN=()=>owner?fbs().filter(f=>f.status==='open').length:0;
+const FBST={open:'New',prog:'In Progress',done:'Complete'};
+const fbPill=st=>`<span class="pill fbst-${st==='prog'?'prog':st==='done'?'done':'new'}" style="margin:0 4px 0 0">${FBST[st]||'New'}</span>`;
 const fmtWhen=t=>new Date(t).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
 const KIND={bug:'Broken',idea:'Idea'};
 function devName(ua){ua=ua||'';const os=/iPhone/.test(ua)?'iPhone':/iPad/.test(ua)?'iPad':/Android/.test(ua)?'Android':/Mac OS X/.test(ua)?'Mac':/Windows/.test(ua)?'Windows':'Other device';
@@ -1000,14 +1004,15 @@ function fbAdmin(){
  const f=admFb&&all.find(x=>x.id===admFb);
  if(admFb&&!f)admFb=null;
  if(f){const notes=Object.entries(f.notes||{}).filter(([,t])=>t).sort((a,b)=>+a[0]-+b[0]),arch=f.status==='done';
-  let h=box(`<div><span class="pill ${f.kind==='bug'?'bug':''}" style="margin:0">${KIND[f.kind]||'Feedback'}</span>${arch?' <span class="pill">Archived</span>':''}</div><p class="fbtext">${esc(f.text)}</p><div class="slist"><div class="srow static"><span>From</span><span class="sv">${esc(f.by&&doc('players/'+f.by)?pname(f.by):f.name||'Unknown')}</span></div><div class="srow static"><span>Sent</span><span class="sv">${f.at?fmtWhen(f.at):''}</span></div><div class="srow static"><span>Page</span><span class="sv">${esc(f.page||'')}</span></div><div class="srow static"><span>Device</span><span class="sv">${esc(devName(f.ua))}</span></div>${f.scr?`<div class="srow static"><span>Screen</span><span class="sv">${esc(f.scr)}</span></div>`:''}${arch&&f.closed?`<div class="srow static"><span>Cleared</span><span class="sv">${fmtWhen(f.closed)}</span></div>`:''}</div>`);
+  const cur=FBST[f.status]?f.status:'open';
+  let h=box(`<div><span class="pill ${f.kind==='bug'?'bug':''}" style="margin:0">${KIND[f.kind]||'Feedback'}</span> ${fbPill(cur)}</div><p class="fbtext">${esc(f.text)}</p><div class="slist"><div class="srow static"><span>From</span><span class="sv">${esc(f.by&&doc('players/'+f.by)?pname(f.by):f.name||'Unknown')}</span></div><div class="srow static"><span>Sent</span><span class="sv">${f.at?fmtWhen(f.at):''}</span></div><div class="srow static"><span>Page</span><span class="sv">${esc(f.page||'')}</span></div><div class="srow static"><span>Device</span><span class="sv">${esc(devName(f.ua))}</span></div>${f.scr?`<div class="srow static"><span>Screen</span><span class="sv">${esc(f.scr)}</span></div>`:''}${arch&&f.closed?`<div class="srow static"><span>Completed</span><span class="sv">${fmtWhen(f.closed)}</span></div>`:''}</div>`);
+  h+=box(`<b>Status</b><div class="seg fbseg" role="radiogroup" aria-label="Status">${Object.entries(FBST).map(([k,l])=>`<button role="radio" data-fbst="${k}" aria-checked="${k===cur}" aria-selected="${k===cur}">${l}</button>`).join('')}</div><p class="sub" style="margin:0">${cur==='done'?'Complete tickets live in the Complete list.':'Mark it Complete when it’s fixed or done.'}</p>`);
   h+=box(`<b>Notes</b><p class="sub" style="margin-top:4px">Only you can see these.</p>${notes.map(([at,t])=>`<div class="fbnote"><small class="sub">${fmtWhen(+at)}</small><p>${esc(t)}</p></div>`).join('')}<label for="fbnote" class="sr" style="position:absolute;left:-9999px">Add a note</label><textarea id="fbnote" rows="3" maxlength="1000" placeholder="Add a note, like what you found or what you fixed" style="margin-top:10px;min-height:80px"></textarea><button class="btn alt" id="fbnadd" style="width:100%">Add note</button>`);
-  h+=box(arch?`<b>Archived</b><p class="sub" style="margin-top:6px">Not fixed after all? Put it back in the queue.</p><button class="btn" id="fbreopen" style="width:100%">Reopen</button>`:`<b>Done with this one?</b><p class="sub" style="margin-top:6px">Clears it from the queue. You can still find it in Archive.</p><button class="btn" id="fbclear" style="width:100%">Clear to archive</button>`);
   h+=box(admFbDel?`<div class="delc" style="margin:0"><b>Delete this for good?</b><p class="sub">The feedback and your notes are erased. This can’t be undone.</p><div class="row"><button class="btn danger" id="fbdelyes">Delete</button><button class="btn alt" id="fbdelno">Cancel</button></div></div>`:`<b>Delete</b><p class="sub" style="margin-top:6px">Erase it completely instead of archiving.</p><button class="btn danger" id="fbdel" style="width:100%">Delete for good</button>`);
-  return h+`<p><button class="btn alt" id="fbback">Back to ${arch?'archive':'queue'}</button></p>`;
+  return h+`<p><button class="btn alt" id="fbback">Back to ${arch?'Complete':'Queue'}</button></p>`;
  }
  const list=fbArch?done:open;
- return box(`<div class="rhead"><div><b>${fbArch?'Archive':'Feedback queue'}</b><br><span class="sub">${fbArch?'Cleared feedback, newest first':open.length?open.length+' to review · newest first':'All caught up'}</span></div></div><div class="row" style="margin-top:12px;flex-wrap:nowrap"><button class="chip" aria-pressed="${!fbArch}" data-fba="">Queue · ${open.length}</button><button class="chip" aria-pressed="${fbArch}" data-fba="1">Archive · ${done.length}</button></div>${list.map(f=>{const n=Object.values(f.notes||{}).filter(Boolean).length;return `<button class="frow admrow fbrow" data-fbid="${esc(f.id)}">${face(f.by,f.name)}<span class="fwho"><b class="fbline">${esc(f.text.split('\n')[0])}</b><small><span class="pill ${f.kind==='bug'?'bug':''}" style="margin:0 4px 0 0">${KIND[f.kind]||'Feedback'}</span>${esc(f.by&&doc('players/'+f.by)?pname(f.by):f.name||'')} · ${f.at?fmtDay(f.at):''}${n?' · '+n+' note'+(n===1?'':'s'):''}</small></span><span class="chev2"></span></button>`}).join('')||`<p class="empty">${fbArch?'Nothing archived yet.':'No open feedback. Nice.'}</p>`}`)+'<p class="sub">Testers send these with the Feedback button at the top left of every page. Tap one to add notes, clear it to the archive, or delete it.</p>';
+ return box(`<div class="rhead"><div><b>${fbArch?'Complete':'Feedback queue'}</b><br><span class="sub">${fbArch?'Finished feedback, newest first':open.length?open.length+' to review · newest first':'All caught up'}</span></div></div><div class="row" style="margin-top:12px;flex-wrap:nowrap"><button class="chip" aria-pressed="${!fbArch}" data-fba="">Queue · ${open.length}</button><button class="chip" aria-pressed="${fbArch}" data-fba="1">Complete · ${done.length}</button></div>${list.map(f=>{const n=Object.values(f.notes||{}).filter(Boolean).length;return `<button class="frow admrow fbrow" data-fbid="${esc(f.id)}">${face(f.by,f.name)}<span class="fwho"><b class="fbline">${esc(f.text.split('\n')[0])}</b><small>${fbArch?'':fbPill(f.status)}<span class="pill ${f.kind==='bug'?'bug':''}" style="margin:0 4px 0 0">${KIND[f.kind]||'Feedback'}</span>${esc(f.by&&doc('players/'+f.by)?pname(f.by):f.name||'')} · ${f.at?fmtDay(f.at):''}${n?' · '+n+' note'+(n===1?'':'s'):''}</small></span><span class="chev2"></span></button>`}).join('')||`<p class="empty">${fbArch?'Nothing complete yet.':'No open feedback. Nice.'}</p>`}`)+'<p class="sub">Testers send these with the Feedback button at the top left of every page. Tap one to set its status, add notes, or delete it.</p>';
 }
 /* ---------- admin ---------- */
 let admUid=null,admConf=false,admQ='',admBlk=false;
@@ -1217,9 +1222,8 @@ function bind(){
  on('[data-fbid]',b=>b.onclick=()=>{admFb=b.dataset.fbid;admFbDel=false;admOpen('fb',admFb);render();window.scrollTo(0,0)});
  click('fbback',()=>{if(admBack())return;admFb=null;admFbDel=false;render()});
  click('fbnadd',()=>{const t=$('fbnote'),v=t.value.trim();if(!v)return t.focus();t.value='';patch('feedback/'+admFb,{notes:{[Date.now()]:v.slice(0,1000)}});say('Note added.')});
- click('fbclear',()=>{patch('feedback/'+admFb,{status:'done',closed:Date.now()});admFb=null;admBack();say('Cleared to the archive.')});
- click('fbreopen',()=>{patch('feedback/'+admFb,{status:'open',closed:0});fbArch=false;say('Back in the queue.')});
- click('fbdel',()=>{admFbDel=true;render()});
+ on('[data-fbst]',b=>b.onclick=()=>{const st=b.dataset.fbst,f=doc('feedback/'+admFb);if(!f||f.status===st)return;patch('feedback/'+admFb,{status:st,closed:st==='done'?Date.now():0});if(st==='done'){admFb=null;admBack()}say('Marked '+FBST[st]+'.')});
+  click('fbdel',()=>{admFbDel=true;render()});
  click('fbdelno',()=>{admFbDel=false;render()});
  click('fbdelyes',async()=>{const id=admFb;$('fbdelyes').disabled=true;try{await db.doc('feedback/'+id).delete()}catch(e){fail(e);render();return}delete D['feedback/'+id];admFb=null;admFbDel=false;admBack();say('Feedback deleted.')});
  {const q=$('admq');if(q)q.oninput=()=>{admQ=q.value;render()}}
