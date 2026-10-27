@@ -10,14 +10,20 @@ service cloud.firestore {
     function isAdmin() { return signedIn() && me() in ['luHWGpswl8MhxYuWJEHos7sqN8R2']; }
     function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
 
-    // Player profiles: { name, joined }. Everyone signed in can read; you can only write your own.
+    // Player profiles: { name, joined, pic }. Everyone signed in can read; you can only write your own.
+    // pic is a small square JPEG stored as text (about 10-20 KB), or '' when removed.
     match /players/{uid} {
       allow read: if signedIn();
       allow create, update: if signedIn() && (me() == uid || isAdmin())
-        && request.resource.data.keys().hasOnly(['name', 'joined'])
+        && request.resource.data.keys().hasOnly(['name', 'joined', 'pic'])
         && request.resource.data.name is string
         && request.resource.data.name.size() > 0
-        && request.resource.data.name.size() <= 40;
+        && request.resource.data.name.size() <= 40
+        && (!('pic' in request.resource.data)
+            || request.resource.data.pic == ''
+            || (request.resource.data.pic is string
+                && request.resource.data.pic.size() <= 100000
+                && request.resource.data.pic.matches('^data:image/jpeg;base64,[A-Za-z0-9+/=]+$')));
       allow delete: if isAdmin();
     }
 

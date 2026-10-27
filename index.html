@@ -215,6 +215,8 @@ table.sc td:last-child{padding-right:6px}
 .hme .live::before{content:"";width:8px;height:8px;border-radius:50%;background:#ffd84d;box-shadow:0 0 0 3px rgba(255,216,77,.3)}
 .chev{position:absolute;top:22px;right:20px;width:10px;height:10px;border-top:2.5px solid currentColor;border-right:2.5px solid currentColor;transform:rotate(45deg);opacity:.45}
 @media (max-width:360px){.hgrid{grid-template-columns:1fr}}
+/* an odd card out at the end stretches full width */
+.hgrid .hcard:not(.c-play):last-child:nth-child(even){grid-column:1/-1}
 
 .hgrid .hcard:not(.c-play) .hti{font-size:clamp(20px,6vw,30px)}
 .c-leaders{background:linear-gradient(160deg,#ffece6 0%,#ffd5c8 100%)}
@@ -384,6 +386,14 @@ h2.sect{font-size:20px;margin:6px 4px 10px;color:var(--mute)}
 .fwho b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fwho small{color:var(--mute);font-size:13px}
 .fstate{color:var(--green);font-weight:600;font-size:14px;white-space:nowrap}
+.fav{overflow:hidden}.fav img{width:100%;height:100%;object-fit:cover;display:block}
+.fav.sm{width:30px;height:30px;font-size:15px}.fav.xl{width:56px;height:56px;font-size:26px}
+.fav.lg{width:64px;height:64px;font-size:30px;margin:6px 0 2px;box-shadow:0 0 0 2px #D9B77E}
+.lbhero .fav.lg{background:#F7F3EA;color:#0F3D2E}
+ol.lb li{grid-template-columns:36px 30px 1fr auto}
+.plwho{display:flex;align-items:center;gap:10px;min-width:0}
+.srow.photo{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.srow.photo .btn{margin:0;display:inline-flex;align-items:center;justify-content:center;vertical-align:middle}
 .frow .hcp{font-size:30px;min-width:40px;text-align:right}
 .iconbtn.sm{width:34px;height:34px;margin:0;font-size:22px;line-height:1}
 .linkbtn{border:0;background:none;padding:0;color:var(--green);font:inherit;font-weight:600;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
@@ -702,6 +712,8 @@ let OLD=null;try{const x=JSON.parse(localStorage.getItem('weekend-round-v2')||'n
 /* ---------- model ---------- */
 const players=()=>Object.keys(D).filter(k=>k.startsWith('players/')).map(k=>({id:k.slice(8),...doc(k)}));
 const pname=uid=>{const p=doc('players/'+uid);return (p&&p.name)||(prof[uid]&&prof[uid].name)||'Friend'};
+const picOf=uid=>{const p=uid&&doc('players/'+uid),v=p&&p.pic;return typeof v==='string'&&v.startsWith('data:image/jpeg;base64,')?v:''};
+const face=(uid,nm,cls='')=>{const v=picOf(uid),n=nm||(uid?pname(uid):'?');return v?`<span class="fav${cls?' '+cls:''}"><img src="${esc(v)}" alt=""></span>`:`<span class="fav${cls?' '+cls:''}" style="--c:${(uid&&prof[uid]&&prof[uid].color)||'var(--green)'}">${esc((n[0]||'?').toUpperCase())}</span>`};
 const fid=(a,b)=>[a,b].sort().join('~');
 function rel(uid){if(!me||!uid||uid===me)return null;const f=doc('friends/'+fid(me,uid));if(!f||!f.status)return null;return f.status==='accepted'?'friend':f.from===me?'sent':'received'}
 const isFriend=uid=>rel(uid)==='friend';
@@ -742,7 +754,7 @@ const fmtPar=v=>v===0?'E':(v>0?'+':'')+v;
 /* ---------- views ---------- */
 function render(){
  const a=document.activeElement,fid=a&&a.id&&a.tagName==='INPUT'?a.id:null;let ss=null;try{ss=fid?[a.selectionStart,a.selectionEnd]:null}catch(e){}
- const keep={};document.querySelectorAll('#view input[id]').forEach(i=>keep[i.id]=i.value);
+ const keep={};document.querySelectorAll('#view input[id]:not([type=file])').forEach(i=>keep[i.id]=i.value);
  const navH=tab==='home'?'':`<button class="back" data-go="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Home</button><span class="ttl">${PAGES[tab]}</span>${toolsHTML()}`;
  if(navH!==lastNav){lastNav=navH;$('nav').innerHTML=navH;$('navbar').hidden=tab==='home';document.querySelector('.mast').classList.toggle('home',tab==='home');$('nav').querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go))}
  paintTheme();
@@ -762,14 +774,15 @@ let menuOpen=false;
 const PERSON='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="4" fill="currentColor"/><path d="M4 20.5c0-4.2 3.6-6.8 8-6.8s8 2.6 8 6.8" fill="currentColor"/></svg>';
 function toolsHTML(here=true){
  const nm=me&&doc('players/'+me)?pname(me):(meName||'Your account');
- const av=meAvatar?`<img src="${esc(meAvatar)}" alt="">`:PERSON;
+ const mp=picOf(me)||meAvatar,av=mp?`<img src="${esc(mp)}" alt="">`:PERSON;
  const item=(k,icon,label)=>`<button role="menuitem" data-menu="${k}"><span class="mi">${icon}</span>${label}</button>`;
  const I={acct:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 20c.6-3.6 3.4-5.6 7-5.6s6.4 2 7 5.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
   pen:'<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
   card:'<svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 10h16M10 10v9" stroke="currentColor" stroke-width="2"/></svg>',
   inv:'<svg viewBox="0 0 24 24"><circle cx="10" cy="8.5" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 20c.5-3.4 3.1-5.4 6.5-5.4 1.4 0 2.7.3 3.7 1M18 13v6M15 16h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
-  gear:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'};
- const menu=menuOpen&&here?`<div class="amenu" role="menu" aria-label="Account"><div class="ahead"><span class="aav">${av}</span><span class="atx"><b>${esc(nm)}</b><small>${esc(meEmail||'Signed in')}</small></span></div>${item('settings',I.acct,'Account settings')}${state==='ok'&&canWrite?item('name',I.pen,'Change display name'):''}${item('friends',I.inv,'Friends')+item('mine',I.card,'My rounds')}${item('invite',I.inv,'Invite friends')}${item('prefs',I.gear,'Preferences')}</div>`:'';
+  gear:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  sliders:'<svg viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="15" cy="7" r="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="17" r="2" fill="none" stroke="currentColor" stroke-width="2"/></svg>'};
+ const menu=menuOpen&&here?`<div class="amenu" role="menu" aria-label="Account"><div class="ahead"><span class="aav">${av}</span><span class="atx"><b>${esc(nm)}</b><small>${esc(meEmail||'Signed in')}</small></span></div>${item('settings',I.gear,'Settings')}${state==='ok'&&canWrite?item('name',I.pen,'Change display name'):''}${item('friends',I.inv,'Friends')+item('mine',I.card,'My rounds')}${item('invite',I.inv,'Invite friends')}${item('prefs',I.sliders,'Preferences')}</div>`:'';
  return `<div class="tools">${themeHTML()}<div class="acctw"><button class="acctbtn" data-acct aria-haspopup="menu" aria-expanded="${menuOpen}" aria-label="Account menu">${av}</button>${menu}</div></div>`;
 }
 function closeMenu(){if(menuOpen){menuOpen=false;lastNav=null;render()}}
@@ -818,7 +831,6 @@ function home(){
  {const nf=friends().length,ni=incoming().length;h+=card('people','c-people','Friends',nf?`${nf} friend${nf===1?'':'s'}`:'Add your buddies.',ni?`<b class="badge">${ni} request${ni===1?'':'s'}</b>`:ix!=null?`Your index <b>${ix}</b>`:'')}
  const lb=handicapBoard()[0];
  h+=card('leaders','c-leaders','Leaderboards','See who’s on top.',lb?'Leader: <b>'+esc(pname(lb.id))+'</b>':'');
- h+=card('settings','c-settings','Settings','Account and app info.',me&&doc('players/'+me)?'Signed in as <b>'+esc(pname(me))+'</b>':'');
  return h+'</div>';
 }
 /* ---------- leaderboards ---------- */
@@ -836,12 +848,12 @@ function board(title,sub,rows,fmt,extra){
  if(!rows.length)return box(`<div class="lbh"><b>${title}</b><span class="sub">${sub}</span></div><p class="empty">No one qualifies yet.</p>`);
  let pos=0,prev;
  return box(`<div class="lbh"><b>${title}</b><span class="sub">${sub}</span></div><ol class="lb">${rows.map((r,i)=>{if(r.v!==prev){pos=i+1;prev=r.v}const tie=rows.filter(x=>x.v===r.v).length>1;
-  return `<li class="${r.id===me?'me':''} ${pos===1?'first':''}"><span class="pos">${tie?'T':''}${pos}</span><span class="who"><b>${esc(pname(r.id))}</b>${r.id===me?' <span class="sub">(you)</span>':''}${extra?`<small>${extra(r)}</small>`:''}</span><span class="val num">${fmt(r)}</span></li>`}).join('')}</ol>`)}
+  return `<li class="${r.id===me?'me':''} ${pos===1?'first':''}"><span class="pos">${tie?'T':''}${pos}</span>${face(r.id,'','sm')}<span class="who"><b>${esc(pname(r.id))}</b>${r.id===me?' <span class="sub">(you)</span>':''}${extra?`<small>${extra(r)}</small>`:''}</span><span class="val num">${fmt(r)}</span></li>`}).join('')}</ol>`)}
 function leaders(){
  const ps=circle(),S=Object.fromEntries(ps.map(p=>[p.id,stats(p.id)]));
  let h=`<div class="row" style="margin-bottom:12px"><button class="chip" aria-pressed="${lbScope==='all'}" data-lb="all">All time</button><button class="chip" aria-pressed="${lbScope==='year'}" data-lb="year">${new Date().getFullYear()} season</button></div>`;
  const hb=handicapBoard();
- if(hb.length){const t=hb[0];h+=`<div class="lbhero"><span class="crown">${ICON.leaders}</span><span class="sub">Club leader · lowest handicap</span><b class="lbn">${esc(pname(t.id))}</b><span class="lbv num">${t.v}</span></div>`}
+ if(hb.length){const t=hb[0];h+=`<div class="lbhero"><span class="crown">${ICON.leaders}</span>${face(t.id,'','lg')}<span class="sub">Club leader · lowest handicap</span><b class="lbn">${esc(pname(t.id))}</b><span class="lbv num">${t.v}</span></div>`}
  h+=board('Handicap index','Lowest first · 3+ counted rounds',hb,r=>r.v);
  const asc=k=>ps.map(p=>({id:p.id,v:S[p.id][k]})).filter(x=>x.v!=null).sort((a,b)=>a.v-b.v);
  const desc=k=>ps.map(p=>({id:p.id,v:S[p.id][k]})).filter(x=>x.v).sort((a,b)=>b.v-a.v);
@@ -855,9 +867,11 @@ function leaders(){
 /* ---------- settings ---------- */
 function settings(){
  let h='';
- const av=meAvatar?`<img class="avatar" src="${esc(meAvatar)}" alt="">`:'';
+ const hasP=!!(me&&doc('players/'+me)),mp=picOf(me);
+ const av=hasP?face(me,'','xl'):(meAvatar?`<img class="avatar" src="${esc(meAvatar)}" alt="">`:'');
+ const photo=hasP&&canWrite?`<div class="srow photo"><span>Profile photo</span><span class="row" style="gap:6px;flex-wrap:nowrap"><label class="btn alt sm" for="picin">${mp?'Change':'Add photo'}</label>${mp?'<button class="btn alt sm" id="picrm">Remove</button>':''}</span><input type="file" id="picin" accept="image/*" hidden></div>`:'';
  if(editName)h+=nameForm(false);
- else h+=box(`<div class="acct">${av}<div class="grow"><b class="an">${esc(me&&doc('players/'+me)?pname(me):(meName||'Not set up yet'))}</b><span class="sub">${meEmail?esc(meEmail):'Signed in'}</span></div></div><div class="slist"><button class="srow" id="edname"><span>Display name</span><span class="sv">${esc(me?pname(me):'')}</span><span class="chev2"></span></button></div>`);
+ else h+=box(`<div class="acct">${av}<div class="grow"><b class="an">${esc(me&&doc('players/'+me)?pname(me):(meName||'Not set up yet'))}</b><span class="sub">${meEmail?esc(meEmail):'Signed in'}</span></div></div><div class="slist"><button class="srow" id="edname"><span>Display name</span><span class="sv">${esc(me?pname(me):'')}</span><span class="chev2"></span></button>${photo}</div>`);
  h+=box(`<b>Sign-in</b><p class="sub" style="margin-top:6px">You’re signed in${meEmail?' as <b>'+esc(meEmail)+'</b>':''}. You stay signed in on this device until you sign out.</p><div class="slist"><div class="srow static"><span>Status</span><span class="sv">${state==='ok'?'Signed in':'Not signed in'}</span></div><div class="srow static"><span>Access</span><span class="sv">${owner?'Admin':canWrite?'Can keep score':'View only'}</span></div></div><p style="margin:14px 0 0"><button class="btn alt" id="signout" style="width:100%">Sign out</button></p>`);
  h+=box(`<b>Invite friends</b><p class="sub" style="margin-top:6px">Send your friends the link to this site. They sign in with Google or their email, pick a name, and then you add each other on the Friends page.</p><button class="btn alt" id="copylink" style="width:100%">Copy site link</button>`);
  h+=box(`<b>Preferences</b><p class="sub" style="margin-top:6px">Saved on this device.</p><label for="pst">Home state for course search</label><select id="pst"><option value="">All states</option>${STATES.map(x=>`<option ${x===st?'selected':''}>${x}</option>`).join('')}</select><label for="ptee">Usual tees</label><select id="ptee">${STD.map(x=>`<option ${x===teeSel?'selected':''}>${x}</option>`).join('')}</select>`);
@@ -915,7 +929,7 @@ function scorecard(r){
   h+=`<div class="strip">${r.par.map((_,j)=>`<button class="${done(j)?'done':''}" ${j===i?'aria-current="true"':''} data-h="${j}" aria-label="Hole ${j+1}">${j+1}</button>`).join('')}</div><div class="hole"><div class="hl"><span class="lbl">Hole</span><span class="num">${i+1}</span></div><div class="facts"><span>Par <b>${pk||'?'}</b></span>${r.yds?`<span><b>${r.yds[i]}</b> yds</span>`:''}${r.si?`<span>Index <b>${r.si[i]}</b></span>`:''}</div></div>`;
   if(!pk)h+=`<p class="note">Set the par for this hole to start scoring.</p><div class="row">${[3,4,5,6].map(x=>`<button class="chip" data-par="${x}">Par ${x}</button>`).join('')}</div>`;
   r.keys.forEach(k=>{const sc=r.sc[k],cnt=sc.filter((v,j)=>v!=null&&r.par[j]).length,v=sc[i],nm=kname(r,k);
-   h+=`<div class="plw"><div class="pl"><div><b>${esc(nm)}</b>${r.pl[k].uid===me?' <span class="sub">(you)</span>':''}<br><span class="tot">${cnt?fmtPar(toPar(sc,r.par))+' thru '+cnt:'not started'}</span></div><span class="num pick-now">${v==null?'–':v}</span></div>${pk?picker(k,nm,v,pk):''}</div>`});
+   h+=`<div class="plw"><div class="pl"><div class="plwho">${face(r.pl[k].uid,nm)}<div><b>${esc(nm)}</b>${r.pl[k].uid===me?' <span class="sub">(you)</span>':''}<br><span class="tot">${cnt?fmtPar(toPar(sc,r.par))+' thru '+cnt:'not started'}</span></div></div><span class="num pick-now">${v==null?'–':v}</span></div>${pk?picker(k,nm,v,pk):''}</div>`});
   h+=`<p class="swipehint sub">Swipe left or right to change holes.</p><div class="holenav"><div class="hbin"><button class="hbtn" data-nav="-1" ${i?'':'disabled'} aria-label="Previous hole"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>${i?'Hole '+i:''}</button><span class="hbl"><b>Hole ${i+1}</b><small>of ${r.n}</small></span><button class="hbtn nx" data-nav="1" ${i<r.n-1?'':'disabled'} aria-label="Next hole">${i<r.n-1?'Hole '+(i+2):''}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div></div>`;
  }
  const fr=friends().filter(p=>!r.pl[p.id]);
@@ -945,7 +959,7 @@ function frAction(uid){const r=rel(uid);if(!canWrite)return '';
  if(r==='sent')return `<button class="btn alt sm" data-frcancel="${uid}">Requested</button>`;
  if(r==='received')return `<button class="btn sm" data-fraccept="${uid}">Accept</button>`;
  return `<button class="btn sm" data-fradd="${uid}">Add</button>`}
-function prow(uid,act,sub){const ix=index(uid);return `<div class="frow"><span class="fav" style="--c:${(prof[uid]&&prof[uid].color)||'var(--green)'}">${esc((pname(uid)[0]||'?').toUpperCase())}</span><span class="fwho"><b>${esc(pname(uid))}</b><small>${sub!=null?sub:(ix!=null?'Index '+ix:'No handicap yet')}</small></span>${act}</div>`}
+function prow(uid,act,sub){const ix=index(uid);return `<div class="frow">${face(uid)}<span class="fwho"><b>${esc(pname(uid))}</b><small>${sub!=null?sub:(ix!=null?'Index '+ix:'No handicap yet')}</small></span>${act}</div>`}
 function people(){
  let h=ro();
  if(me)h+=box(`<div class="fchead"><div><span class="sub">Your friend code</span><b class="fcode">${fcode(me)}</b></div><button class="btn alt sm" id="copycode">Copy</button></div><p class="sub" style="margin:8px 0 0">Friends can search for this code or your name to add you.</p>`);
@@ -966,7 +980,7 @@ function people(){
  if(!chartP||!list.find(p=>p.id===chartP))chartP=me;
  h+=box(`<b>Your friends</b>${fr.length?'':'<p class="sub" style="margin-top:6px">No friends yet. Search above to add your golf buddies.</p>'}${list.map(p=>{const ix=index(p.id),n=diffs(p.id).length;
   if(rmConf===p.id)return `<div class="frow"><span class="fwho"><b>Remove ${esc(pname(p.id))}?</b><small>You won’t see each other’s rounds or rankings.</small></span><div class="row" style="flex-wrap:nowrap;gap:6px"><button class="btn danger sm" data-frremove="${p.id}">Remove</button><button class="btn alt sm" data-rmno>Cancel</button></div></div>`;
-  return `<div class="frow"><span class="fav" style="--c:${(prof[p.id]&&prof[p.id].color)||'var(--green)'}">${esc((pname(p.id)[0]||'?').toUpperCase())}</span><span class="fwho"><b>${esc(pname(p.id))}${p.id===me?' <span class="sub">(you)</span>':''}</b><small>${n} counted round${n===1?'':'s'}</small></span><span class="num hcp">${ix==null?'–':ix}</span><button class="chip" data-chart="${p.id}" aria-pressed="${chartP===p.id}">Graph</button>${p.id!==me&&canWrite?`<button class="iconbtn sm" data-rmask="${p.id}" aria-label="Remove ${esc(pname(p.id))}">×</button>`:''}</div>`}).join('')}`);
+  return `<div class="frow">${face(p.id)}<span class="fwho"><b>${esc(pname(p.id))}${p.id===me?' <span class="sub">(you)</span>':''}</b><small>${n} counted round${n===1?'':'s'}</small></span><span class="num hcp">${ix==null?'–':ix}</span><button class="chip" data-chart="${p.id}" aria-pressed="${chartP===p.id}">Graph</button>${p.id!==me&&canWrite?`<button class="iconbtn sm" data-rmask="${p.id}" aria-label="Remove ${esc(pname(p.id))}">×</button>`:''}</div>`}).join('')}`);
  return h+`<p class="sub">A handicap index shows after 3 counted rounds: 18 holes, every hole scored, with rating and slope.</p>`+chart();
 }
 function chart(){
@@ -1000,6 +1014,11 @@ async function importOld(){
  try{localStorage.setItem('weekend-round-imported','1')}catch(e){}
  OLD=null;say('Your earlier rounds are in. They’re on the Rounds tab.');
 }
+/* square-crops a photo and shrinks it to a small JPEG so it fits in the profile document */
+function shrinkPic(file){return new Promise((ok,no)=>{const u=URL.createObjectURL(file),img=new Image();
+ img.onload=()=>{const S=192,c=document.createElement('canvas'),m=Math.min(img.naturalWidth,img.naturalHeight);c.width=c.height=S;
+  c.getContext('2d').drawImage(img,(img.naturalWidth-m)/2,(img.naturalHeight-m)/2,m,m,0,0,S,S);URL.revokeObjectURL(u);ok(c.toDataURL('image/jpeg',.82))};
+ img.onerror=()=>{URL.revokeObjectURL(u);no()};img.src=u})}
 function bind(){
  const v=$('view'),on=(s,f)=>v.querySelectorAll(s).forEach(f),click=(id,f)=>{const e=$(id);if(e)e.onclick=f};
  const r=curId&&R(curId);
@@ -1016,9 +1035,11 @@ function bind(){
  on('[data-imp]',b=>b.onclick=()=>{impSel=b.dataset.imp;render()});
  click('impgo',importOld);
  click('impno',()=>{OLD=null;try{localStorage.setItem('weekend-round-imported','1')}catch(e){}render()});
- click('mysave',async()=>{const n=$('myn').value.trim();if(!n){err='Enter a name.';render();return}err='';try{await db.doc('players/'+me).set({name:n,joined:(doc('players/'+me)||{}).joined||Date.now()})}catch(e){fail(e);return}editName=false;render()});
+ click('mysave',async()=>{const n=$('myn').value.trim();if(!n){err='Enter a name.';render();return}err='';try{await db.doc('players/'+me).update({name:n,joined:(doc('players/'+me)||{}).joined||Date.now()})}catch(e){fail(e);return}editName=false;render()});
  click('mycancel',()=>{editName=false;err='';render()});
  click('edname',()=>{editName=true;render()});
+ {const f=$('picin');if(f)f.onchange=async()=>{const file=f.files&&f.files[0];if(!file)return;let pic;try{pic=await shrinkPic(file)}catch(e){say('Couldn’t read that photo. Try a different one.');return}patch('players/'+me,{pic})}}
+ click('picrm',()=>patch('players/'+me,{pic:''}));
  on('[data-c]',b=>b.onclick=()=>{pick=b.dataset.c;render()});
  on('[data-holes]',b=>b.onclick=()=>{if(adding&&$('an'))af={n:$('an').value,c:$('ac').value,s:$('as').value};holes=+b.dataset.holes;render()});
  const qi=$('q');if(qi)qi.oninput=()=>{q=qi.value;pick=null;render()};

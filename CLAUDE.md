@@ -39,7 +39,7 @@ Keep the app a single self-contained `index.html`. No build step, no bundler, no
 - GitHub secret scanning flags the Firebase `apiKey` in `config.js`. It's a public identifier, not a secret. Real protection comes from the Firestore rules, Auth authorized domains and an HTTP-referrer restriction on the key in Google Cloud Console.
 - **Never** add a Firebase service-account JSON (anything with `"private_key"`), passwords or tokens to the repo.
 - If you change data shapes, check that `firestore.rules` still allows the writes, and remind Asher to publish the rules.
-- The rules restrict fields: `players` docs may only hold `name` and `joined`; `courseinfo` only `par`, `pn`, `tees` and `added`. Adding a new field means updating the rules too, or saves will fail with "Couldn't save that change."
+- The rules restrict fields: `players` docs may only hold `name`, `joined` and `pic` (a profile photo stored as a small JPEG data URL, about 10–20 KB, or `''` when removed; there's no Firebase Storage on the free plan); `courseinfo` only `par`, `pn`, `tees` and `added`. Adding a new field means updating the rules too, or saves will fail with "Couldn't save that change."
 - The API key is locked (HTTP referrer) to `https://asherbaldwin1.github.io/*`, `https://bro2bro-4d153.firebaseapp.com/*` and `http://localhost/*`. A new address (custom domain, another host) must be added to the key in Google Cloud Console → Credentials → Browser key, and to Firebase Auth → Authorized domains.
 
 ## Features (current)
