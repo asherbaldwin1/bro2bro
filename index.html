@@ -561,7 +561,7 @@ ol.lb li.first .pos{background:#D9B77E}
 #nav .back{padding-right:6px}
 @media (max-width:400px){#nav .theme button{width:30px}#nav .tools{gap:6px}#nav .fbbtn{width:34px;height:34px}}
 .fbk{position:fixed;inset:0;z-index:60;background:rgba(11,20,17,.45);display:flex;align-items:flex-end;justify-content:center;animation:fbfade .15s}
-.fbsheet{width:100%;max-width:640px;max-height:92vh;overflow:auto;background:var(--card);border-radius:22px 22px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));box-shadow:0 0 0 1px var(--hair);animation:fbup .2s ease-out}
+.fbsheet{width:100%;max-width:640px;max-height:calc(100% - 12px);overflow:auto;background:var(--card);border-radius:22px 22px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));box-shadow:0 0 0 1px var(--hair);animation:fbup .2s ease-out}
 @media (min-width:700px){.fbk{align-items:center}.fbsheet{border-radius:22px;max-width:520px}}
 @keyframes fbfade{from{opacity:0}}@keyframes fbup{from{transform:translateY(24px);opacity:.6}}
 .fbhd{display:flex;align-items:center;justify-content:space-between;gap:10px}
@@ -569,6 +569,9 @@ ol.lb li.first .pos{background:#D9B77E}
 .fbx{width:36px;height:36px;border:0;border-radius:50%;background:var(--fill);color:var(--mute);display:grid;place-items:center;cursor:pointer;flex:none}
 .fbx svg{width:18px;height:18px}
 .fbsheet .chip{white-space:nowrap}
+.fbseg{margin:12px 0 14px}.fbk.kb .fbseg{margin-top:10px}.fbseg button{white-space:nowrap;min-height:40px}.fbseg button[aria-selected=true]{background:#0F3D2E;color:#F7F3EA;box-shadow:none}:root[data-theme="dark"] .fbseg button[aria-selected=true]{background:#D9B77E;color:#0B1411}
+.fbmeta{margin:0 0 14px;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fbk.kb .fbsheet{border-radius:22px 22px 0 0;padding-bottom:12px}.fbk.kb .fbsub{display:none}.fbk.kb textarea{min-height:90px}
 textarea{display:block;width:100%;border:0;background:var(--fill);border-radius:12px;padding:12px 14px;margin:4px 0 10px;font:inherit;font-size:16px;color:var(--ink);resize:vertical;min-height:110px;transition:box-shadow .15s,background .15s}
 textarea:focus{outline:none;background:var(--card);box-shadow:0 0 0 3px rgba(184,146,90,.4)}
 .fbrow .fwho{min-width:0}
@@ -966,14 +969,20 @@ function fbPage(){if(tab==='play'){const r=curId&&R(curId);if(r&&r.status==='liv
  return tab==='admin'?'Admin':PAGES[tab]||'Home'}
 function fbPaint(){const k=$('fbk');if(!k)return;
  if(!fbOpen){k.innerHTML='';document.body.style.overflow='';return}
- k.innerHTML=`<div class="fbk" id="fbbg"><div class="fbsheet" role="dialog" aria-modal="true" aria-labelledby="fbt"><div class="fbhd"><b id="fbt">Send feedback</b><button class="fbx" id="fbx" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></div><p class="sub" style="margin:4px 0 12px">Goes straight to the club admin.</p><div class="row" style="flex-wrap:nowrap"><button class="chip" data-fbk="bug" aria-pressed="${fbKind==='bug'}">Something’s broken</button><button class="chip" data-fbk="idea" aria-pressed="${fbKind==='idea'}">Idea</button></div><label for="fbtx" id="fbl" style="display:block;margin-top:14px"><b>${fbKind==='bug'?'What went wrong?':'What’s your idea?'}</b></label><textarea id="fbtx" rows="5" maxlength="2000" placeholder="${fbKind==='bug'?'What you tapped, what you expected, and what happened instead':'What would make the club better?'}">${esc(fbText)}</textarea><p class="sub" style="margin:0 0 14px">Also sends: ${esc(fbPage())} · ${esc(devName(navigator.userAgent))}</p><button class="btn" id="fbsend" style="width:100%">Send feedback</button></div></div>`;
+ k.innerHTML=`<div class="fbk" id="fbbg"><div class="fbsheet" role="dialog" aria-modal="true" aria-labelledby="fbt"><div class="fbhd"><b id="fbt">Send feedback</b><button class="fbx" id="fbx" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></div><p class="sub fbsub" style="margin:4px 0 0">Goes straight to the club admin.</p><div class="seg fbseg" role="tablist"><button role="tab" data-fbk="bug" aria-selected="${fbKind==='bug'}">Something’s broken</button><button role="tab" data-fbk="idea" aria-selected="${fbKind==='idea'}">Idea</button></div><label for="fbtx" id="fbl" style="display:block"><b>${FBQ[fbKind][0]}</b></label><textarea id="fbtx" rows="4" maxlength="2000" placeholder="${FBQ[fbKind][1]}">${esc(fbText)}</textarea><p class="sub fbmeta">Also sends: ${esc(fbPage())} · ${esc(devName(navigator.userAgent))}</p><button class="btn" id="fbsend" style="width:100%">Send feedback</button></div></div>`;
  document.body.style.overflow='hidden';
  const t=$('fbtx');t.oninput=()=>{fbText=t.value};
- k.querySelectorAll('[data-fbk]').forEach(b=>b.onclick=()=>{fbKind=b.dataset.fbk;fbPaint();$('fbtx').focus()});
+ k.querySelectorAll('[data-fbk]').forEach(b=>b.onclick=()=>{fbKind=b.dataset.fbk;k.querySelectorAll('[data-fbk]').forEach(x=>x.setAttribute('aria-selected',x===b));$('fbl').firstChild.textContent=FBQ[fbKind][0];t.placeholder=FBQ[fbKind][1]});
+ t.onfocus=()=>setTimeout(()=>t.scrollIntoView({block:'nearest'}),300);
+ fbFit();
  $('fbx').onclick=fbClose;$('fbbg').onclick=e=>{if(e.target.id==='fbbg')fbClose()};
  $('fbsend').onclick=fbSend;
 }
-function fbShow(){if(state!=='ok')return;menuOpen=false;fbOpen=true;lastNav=null;render();fbPaint();const t=$('fbtx');if(t)t.focus()}
+const FBQ={bug:['What went wrong?','What you tapped, what you expected, and what happened instead'],idea:['What’s your idea?','What would make the club better?']};
+// Keep the sheet inside the visible area so the iPhone keyboard never covers it
+function fbFit(){const b=$('fbbg'),v=window.visualViewport;if(!b||!v)return;b.style.top=v.offsetTop+'px';b.style.height=v.height+'px';b.style.bottom='auto';b.classList.toggle('kb',innerHeight-v.height>120)}
+if(window.visualViewport){visualViewport.addEventListener('resize',fbFit);visualViewport.addEventListener('scroll',fbFit)}
+function fbShow(){if(state!=='ok')return;menuOpen=false;fbOpen=true;lastNav=null;render();fbPaint()}
 function fbClose(){fbOpen=false;fbPaint()}
 function fbSend(){const t=$('fbtx'),v=t.value.trim();if(!v){t.focus();return}
  const body={by:me,name:pname(me).slice(0,40),kind:fbKind,text:v.slice(0,2000),page:fbPage().slice(0,80),ua:navigator.userAgent.slice(0,300),scr:(innerWidth+'×'+innerHeight).slice(0,20),at:Date.now(),status:'open'};
