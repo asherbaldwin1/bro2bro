@@ -38,3 +38,7 @@ There's no build step: the files in this repo are exactly what the site serves.
 
 - The Firebase `apiKey` in `config.js` is meant to be public. It's locked to this site's address, and the data is protected by the database rules.
 - Never add passwords, private keys or Firebase service-account files to this repo.
+
+## License
+
+Copyright © 2026 Asher Baldwin. All rights reserved. This code is shared for viewing only and may not be copied, reused or hosted elsewhere without permission. See [LICENSE](LICENSE).
