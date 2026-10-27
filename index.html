@@ -870,7 +870,11 @@ function nameForm(first){return box(`<label for="myn"><b>${first?'What should yo
 function importBox(){if(!OLD||!canWrite)return '';const ps=OLD.players||[];return box(`<b>Rounds saved on this device</b><p class="sub">${OLD.rounds.length} round${OLD.rounds.length===1?'':'s'} from the earlier version live only in this browser. Bring them in so they count toward your handicap. Which player was you?</p><div class="row">${ps.map(p=>`<button class="chip" aria-pressed="${impSel===p.id}" data-imp="${esc(p.id)}">${esc(p.name)}</button>`).join('')}</div><p><button class="btn" id="impgo" ${impSel?'':'disabled'}>Import rounds</button> <button class="btn alt" id="impno">Not now</button></p>`)}
 const PAGES={play:'Play',rounds:'Rounds',people:'Friends',leaders:'Leaderboards',range:'Range',settings:'Settings',admin:'Admin'};
 function go(t,push=true){menuOpen=false;admFb=null;admFbDel=false;rClub=null;rMode=null;admUid=null;admConf=false;admBlk=false;bagEdit=false;bagSel=null;tab=t;ask=null;err='';conf=null;if(push){try{history.pushState({t},'',t==='home'?location.pathname+location.search:'#'+t)}catch(e){}}window.scrollTo(0,0);lastView=null;render();const v=$('view');v.classList.remove('view-in');void v.offsetWidth;v.classList.add('view-in')}
-window.addEventListener('popstate',e=>{const t=(e.state&&e.state.t)||(location.hash.slice(1))||'home';go(PAGES[t]?t:'home',false)});
+window.addEventListener('popstate',e=>{const st=e.state||{},t=st.t||(location.hash.slice(1))||'home';go(PAGES[t]?t:'home',false);
+ if(t==='admin'&&(st.adm||st.fb)){if(st.adm){admTab='players';admUid=st.adm}else{admTab='feedback';admFb=st.fb}render()}});
+// Opening a player or ticket adds a history step, so the phone's back gesture returns to the list
+function admOpen(k,id){try{history.pushState({t:'admin',[k]:id},'','#admin')}catch(e){}}
+function admBack(){const st=history.state;if(st&&(st.adm||st.fb)){history.back();return true}return false}
 const ICON={
  range:'<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="10" r="6.5" fill="currentColor"/><path d="M12 18.5h8l-2.4 3v5h-3.2v-5z" fill="currentColor"/><path d="M5 27.5h22" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".55"/></svg>',
  play:'<svg viewBox="0 0 32 32" aria-hidden="true"><ellipse cx="14" cy="26" rx="9" ry="2.6" fill="currentColor" opacity=".25"/><path d="M12 26V5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M13 5l12 4.5L13 14z" fill="currentColor"/></svg>',
@@ -1205,19 +1209,19 @@ function bind(){
  click('mysave',async()=>{const n=$('myn').value.trim();if(!n){err='Enter a name.';render();return}err='';try{await db.doc('players/'+me).update({name:n,joined:(doc('players/'+me)||{}).joined||Date.now()})}catch(e){fail(e);return}editName=false;render()});
  click('mycancel',()=>{editName=false;err='';render()});
  click('edname',()=>{editName=true;render()});
- on('[data-adm]',b=>b.onclick=()=>{admUid=b.dataset.adm;admConf=false;render();window.scrollTo(0,0)});
- click('admback',()=>{admUid=null;admConf=false;render()});
+ on('[data-adm]',b=>b.onclick=()=>{admUid=b.dataset.adm;admConf=false;admOpen('adm',admUid);render();window.scrollTo(0,0)});
+ click('admback',()=>{if(admBack())return;admUid=null;admConf=false;render()});
  on('[data-admtab]',b=>b.onclick=()=>{admTab=b.dataset.admtab;admUid=null;admFb=null;render()});
  click('setfb',()=>{admTab='fb';fbArch=false;go('admin')});
  on('[data-fba]',b=>b.onclick=()=>{fbArch=!!b.dataset.fba;render()});
- on('[data-fbid]',b=>b.onclick=()=>{admFb=b.dataset.fbid;admFbDel=false;render();window.scrollTo(0,0)});
- click('fbback',()=>{admFb=null;admFbDel=false;render()});
+ on('[data-fbid]',b=>b.onclick=()=>{admFb=b.dataset.fbid;admFbDel=false;admOpen('fb',admFb);render();window.scrollTo(0,0)});
+ click('fbback',()=>{if(admBack())return;admFb=null;admFbDel=false;render()});
  click('fbnadd',()=>{const t=$('fbnote'),v=t.value.trim();if(!v)return t.focus();t.value='';patch('feedback/'+admFb,{notes:{[Date.now()]:v.slice(0,1000)}});say('Note added.')});
- click('fbclear',()=>{patch('feedback/'+admFb,{status:'done',closed:Date.now()});admFb=null;say('Cleared to the archive.')});
+ click('fbclear',()=>{patch('feedback/'+admFb,{status:'done',closed:Date.now()});admFb=null;admBack();say('Cleared to the archive.')});
  click('fbreopen',()=>{patch('feedback/'+admFb,{status:'open',closed:0});fbArch=false;say('Back in the queue.')});
  click('fbdel',()=>{admFbDel=true;render()});
  click('fbdelno',()=>{admFbDel=false;render()});
- click('fbdelyes',async()=>{const id=admFb;$('fbdelyes').disabled=true;try{await db.doc('feedback/'+id).delete()}catch(e){fail(e);render();return}delete D['feedback/'+id];admFb=null;admFbDel=false;say('Feedback deleted.')});
+ click('fbdelyes',async()=>{const id=admFb;$('fbdelyes').disabled=true;try{await db.doc('feedback/'+id).delete()}catch(e){fail(e);render();return}delete D['feedback/'+id];admFb=null;admFbDel=false;admBack();say('Feedback deleted.')});
  {const q=$('admq');if(q)q.oninput=()=>{admQ=q.value;render()}}
  click('admsave',()=>{const n=$('admn').value.trim();if(!n)return say('Enter a name.');patch('players/'+admUid,{name:n});say('Name saved.')});
  click('admpic',()=>{patch('players/'+admUid,{pic:''});say('Photo removed.')});
@@ -1228,7 +1232,7 @@ function bind(){
  click('admunblock',async()=>{const uid=admUid;$('admunblock').disabled=true;try{await db.doc('blocked/'+uid).delete()}catch(e){fail(e);render();return}delete D['blocked/'+uid];render();say(pname(uid)+' is unblocked.')});
  click('admreset',async()=>{const em=doc('emails/'+admUid);if(!em||!window.B2B)return;const b=$('admreset');b.disabled=true;try{await B2B.resetPassword(em.email);say('Reset email sent to '+em.email+'.')}catch(e){say(e&&e.code==='auth/too-many-requests'?'Too many reset emails. Try again later.':'Couldn’t send the reset email.');b.disabled=false}});
  click('admrmno',()=>{admConf=false;render()});
- click('admrmyes',async()=>{const uid=admUid,n=pname(uid);$('admrmyes').disabled=true;try{await db.doc('players/'+uid).delete()}catch(e){fail(e);return}delete D['players/'+uid];admUid=null;admConf=false;say(n+' was removed.')});
+ click('admrmyes',async()=>{const uid=admUid,n=pname(uid);$('admrmyes').disabled=true;try{await db.doc('players/'+uid).delete()}catch(e){fail(e);return}delete D['players/'+uid];admUid=null;admConf=false;admBack();say(n+' was removed.')});
  on('[data-club]',b=>b.onclick=()=>{const k=b.dataset.club;bagSel.has(k)?bagSel.delete(k):bagSel.size<MAXBAG&&bagSel.add(k);render()});
  click('bagsave',()=>{patch('bags/'+me,{clubs:[...bagSel]});bagEdit=false;bagSel=null;render()});
  click('bagcancel',()=>{bagEdit=false;bagSel=null;render()});
