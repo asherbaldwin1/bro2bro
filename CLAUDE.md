@@ -51,11 +51,12 @@ Keep the app a single self-contained `index.html`. No build step, no bundler, no
 - **Navigation:**
   - Home has the centered brand header, then Play (full width), then Rounds, Friends, Leaderboards and Range. A lone last card stretches full width.
   - Each page has a top bar with "‹ Home" plus the page title. Hash routes: `#play`, `#rounds`, `#people`, `#leaders`, `#range`, `#settings`, and the back button works.
-  - Top-right on every page: a light/dark toggle (saved per device, light by default) and an account menu (photo or person icon) with Settings, Friends, My rounds and Invite friends, plus Admin for the admin. Settings lives in that menu, not on Home.
+  - Top-right on every page: a light/dark toggle (saved per device, light by default) and an account menu (photo or person icon) with Settings, Friends, My rounds and Invite friends, plus Admin for the admin, then Sign out (oxblood, below a hairline). Settings lives in that menu, not on Home.
   - Top-left on every signed-in page: a Feedback button ("Feedback" pill on Home, icon only next to "‹ Home" on other pages). It opens a bottom sheet: Something's broken / Idea, a text box, and it auto-attaches the page (including course and hole during a live round), device and screen size. The page title shrinks a little (`fitTtl`) on narrow phones so it never overlaps.
 - **Friends:**
   - Every user has a friend code like `RXA-2WW`. Search by name or code, plus "People you've played with" suggestions.
   - Flow: Add → Requested → Accept/Decline. Sent requests can be cancelled and friends removed.
+  - Profiles: tap a name in "Your friends" (which lists friends only, not you; each row has a red Remove pill that opens a centered "Remove friend?" popup, `rmPaint()` into `#popk`) to open their profile (`profUid`, a history step on `#people`, so back works). It shows the photo, "Member since" (from `players.joined`), friend code, stat tiles (handicap, rounds, best round, average, birdies, par or better %), a scoring mix bar, Around the club (rounds with you, favorite course, last played, friends) and the last 5 rounds. The handicap graph (score differentials) was removed on purpose: Asher prefers just the number. All-time stats only, built from existing data.
   - Friends scope the app: player pickers, the Rounds "Friends" toggle, Live now and Leaderboards show only your circle. Guests can be added to a round by name.
 - **Rounds:**
   - My rounds by default, with a Friends toggle. Unfinished rounds sit on top with Resume and Delete (or Leave round).
@@ -102,6 +103,7 @@ Upscale, clean, simple, elegant, with some color. Rejected directions: bright fa
   - Order: "Bro 2 Bro **Golf Club**", then "Made by Bros, for Bros.", then "EST. 2026" in brass between hairlines.
 - **Logo:** a racing-green rounded tile with a cream "B2B", a brass "2" and a brass dot. Used as the favicon (`favicon.png`, `apple-touch-icon.png`) and on the login screen, not in the Home header.
 - **Phone first:** big tap targets and 16px minimum on inputs (prevents iOS zoom). Check every change at phone width in both light and dark.
+- **Computer screens (960px and wider):** one `@media (min-width:960px)` block widens the page to 1080px. Home puts Rounds, Friends, Leaderboards and Range in one row under Play. `render()` tags `#view`: `.cols` (Friends, profile, Leaderboards, Settings, Admin flow into two CSS columns; chip rows, notes, stat tiles and the profile header span both), `.rgrid` (Rounds, a left-to-right grid so newest stays first) or `.narrow` (Play, Range and the rating form stay one 720px column). Phones are untouched. Check new pages at desktop width too.
 
 ## Workflow
 
