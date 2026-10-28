@@ -596,7 +596,7 @@ textarea:focus{outline:none;background:var(--card);box-shadow:0 0 0 3px rgba(184
  .hgrid{grid-template-columns:repeat(4,1fr);gap:16px}
  .hgrid .hcard:not(.c-play):last-child:nth-child(even){grid-column:auto}
  .hgrid .hcard:not(.c-play) .hti{font-size:28px}
- .c-play{min-height:190px}
+ .c-play,:root[data-theme="dark"] .c-play{min-height:190px}
  #view.narrow{max-width:720px;margin:0 auto}
  #view.cols{column-count:2;column-gap:16px}
  #view.cols>*{break-inside:avoid}
