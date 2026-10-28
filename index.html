@@ -899,6 +899,9 @@ html.glass[data-theme="light"]:root{--metal:#7E6130}
 html.glass .amenu{background:rgba(24,32,24,.97)!important}
 html.glass[data-theme="light"] .amenu{background:rgba(250,248,242,.97)!important;color:#14201A!important;--g-ink:#14201A;--g-mute:rgba(20,32,26,.6)}
 html.glass[data-theme="light"] .amenu .atx small{color:rgba(20,32,26,.6)}
+
+/* no fade between pages: frosted glass can't blur while it's partly see-through, so a fade made every card flash sharp, then blurry */
+html.glass .view-in{animation:none}
 </style>
 </head>
 <body>
