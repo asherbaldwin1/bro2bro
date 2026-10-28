@@ -1075,8 +1075,13 @@ function fbClose(){fbOpen=false;fbPaint()}
 function fbSend(){const t=$('fbtx'),v=t.value.trim();if(!v){t.focus();return}
  const body={by:me,name:pname(me).slice(0,40),kind:fbKind,text:v.slice(0,2000),page:fbPage().slice(0,80),ua:navigator.userAgent.slice(0,300),scr:(innerWidth+'×'+innerHeight).slice(0,20),at:Date.now(),status:'open'};
  const r=db.collection('feedback').doc();fbText='';fbClose();say('Thanks! Your feedback was sent.');
- r.set(body).catch(()=>{fbText=v;say('Couldn’t send your feedback. Tap Feedback to try again.')});
+ r.set(body).then(()=>fbMail(body)).catch(()=>{fbText=v;say('Couldn’t send your feedback. Tap Feedback to try again.')});
 }
+// Emails new feedback to the admin through EmailJS (free plan). These IDs are public by design; never put the EmailJS Private Key here.
+const EMAILJS={service:'service_etj05jr',template:'template_0f4p3g5',key:'VchpevzmSIcjNMbES'};
+function fbMail(f){const kind=f.kind==='bug'?'Something’s broken':'Idea';
+ fetch('https://api.emailjs.com/api/v1.0/email/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({service_id:EMAILJS.service,template_id:EMAILJS.template,user_id:EMAILJS.key,
+  template_params:{name:f.name,kind,title:kind+' from '+f.name,message:f.text,page:f.page,device:devName(f.ua)+' · '+f.scr,time:fmtWhen(f.at)}})}).catch(()=>{})}
 document.addEventListener('click',e=>{if(e.target.closest('[data-fb]'))fbShow()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&fbOpen)fbClose()});
 function fbAdmin(){

@@ -32,10 +32,11 @@ Keep the app a single self-contained `index.html`. No build step, no bundler, no
   - Rounds: created with yourself as host. Only the host or an admin can delete.
   - `friends/{uidA~uidB}`: `{a, b, from, status, created, since}`. Writable only by those two users.
   - `blocked/{uid}`: `{at, by}`. Admin-only writes. Every other rule checks `active()` (signed in and not blocked; the admin can't be blocked). A blocked player sees a "Your account has been blocked" screen.
-  - `feedback/{id}`: `{by, name, kind ('bug'|'idea'), text, page, ua, scr, at, status ('open' New |'prog' In Progress |'done' Complete), notes {timestamp: text}, closed}`. Any active player can create one as themselves (status `open`, no notes). Only the admin can read, update or delete.
+  - `feedback/{id}`: `{by, name, kind ('bug'|'idea'), text, page, ua, scr, at, status ('open' New |'prog' In Progress |'done' Complete), notes {timestamp: text}, closed}`. Any active player can create one as themselves (status `open`, no notes). Only the admin can read, update or delete. After a ticket saves, `fbMail()` also emails it to Asher through EmailJS (see below).
   - `emails/{uid}`: `{email, pw}`. Each player saves their own on load (must match their login email); only the admin can read them, for password resets.
   - `bags/{uid}`: `{clubs: [up to 14 club ids], dist: {clubId: {avg, shots, at}}}`. Private: only that user can read or write it.
   - Must be signed in to read anything. The admin is matched by Firebase account ID (UID), not email, and that UID is hard-coded in both `config.js` and `firestore.rules`. Keep them in sync.
+- **Feedback email (EmailJS):** free plan, 200 emails/month, connected to Asher's EmailJS account. The `EMAILJS` constant in `index.html` holds the Service ID, Template ID and Public Key, which are public by design. The EmailJS **Private Key** must never go in the repo. Template variables: `name`, `kind`, `title`, `message`, `page`, `device`, `time`. If an email fails, the feedback is still saved in Firestore and shows in Admin → Feedback.
 - **Course data:** about 12,700 real US courses from a one-time snapshot of github.com/lukhed/yardage-hub-data (about 350 fake/duplicate entries removed). Arizona is shown by default, other states are searchable. Pars and rating/slope added during a round are shared with the group.
 
 ## Security
