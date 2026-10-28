@@ -25,7 +25,7 @@ Keep the app a single self-contained `index.html`. No build step, no bundler, no
 ## Architecture
 
 - **Hosting:** GitHub Pages from `main`, at the repo root (`https://asherbaldwin1.github.io/bro2bro/`).
-- **Backend:** Firebase (compat SDK v10.12.2): Auth plus Firestore. Offline persistence is on so scoring works with weak signal on the course.
+- **Backend:** Firebase (compat SDK v10.12.2): Auth plus Firestore. Offline persistence is on so scoring works with weak signal on the course. It's single-tab on purpose (`enablePersistence()` without `synchronizeTabs`): shared multi-tab storage let a frozen background tab on iPhone keep the only connection, and the tab in front showed no players or friends. `sub()` listens with `includeMetadataChanges` so `real.*` turns true when the server confirms data that was already cached. If players still haven't loaded after 12 seconds, `slowBox()` shows a "Not connected to the club yet" card with a Reload button.
 - **Bridge shim:** the app was first built as a claude.ai artifact, so the app code calls `window.claude.use('db')` and `window.claude.use('user')`. A small shim in `index.html` maps those onto Firebase. `update()` is done as `set(..., {merge: true})` to keep deep-merge behavior. Keep using that API in app code rather than calling Firebase directly all over the place.
 - **Sign-in:** Google (popup, falling back to redirect), email + password (sign in, create account, forgot password) and an emailed sign-in link. Spark plan limits: 5 email links/day and 150 password-reset emails/day. Google and password sign-in have no cap.
 - **Data:**

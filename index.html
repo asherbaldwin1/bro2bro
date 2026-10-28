@@ -862,6 +862,11 @@ html.glass .pstat .pv{color:var(--g-ink)}
 html.glass .pstat.hi .pv{color:#E6C996}
 /* brass text (friend codes) needs a deeper brass on Day's light glass */
 html.glass[data-theme="light"]:root{--metal:#7E6130}
+
+/* account menu: nearly solid. Inside the frosted top bar its own blur can't reach the page, so it would be see-through */
+html.glass .amenu{background:rgba(24,32,24,.97)!important}
+html.glass[data-theme="light"] .amenu{background:rgba(250,248,242,.97)!important;color:#14201A!important;--g-ink:#14201A;--g-mute:rgba(20,32,26,.6)}
+html.glass[data-theme="light"] .amenu .atx small{color:rgba(20,32,26,.6)}
 </style>
 </head>
 <body>
@@ -924,7 +929,10 @@ html.glass[data-theme="light"]:root{--metal:#7E6130}
   window.claude={use:()=>new Promise(()=>{})};return}
  firebase.initializeApp(cfg.firebase);
  const auth=firebase.auth(),fs=firebase.firestore();
- fs.enablePersistence({synchronizeTabs:true}).catch(()=>{});
+ // Offline storage for this tab only. Shared multi-tab storage let a frozen background tab on iPhone
+ // keep the only database connection, so the tab in front never got players or friends. A second
+ // tab now just skips offline storage and connects on its own.
+ fs.enablePersistence().catch(()=>{});
  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
  const admins=(cfg.adminUids||[]).map(String);
  const isAdmin=u=>!!u&&admins.includes(u.uid);
@@ -958,7 +966,7 @@ html.glass[data-theme="light"]:root{--metal:#7E6130}
  // While the admin is viewing as another player, every write is refused here, below the app
  const ro=()=>window.B2B_VIEW?Promise.reject({code:'view-as'}):null;
  function wDoc(r){return{id:r.id,path:r.path,get:()=>r.get(),set:d=>ro()||r.set(d),update:d=>ro()||r.set(d,{merge:true}),delete:()=>ro()||r.delete(),onSnapshot:(n,e)=>r.onSnapshot(n,e),collection:p=>wCol(r.collection(p))}}
- function wQ(q){return{where:(a,b,c)=>wQ(q.where(a,b,c)),orderBy:(f,d)=>wQ(q.orderBy(f,d)),limit:n=>wQ(q.limit(n)),get:()=>q.get(),onSnapshot:(n,e)=>q.onSnapshot(n,e)}}
+ function wQ(q){return{where:(a,b,c)=>wQ(q.where(a,b,c)),orderBy:(f,d)=>wQ(q.orderBy(f,d)),limit:n=>wQ(q.limit(n)),get:()=>q.get(),onSnapshot:(...a)=>q.onSnapshot(...a)}}
  function wCol(c){const w=wQ(c);w.path=c.path;w.doc=id=>wDoc(id?c.doc(id):c.doc());w.add=d=>ro()||c.add(d).then(wDoc);return w}
  const DB={doc:p=>wDoc(fs.doc(p)),collection:p=>wCol(fs.collection(p))};
  const me=()=>{const u=auth.currentUser;return{id:u.uid,name:u.displayName||'',email:u.email||'',avatarUrl:u.photoURL||'',color:color(u.uid),isOwner:isAdmin(u),canEdit:isAdmin(u),pw:u.providerData.some(p=>p.providerId==='password')}};
@@ -1003,7 +1011,9 @@ async function flush(p){
  try{await write(p,o)}catch(e){if(e&&e.code==='unavailable'){await new Promise(r=>setTimeout(r,500+Math.random()*700));try{await write(p,o)}catch(e2){fail(e2)}}else fail(e)}
  delete fly[p];busy[p]=false;render();
 }
-function sub(col,qy){qy.onSnapshot(s=>{
+// includeMetadataChanges: also hear when the server confirms data this phone already had saved;
+// without it that confirmation fires no event and the page never knows it's connected.
+function sub(col,qy){qy.onSnapshot({includeMetadataChanges:true},s=>{
   for(const k of Object.keys(D))if(k.startsWith(col+'/'))delete D[k];
   s.docs.forEach(x=>{if(x.exists)D[col+'/'+x.id]=x.data()});
   if(!s.metadata.fromCache)real[col]=true;
@@ -1028,6 +1038,7 @@ function afterData(){
  {const m=await u.me();if(m.email)db.doc('emails/'+me).get().then(x=>{const d=x.exists?x.data():null;if(!d||d.email!==m.email||d.pw!==!!m.pw)db.doc('emails/'+me).set({email:m.email,pw:!!m.pw}).catch(()=>{})}).catch(()=>{})}
  if(owner)['blocked','emails','feedback'].forEach(c=>db.collection(c).onSnapshot(x=>{for(const k of Object.keys(D))if(k.startsWith(c+'/'))delete D[k];x.docs.forEach(d=>D[c+'/'+d.id]=d.data());render()},()=>{}));
  sub('players',db.collection('players'));
+ setTimeout(()=>{if(!real.players){slow=true;lastView=null;render()}},12000);
  sub('rounds',db.collection('rounds').orderBy('created','desc').limit(500));
  sub('courseinfo',db.collection('courseinfo'));
  sub('friends',db.collection('friends'));
@@ -1157,7 +1168,10 @@ document.addEventListener('click',e=>{
 document.addEventListener('click',e=>{const b=e.target.closest('[data-theme-set]');if(!b)return;theme=b.dataset.themeSet;document.documentElement.dataset.theme=theme;try{localStorage.setItem('ww-theme',theme)}catch(err){}lastNav=null;render()});
 const box=h=>`<div class="box">${h}</div>`;
 const ro=()=>canWrite?'':`<p class="note">You can see everyone’s scores, but this page is view-only for you. Ask the owner to invite you as an Editor to keep score.</p>`;
-function main(){
+let slow=false;
+const slowBox=()=>slow&&state==='ok'&&!real.players?box('<p><b>Not connected to the club yet</b></p><p class="sub">Players, friends and rounds haven’t loaded. If you have signal, close any other Bro 2 Bro tabs and reload. Scores you enter still save and sync when you’re back online.</p><button class="btn" id="reload" style="width:100%">Reload</button>'):'';
+function main(){return slowBox()+mainView()}
+function mainView(){
  if(state==='loading')return box('<p class="empty">Loading…</p>');
  if(state==='blocked')return box('<p><b>Your account has been blocked.</b></p><p class="sub">The club admin has turned off your access to Bro 2 Bro. If you think this is a mistake, reach out to them directly.</p><button class="btn alt" id="signout" style="width:100%;margin-top:6px">Sign out</button>');
  if(state==='nodb')return box('<p><b>Sign in to keep score with friends.</b></p><p class="sub">Reload the page to sign in. Rounds are saved online, so everyone in your group sees the same live scorecard.</p>');
@@ -1568,6 +1582,7 @@ function bind(){
  click('mysave',async()=>{const n=$('myn').value.trim();if(!n){err='Enter a name.';render();return}err='';try{await db.doc('players/'+me).update({name:n,joined:(doc('players/'+me)||{}).joined||Date.now()})}catch(e){fail(e);return}editName=false;render()});
  click('mycancel',()=>{editName=false;err='';render()});
  click('edname',()=>{editName=true;render()});
+ click('reload',()=>location.reload());
  on('[data-adm]',b=>b.onclick=()=>{admUid=b.dataset.adm;admConf=false;admOpen('adm',admUid);render();window.scrollTo(0,0)});
  on('[data-admtab]',b=>b.onclick=()=>{admTab=b.dataset.admtab;admUid=null;admFb=null;render()});
  click('setfb',()=>{admTab='fb';fbArch=false;go('admin')});
