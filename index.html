@@ -624,7 +624,8 @@ textarea:focus{outline:none;background:var(--card);box-shadow:0 0 0 3px rgba(184
 .amenu [data-menu=signout]{color:var(--bad)}.amenu [data-menu=signout] .mi{color:var(--bad)}
 /* ---- friend profile ---- */
 .frbtn{display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
-.frrm{flex:none;white-space:nowrap}
+.frrm{flex:none;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;width:52px;min-height:36px;padding:0}
+.frrm svg{width:19px;height:19px}
 .vabar{position:fixed;top:0;left:0;right:0;z-index:70;height:calc(40px + env(safe-area-inset-top,0px));padding:env(safe-area-inset-top,0px) 12px 0 16px;display:flex;align-items:center;justify-content:center;gap:12px;background:#7A1F2B;color:#F7F3EA;font:500 14px "Public Sans",sans-serif}
 .vat{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .vax{flex:none;height:28px;padding:0 14px;border:0;border-radius:999px;background:#F7F3EA;color:#7A1F2B;font:600 13px "Public Sans",sans-serif;cursor:pointer}
@@ -1482,7 +1483,7 @@ function people(){
  if(out.length)h+=box(`<b>Sent requests</b>${out.map(p=>prow(p.id,`<button class="btn alt sm" data-frcancel="${p.id}">Cancel</button>`,'Waiting for them to accept')).join('')}`);
  const fr=friends();
  h+=box(`<b>Your friends</b>${fr.length?'':'<p class="sub" style="margin-top:6px">No friends yet. Search above to add your golf buddies.</p>'}${fr.map(p=>{const ix=index(p.id),n=diffs(p.id).length;
-  return `<div class="frow"><button class="frbtn" data-prof="${p.id}" aria-label="View ${esc(pname(p.id))}’s profile">${face(p.id)}<span class="fwho"><b>${esc(pname(p.id))}${p.id===me?' <span class="sub">(you)</span>':''}</b><small>${n} counted round${n===1?'':'s'}</small></span></button><span class="num hcp">${ix==null?'–':ix}</span>${p.id!==me&&canWrite?`<button class="btn danger sm frrm" data-rmask="${p.id}" aria-label="Remove ${esc(pname(p.id))}">Remove</button>`:''}</div>`}).join('')}`);
+  return `<div class="frow"><button class="frbtn" data-prof="${p.id}" aria-label="View ${esc(pname(p.id))}’s profile">${face(p.id)}<span class="fwho"><b>${esc(pname(p.id))}${p.id===me?' <span class="sub">(you)</span>':''}</b><small>${n} counted round${n===1?'':'s'}</small></span></button><span class="num hcp">${ix==null?'–':ix}</span>${p.id!==me&&canWrite?`<button class="btn danger sm frrm" data-rmask="${p.id}" aria-label="Remove ${esc(pname(p.id))}" title="Remove friend">${TRASH}</button>`:''}</div>`}).join('')}`);
  return h+`<p class="sub">Tap a friend to see their profile. A handicap index shows after 3 counted rounds: 18 holes, every hole scored, with rating and slope.</p>`;
 }
 // "Remove friend?" popup, kept outside #view so it covers the top bar too
