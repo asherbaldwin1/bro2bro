@@ -697,11 +697,11 @@ html.glass{background:#18221E}
 html.glass body{background:transparent;color:var(--g-ink)}
 /* a fixed layer instead of background-attachment:fixed, which iPhone Safari ignores */
 /* iPhone Safari fills the strips under its status bar and address bar with one solid color, so the photo fades into that same color (#18221E) at the top and bottom */
-html.glass body::before{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg,#18221E 0,rgba(24,34,30,0) 13%,rgba(24,34,30,0) 84%,#18221E 100%),linear-gradient(var(--g-veil),var(--g-veil)),#18221E url("course-bg.jpg") center 70%/cover no-repeat;pointer-events:none}
+html.glass body::before{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg,#18221E 0,#18221E env(safe-area-inset-top,0px),rgba(24,34,30,.55) calc(env(safe-area-inset-top,0px) + 50px),rgba(24,34,30,0) calc(env(safe-area-inset-top,0px) + 170px),rgba(24,34,30,0) 84%,#18221E 100%),linear-gradient(var(--g-veil),var(--g-veil)),#18221E url("course-bg.jpg") center 70%/cover no-repeat;pointer-events:none}
 html.glass main{padding-left:16px;padding-right:16px}
 
 /* glass surfaces */
-html.glass .box,html.glass .hcard,html.glass .amenu,html.glass .fbsheet,html.glass .popc,html.glass .lbhero{background:var(--g-glass)!important;-webkit-backdrop-filter:blur(28px) saturate(170%);backdrop-filter:blur(28px) saturate(170%);box-shadow:inset 0 0 0 .5px var(--g-edge),0 8px 28px rgba(0,0,0,.14)!important;border:0!important;color:var(--g-ink)!important}
+html.glass .box,html.glass .hcard,html.glass .amenu,html.glass .fbsheet,html.glass .popc,html.glass .lbhero{background:var(--g-glass)!important;-webkit-backdrop-filter:blur(28px) saturate(170%);backdrop-filter:blur(28px) saturate(170%);box-shadow:0 8px 28px rgba(0,0,0,.14)!important;border:0!important;color:var(--g-ink)!important}
 html.glass .box{border-radius:26px;padding:18px 16px;margin-bottom:14px}
 html.glass .box>b:first-child,html.glass .box .rhead b{font-size:17px;letter-spacing:-.005em}
 
@@ -718,7 +718,7 @@ html.glass .mast .tag{color:rgba(255,255,255,.86);text-shadow:0 1px 10px rgba(0,
 html.glass .mast .est::before,html.glass .mast .est::after{background:rgba(230,201,150,.6)}
 html.glass .hgrid{gap:12px}
 html.glass .hcard{border-radius:26px;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s}
-html.glass .hcard:hover{transform:translateY(-5px)!important;box-shadow:inset 0 0 0 .5px var(--g-edge),0 20px 40px rgba(0,0,0,.24)!important}
+html.glass .hcard:hover{transform:translateY(-5px)!important;box-shadow:0 20px 40px rgba(0,0,0,.24)!important}
 html.glass .hcard:active{transform:scale(.97)!important}
 html.glass .c-play{background:rgba(15,61,46,.58)!important;color:#F7F3EA!important}
 html.glass .c-play .hsub,html.glass .c-play .hti{color:#F7F3EA}
@@ -778,7 +778,7 @@ html.glass .fbsheet{border-radius:30px 30px 0 0}
 html.glass .fbsheet::before{content:"";display:block;width:38px;height:5px;border-radius:3px;background:var(--g-mute);opacity:.5;margin:-8px auto 12px}
 @media (min-width:700px){html.glass .fbsheet{border-radius:30px}}
 html.glass .popc{border-radius:28px}
-html.glass .toast{background:var(--g-glass)!important;color:var(--g-ink)!important;-webkit-backdrop-filter:blur(28px) saturate(170%);backdrop-filter:blur(28px) saturate(170%);box-shadow:inset 0 0 0 .5px var(--g-edge),0 10px 30px rgba(0,0,0,.25)!important;border-radius:999px;padding:11px 18px}
+html.glass .toast{background:var(--g-glass)!important;color:var(--g-ink)!important;-webkit-backdrop-filter:blur(28px) saturate(170%);backdrop-filter:blur(28px) saturate(170%);box-shadow:0 10px 30px rgba(0,0,0,.25)!important;border-radius:999px;padding:11px 18px}
 
 /* hole strip and hole buttons */
 html.glass .strip button{background:var(--g-inner)!important;color:var(--g-mute)!important;box-shadow:none!important}
@@ -789,7 +789,8 @@ html.glass .hbtn.nx{background:var(--g-btn)!important;color:var(--g-btnink)!impo
 
 /* breathing room under the top bar, and a soft shade behind the Home title so it reads on bright sky */
 html.glass main{padding-top:16px}
-html.glass .mast{background:linear-gradient(180deg,rgba(0,0,0,.34),rgba(0,0,0,0))!important}
+html.glass .mast{background:none!important}
+html.glass .mast h1,html.glass .mast .tag{text-shadow:0 2px 14px rgba(0,0,0,.55),0 1px 3px rgba(0,0,0,.35)}
 html.glass .mast .est{color:#F2DDB5;text-shadow:0 1px 8px rgba(0,0,0,.4)}
 
 /* top bar: thinner, and the Feedback icon sits plainly next to "‹ Home" like an iOS toolbar button */
@@ -812,8 +813,8 @@ html.glass .hcard .hic,html.glass .c-play .hic{background:none!important;box-sha
 html.glass .hcard .hic svg{width:28px;height:28px}
 
 /* sign-in screen: one frosted card over the course photo */
-html.glass #gate{background:linear-gradient(180deg,#18221E 0,rgba(24,34,30,0) 13%,rgba(24,34,30,0) 84%,#18221E 100%),linear-gradient(var(--g-veil),var(--g-veil)),#18221E url("course-bg.jpg") center 70%/cover no-repeat;color:var(--g-ink);padding:max(24px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
-html.glass #gate .gbox{position:relative;max-width:400px;padding:30px 22px 22px;border-radius:32px;background:var(--g-glass);-webkit-backdrop-filter:blur(30px) saturate(170%);backdrop-filter:blur(30px) saturate(170%);box-shadow:inset 0 0 0 .5px var(--g-edge),0 20px 50px rgba(0,0,0,.25)}
+html.glass #gate{background:linear-gradient(180deg,#18221E 0,#18221E env(safe-area-inset-top,0px),rgba(24,34,30,.55) calc(env(safe-area-inset-top,0px) + 50px),rgba(24,34,30,0) calc(env(safe-area-inset-top,0px) + 170px),rgba(24,34,30,0) 84%,#18221E 100%),linear-gradient(var(--g-veil),var(--g-veil)),#18221E url("course-bg.jpg") center 70%/cover no-repeat;color:var(--g-ink);padding:max(24px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
+html.glass #gate .gbox{position:relative;max-width:400px;padding:30px 22px 22px;border-radius:32px;background:var(--g-glass);-webkit-backdrop-filter:blur(30px) saturate(170%);backdrop-filter:blur(30px) saturate(170%);box-shadow:0 20px 50px rgba(0,0,0,.25)}
 html.glass #gate .glogo{width:60px;height:60px;margin-bottom:16px;filter:drop-shadow(0 6px 16px rgba(0,0,0,.25))}
 html.glass #gate .gtitle{color:var(--g-ink)}
 html.glass #gate .gtitle span{color:var(--g-acc)}
