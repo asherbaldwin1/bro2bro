@@ -704,6 +704,22 @@ body.viewas{padding-top:40px}body.viewas .navbar{top:40px}
 .acode svg{width:13px;height:13px;flex:none}
 .acode:hover{background:var(--fill2)}
 .acode:active{transform:scale(.97)}
+/* Home: compact cards so the whole page fits on a phone without scrolling */
+.hgrid{gap:10px!important}
+.hcard{min-height:0!important;padding:14px 16px!important;gap:10px!important}
+.hcard .hic svg{width:24px;height:24px}
+.hti{font-size:24px}
+.htx{gap:2px}
+.hde{font-size:14px}
+.chev{top:18px;right:18px}
+.hgrid{grid-auto-rows:108px}
+.hcard{height:100%;gap:8px!important}
+.c-play .hti{font-size:28px}
+.hti{line-height:1}
+.hde{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.hbadge{position:absolute;top:12px;left:50px;margin:0!important;font-size:12.5px;line-height:1;opacity:1!important}
+.hbadge .live,.hbadge .badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px 4px 8px;border-radius:999px;font-weight:700}
+main:has(> #view .hgrid),main:has(.hgrid){padding-bottom:20px}
 /* ---- "Glass" look: the main design (html.glass). ?look=classic in the address turns it off ----
    Frosted panels over a course photo, styled after iOS materials.
    Night (dark theme) is dark glass with white text; Day (light theme) is bright glass with dark text. */
@@ -834,7 +850,7 @@ html.glass[data-theme="light"] .fbbtn svg,html.glass[data-theme="light"] #nav .f
 
 /* Home card icons: just the icon, no box behind it */
 html.glass .hcard .hic,html.glass .c-play .hic{background:none!important;box-shadow:none!important;width:auto;height:auto;padding:0}
-html.glass .hcard .hic svg{width:28px;height:28px}
+html.glass .hcard .hic svg{width:24px;height:24px}
 
 /* sign-in screen: one frosted card over the course photo */
 html.glass #gate{background:linear-gradient(180deg,var(--g-top) 0,transparent 80px,transparent calc(100% - 80px),var(--g-top) 100%),linear-gradient(var(--g-veil),var(--g-veil)),var(--g-top) url("course-aerial.jpg") center/cover no-repeat;color:var(--g-ink);padding:max(24px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
@@ -1223,16 +1239,17 @@ function home(){
  const myLive=mine&&mine.status==='live'&&mine.pl[me]?mine:live.find(r=>r.pl[me]);
  const others=live.filter(r=>r!==myLive).length;
  const last=done.slice().sort(byDate).pop();
- const card=(k,cls,title,desc,meta)=>`<button class="hcard ${cls}" data-go="${k}"><span class="hic">${ICON[k]}</span><span class="htx"><span class="hti">${title}</span><span class="hde">${desc}</span>${meta?`<span class="hme">${meta}</span>`:''}</span><span class="chev" aria-hidden="true"></span></button>`;
+ // Every card is the same height: a title, one info line, and an optional badge beside the icon.
+ const card=(k,cls,title,line,badge)=>`<button class="hcard ${cls}" data-go="${k}"><span class="hic">${ICON[k]}</span>${badge?`<span class="hme hbadge">${badge}</span>`:''}<span class="htx"><span class="hti">${title}</span><span class="hde">${line}</span></span><span class="chev" aria-hidden="true"></span></button>`;
  let h=ro()+'<div class="hgrid">';
  h+=card('play','c-play',myLive?'Back to your round':'Start a round',myLive?esc(myLive.cn)+' · '+(thru(myLive)?'thru '+thru(myLive):'just started'):'Solo or with friends, scored live.',myLive?'<b class="live">Live</b>':others?`<b class="live">${others} live now</b>`:'');
- h+=card('rounds','c-rounds','Rounds',done.length?`${done.length} round${done.length===1?'':'s'} saved`:'Your round history.',last?'Last: '+esc(last.cn):'');
- {const nf=friends().length,ni=incoming().length;h+=card('people','c-people','Friends',nf?`${nf} friend${nf===1?'':'s'}`:'Add your buddies.',ni?`<b class="badge">${ni} request${ni===1?'':'s'}</b>`:ix!=null?`Your index <b>${ix}</b>`:'')}
+ h+=card('rounds','c-rounds','Rounds',done.length?`${done.length} round${done.length===1?'':'s'} saved`:'Your round history.','');
+ {const nf=friends().length,ni=incoming().length;h+=card('people','c-people','Friends',nf?`${nf} friend${nf===1?'':'s'}`:'Add your buddies.',ni?`<b class="badge">${ni} request${ni===1?'':'s'}</b>`:'')}
  const lb=handicapBoard()[0];
- h+=card('leaders','c-leaders','Leaderboards','See who’s on top.',lb?'Leader: <b>'+esc(pname(lb.id))+'</b>':'');
- {const b=bag(),n=b.clubs.filter(c=>b.dist[c]).length;h+=card('range','c-rounds','Range',b.clubs.length?`${b.clubs.length} club${b.clubs.length===1?'':'s'} in bag`:'Club distances.',b.clubs.length?`<b>${n}</b> of ${b.clubs.filter(c=>c!=='pt').length} measured`:'')}
+ h+=card('leaders','c-leaders','Leaderboards',lb?'Leader: <b>'+esc(pname(lb.id))+'</b>':'See who’s on top.','');
+ {const b=bag(),n=b.clubs.filter(c=>b.dist[c]).length;h+=card('range','c-rounds','Range',b.clubs.length?`<b>${n}</b> of ${b.clubs.filter(c=>c!=='pt').length} measured`:'Club distances.','')}
 
- {const mine=done.filter(r=>r.pl[me]&&r.sc[me].some(v=>v!=null)).sort(byDate),n=Object.keys(milestones(me,mine)).length;h+=card('profile','c-rounds c-prof','My profile','Your stats and milestones.',n?`<b>${n}</b> of ${MS.length} milestones`:'')}
+ {const mine=done.filter(r=>r.pl[me]&&r.sc[me].some(v=>v!=null)).sort(byDate),n=Object.keys(milestones(me,mine)).length;h+=card('profile','c-rounds c-prof','My profile',n?`<b>${n}</b> of ${MS.length} milestones`:'Your stats and milestones.','')}
  return h+'</div>';
 }
 /* ---------- leaderboards ---------- */
