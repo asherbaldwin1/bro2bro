@@ -689,6 +689,13 @@ body.viewas{padding-top:40px}body.viewas .navbar{top:40px}
 /* tee picker: center the color dot on the box itself, not on the box plus its spacing */
 .teepick{margin:4px 0 10px}
 .teepick select{margin:0}
+/* account menu: friend code chip under the name; tap to copy */
+.amenu{text-align:left}
+.acode{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;margin-top:5px;padding:3px 9px 3px 10px;border:0;border-radius:999px;background:var(--fill);color:var(--mute);font:600 11.5px "Public Sans",sans-serif;white-space:nowrap;cursor:pointer}
+.acode b{font:700 15px/1.2 "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.08em;color:var(--metal)}
+.acode svg{width:13px;height:13px;flex:none}
+.acode:hover{background:var(--fill2)}
+.acode:active{transform:scale(.97)}
 /* ---- "Glass" look: the main design (html.glass). ?look=classic in the address turns it off ----
    Frosted panels over a course photo, styled after iOS materials.
    Night (dark theme) is dark glass with white text; Day (light theme) is bright glass with dark text. */
@@ -1150,12 +1157,13 @@ function toolsHTML(here=true){
   gear:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
   shield:'<svg viewBox="0 0 24 24"><path d="M12 3l7 3v5.5c0 4.4-3 8-7 9.5-4-1.5-7-5.1-7-9.5V6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   out:'<svg viewBox="0 0 24 24"><path d="M14 4H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M11 12h9M17 8.5l3.5 3.5-3.5 3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'};
- const menu=menuOpen&&here?`<div class="amenu" role="menu" aria-label="Account"><div class="ahead"><span class="aav">${av}</span><span class="atx"><b>${esc(nm)}</b><small>${esc(meEmail||'Signed in')}</small></span></div>${item('settings',I.gear,'Settings')+item('friends',I.ppl,'Friends')+item('mine',I.card,'My rounds')+item('invite',I.inv,'Invite friends')}${owner?item('admin',I.shield,'Admin'+(fbOpenN()?`<span class="pill">${fbOpenN()}</span>`:'')):''}<div class="asep"></div>${VIEW?item('viewexit',I.out,'Exit view as'):item('signout',I.out,'Sign out')}</div>`:'';
+ const menu=menuOpen&&here?`<div class="amenu" role="menu" aria-label="Account"><div class="ahead"><span class="aav">${av}</span><span class="atx"><b>${esc(nm)}</b>${me?`<button class="acode" data-mcode aria-label="Copy your friend code ${fcode(me)}"><span>Friend code</span><b>${fcode(me)}</b><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>`:''}</span></div>${item('settings',I.gear,'Settings')+item('friends',I.ppl,'Friends')+item('mine',I.card,'My rounds')+item('invite',I.inv,'Invite friends')}${owner?item('admin',I.shield,'Admin'+(fbOpenN()?`<span class="pill">${fbOpenN()}</span>`:'')):''}<div class="asep"></div>${VIEW?item('viewexit',I.out,'Exit view as'):item('signout',I.out,'Sign out')}</div>`:'';
  return `<div class="tools">${themeHTML()}<div class="acctw"><button class="acctbtn" data-acct aria-haspopup="menu" aria-expanded="${menuOpen}" aria-label="Account menu${fbOpenN()?', new feedback':''}">${av}</button>${fbOpenN()?'<span class="adot" aria-hidden="true"></span>':''}${menu}</div></div>`;
 }
 function closeMenu(){if(menuOpen){menuOpen=false;lastNav=null;render()}}
 document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;closeMenu();if(rmConf){rmConf=null;render()}});
-document.addEventListener('click',e=>{
+document.addEventListener('click',async e=>{
+ if(e.target.closest('[data-mcode]')){const c=fcode(me);try{await navigator.clipboard.writeText(c);say('Copied your friend code: '+c)}catch(err){say('Your friend code is '+c)}return}
  if(e.target.closest('[data-acct]')){menuOpen=!menuOpen;lastNav=null;render();return}
  const mi=e.target.closest('[data-menu]');
  if(mi){menuOpen=false;const k=mi.dataset.menu;lastNav=null;
