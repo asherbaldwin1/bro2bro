@@ -198,7 +198,7 @@ table.sc td:last-child{padding-right:6px}
 .navbar{border-bottom:1px solid var(--line)}
 .hgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .hcard{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:14px;text-align:left;border:0;border-radius:24px;padding:20px 18px 18px;min-height:178px;cursor:pointer;color:var(--ink);box-shadow:var(--shadow);overflow:hidden;transition:transform .15s,box-shadow .2s}
-.hcard:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(20,35,26,.06),0 14px 34px rgba(20,35,26,.12)}
+@media (hover:hover) and (pointer:fine){.hcard:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(20,35,26,.06),0 14px 34px rgba(20,35,26,.12)}}
 .hcard:active{transform:scale(.98)}
 .hcard::after{content:"";position:absolute;right:-30px;bottom:-40px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.35);pointer-events:none}
 .c-play{grid-column:1/-1;min-height:200px;background:linear-gradient(135deg,#1f9d55 0%,#127a3f 100%);color:#fff}
@@ -535,7 +535,7 @@ ol.lb li.me{background:rgba(15,61,46,.06)}:root[data-theme="dark"] ol.lb li.me{b
 :root[data-theme="dark"]{--shadow:none;--hair:rgba(242,237,226,.08)}
 .box{box-shadow:0 0 0 1px var(--hair)!important;border-radius:20px}
 .hcard{box-shadow:0 0 0 1px var(--hair)!important;border-radius:22px;min-height:150px;gap:12px}
-.hcard:hover{transform:none;box-shadow:0 0 0 1px var(--metal)!important}
+@media (hover:hover) and (pointer:fine){.hcard:hover{transform:none;box-shadow:0 0 0 1px var(--metal)!important}}
 .hcard::after{display:none!important}
 .hic,.c-play .hic,.c-rounds .hic,.c-people .hic,.c-settings .hic,.c-leaders .hic,:root[data-theme="dark"] .hic{width:auto;height:auto;background:none!important;box-shadow:none!important;border-radius:0}
 .hic svg{width:26px;height:26px}
@@ -758,7 +758,8 @@ html.glass .mast .tag{color:rgba(255,255,255,.86);text-shadow:0 1px 10px rgba(0,
 html.glass .mast .est::before,html.glass .mast .est::after{background:rgba(230,201,150,.6)}
 html.glass .hgrid{gap:12px}
 html.glass .hcard{border-radius:26px;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s}
-html.glass .hcard:hover{transform:translateY(-5px)!important;box-shadow:0 20px 40px rgba(0,0,0,.24)!important}
+/* lift only with a mouse or trackpad: phones keep the last-tapped card "hovered" after you come back */
+@media (hover:hover) and (pointer:fine){html.glass .hcard:hover{transform:translateY(-5px)!important;box-shadow:0 20px 40px rgba(0,0,0,.24)!important}}
 html.glass .hcard:active{transform:scale(.97)!important}
 html.glass .c-play{background:rgba(15,61,46,.58)!important;color:#F7F3EA!important}
 html.glass .c-play .hsub,html.glass .c-play .hti{color:#F7F3EA}
