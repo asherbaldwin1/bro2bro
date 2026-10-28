@@ -48,6 +48,7 @@ Keep the app a single self-contained `index.html`. No build step, no bundler, no
 
 - **Public by design:** the Firebase web `apiKey` in `config.js` and the EmailJS Public Key, Service ID and Template ID in `index.html`. GitHub secret scanning flags the Firebase key; that alert is expected. Real protection comes from the Firestore rules, Auth authorized domains and the API key's HTTP-referrer restriction.
 - **Never** add to the repo: a Firebase service-account JSON (anything with `"private_key"`), the EmailJS Private Key, passwords or tokens.
+- **Clean what members type before it reaches the page:** run text through `esc()`. Rounds and course details are read through `R()` and `cdata()`, which keep only plain numbers (`num`) and YYYY-MM-DD dates (`ymd`), so never display a raw `doc('rounds/…')` or `courseinfo` value.
 - Changing data shapes or adding a field means updating `firestore.rules` too, or saves fail with "Couldn't save that change."
 - The API key is locked (HTTP referrer) to `https://asherbaldwin1.github.io/*`, `https://bro2bro-4d153.firebaseapp.com/*` and `http://localhost/*`. Any new address must be added in two places: Google Cloud Console → Credentials → Browser key, and Firebase Auth → Authorized domains.
 

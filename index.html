@@ -1033,6 +1033,12 @@ const $=id=>document.getElementById(id);
 const isObj=v=>v&&typeof v==='object'&&!Array.isArray(v);
 function merge(a,b){if(b===undefined)return a;if(!isObj(a)||!isObj(b))return b;const o={...a};for(const k in b)o[k]=isObj(o[k])&&isObj(b[k])?merge(o[k],b[k]):b[k];return o}
 const arr=(o,n)=>Array.from({length:n},(_,i)=>o&&o[i]!=null?o[i]:null);
+// Members can type into rounds and course details, so numbers and dates are cleaned as they're read:
+// anything that isn't a plain number (or a YYYY-MM-DD date) is dropped before it can reach the page.
+const num=v=>typeof v==='number'&&isFinite(v)?v:typeof v==='string'&&/^-?\d+(\.\d+)?$/.test(v.trim())?+v:null;
+const nums=(o,n)=>arr(o,n).map(num);
+const holesN=v=>{const x=num(v);return x>=1&&x<=27?Math.round(x):18};
+const ymd=v=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v)?v:'';
 const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const STATES=[...new Set(COURSES.map(c=>c.s))].filter(Boolean).sort();
 const colors={white:'#fff',blue:'#2f6fcf',black:'#111',red:'#d33',gold:'#e0b100',yellow:'#e9d11c',green:'#2f9e57',orange:'#e8821a',silver:'#bbb',purple:'#7b4fb0',brown:'#7a5230'};
@@ -1113,10 +1119,11 @@ function fcode(uid){if(CODES[uid])return CODES[uid];let h=2166136261;for(const c
 async function frSet(uid,data){if(!canWrite)return;const p='friends/'+fid(me,uid);try{if(data===null){await db.doc(p).delete();delete D[p]}else{const [a,b]=[me,uid].sort();const body={a,b,...data};await db.doc(p).set(body);D[p]=body}}catch(e){fail(e);return}lastView=null;render()}
 const frAdd=uid=>rel(uid)==='received'?frAccept(uid):frSet(uid,{from:me,status:'pending',created:Date.now()});
 const frAccept=uid=>{const f=doc('friends/'+fid(me,uid))||{};return frSet(uid,{from:f.from||uid,status:'accepted',created:f.created||Date.now(),since:Date.now()}).then(()=>say('You and '+pname(uid)+' are now friends.'))};
-function R(id){const d=doc('rounds/'+id);if(!d)return null;const n=d.n||18;
+function R(id){const d=doc('rounds/'+id);if(!d)return null;const n=holesN(d.n);
  const ps=Object.entries(d.players||{}).filter(([k,v])=>v).sort((a,b)=>(a[1].o||0)-(b[1].o||0));
- const keys=ps.map(x=>x[0]),sc={};keys.forEach(k=>sc[k]=arr(d.scores&&d.scores[k],n));
- return{...d,id,n,par:arr(d.par,n),keys,pl:Object.fromEntries(ps),sc}}
+ const keys=ps.map(x=>x[0]),sc={};keys.forEach(k=>sc[k]=nums(d.scores&&d.scores[k],n));
+ const list=a=>Array.isArray(a)?a.map(num):null;
+ return{...d,id,n,date:ymd(d.date),rating:num(d.rating),slope:num(d.slope),yds:list(d.yds),si:list(d.si),par:nums(d.par,n),keys,pl:Object.fromEntries(ps),sc}}
 const rounds=()=>Object.keys(D).filter(k=>k.startsWith('rounds/')).map(k=>R(k.slice(7))).filter(Boolean);
 const kname=(r,k)=>{const p=r.pl[k];return p.uid?pname(p.uid):(p.name||'Guest')};
 const short=s=>{const w=String(s).split(' ')[0];return w.length>8?w.slice(0,7)+'…':w};
@@ -1130,8 +1137,8 @@ const added=()=>Object.keys(D).filter(k=>k.startsWith('courseinfo/')).map(k=>[k.
 const all=()=>added().concat(COURSES);
 const course=id=>all().find(c=>c.id===id);
 function cdata(c){const u=doc('courseinfo/'+c.id)||{};
- const ct=Object.entries(u.tees||{}).filter(([k,v])=>v&&!c.tees.some(t=>t.n===k)).map(([k,v])=>({n:k,c:'',r:v.r,s:v.s,y:null}));
- let par=c.p;if(!par&&u.par&&u.pn){const a=arr(u.par,u.pn);if(a.some(Boolean))par=a}
+ const ct=Object.entries(u.tees||{}).filter(([k,v])=>v&&!c.tees.some(t=>t.n===k)).map(([k,v])=>({n:k,c:'',r:num(v.r),s:num(v.s),y:null}));
+ let par=c.p;if(!par&&u.par&&u.pn){const a=nums(u.par,holesN(u.pn));if(a.some(Boolean))par=a}
  return{par,tees:c.tees.concat(ct)}}
 const STD=['Red','White','Blue','Black','Gold'];
 function teeList(c){const d=cdata(c),out=STD.map(n=>{const t=d.tees.find(t=>t.n.toLowerCase()===n.toLowerCase());return t?{...t,n}:{n,c:n,r:null,s:null,y:null}});d.tees.forEach(t=>{if(t.r&&!/green/i.test(t.n)&&!STD.some(n=>n.toLowerCase()===t.n.toLowerCase()))out.push(t)});return out}
