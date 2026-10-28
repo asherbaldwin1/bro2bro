@@ -62,6 +62,7 @@ Details are in the code; these are the choices and preferences behind them.
 - **Leaderboards (first version):** Asher will give more detail; **don't redesign this without him.**
 - **Range:** one choice page for "Add to my average" or "Start fresh", with the erase warning on that same page. Asher doesn't want an extra confirm step.
 - **Admin** is reached from Settings or the account menu. It can't change a player's email or password directly (needs the paid Blaze plan), so it offers a password reset email instead. Removing a player deletes their profile but not their login.
+- **View as (admin):** a player's Admin page has "View as …", which shows the app as they see it. It's read-only on purpose: real impersonation needs the paid plan. The Firebase bridge refuses every write while `window.B2B_VIEW` is set, an oxblood banner shows who you're viewing, and Exit reloads the page. Their Range stays hidden because bags are private.
 
 ## Design system: "Clubhouse"
 

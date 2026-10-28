@@ -624,6 +624,10 @@ textarea:focus{outline:none;background:var(--card);box-shadow:0 0 0 3px rgba(184
 /* ---- friend profile ---- */
 .frbtn{display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
 .frrm{flex:none;white-space:nowrap}
+.vabar{position:fixed;top:0;left:0;right:0;z-index:70;height:calc(40px + env(safe-area-inset-top,0px));padding:env(safe-area-inset-top,0px) 12px 0 16px;display:flex;align-items:center;justify-content:center;gap:12px;background:#7A1F2B;color:#F7F3EA;font:500 14px "Public Sans",sans-serif}
+.vat{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.vax{flex:none;height:28px;padding:0 14px;border:0;border-radius:999px;background:#F7F3EA;color:#7A1F2B;font:600 13px "Public Sans",sans-serif;cursor:pointer}
+body.viewas{padding-top:40px}body.viewas .navbar{top:40px}
 .admlist{margin-top:4px}.admlist>.frow:first-child{border-top:0}
 .pop{position:fixed;inset:0;z-index:60;background:rgba(11,20,17,.45);display:flex;align-items:center;justify-content:center;padding:16px;animation:fbfade .15s}
 .popc{width:100%;max-width:340px;background:var(--card);border-radius:22px;padding:24px 20px 18px;box-shadow:0 0 0 1px var(--hair);display:flex;flex-direction:column;align-items:center;text-align:center;animation:fbup .2s ease-out}
@@ -761,9 +765,11 @@ textarea:focus{outline:none;background:var(--card);box-shadow:0 0 0 3px rgba(184
  }
  let first=true;
  auth.onAuthStateChanged(u=>{if(u){gate.hidden=true;done(u)}else{if(!first){location.reload();return}show()}first=false});
- function wDoc(r){return{id:r.id,path:r.path,get:()=>r.get(),set:d=>r.set(d),update:d=>r.set(d,{merge:true}),delete:()=>r.delete(),onSnapshot:(n,e)=>r.onSnapshot(n,e),collection:p=>wCol(r.collection(p))}}
+ // While the admin is viewing as another player, every write is refused here, below the app
+ const ro=()=>window.B2B_VIEW?Promise.reject({code:'view-as'}):null;
+ function wDoc(r){return{id:r.id,path:r.path,get:()=>r.get(),set:d=>ro()||r.set(d),update:d=>ro()||r.set(d,{merge:true}),delete:()=>ro()||r.delete(),onSnapshot:(n,e)=>r.onSnapshot(n,e),collection:p=>wCol(r.collection(p))}}
  function wQ(q){return{where:(a,b,c)=>wQ(q.where(a,b,c)),orderBy:(f,d)=>wQ(q.orderBy(f,d)),limit:n=>wQ(q.limit(n)),get:()=>q.get(),onSnapshot:(n,e)=>q.onSnapshot(n,e)}}
- function wCol(c){const w=wQ(c);w.path=c.path;w.doc=id=>wDoc(id?c.doc(id):c.doc());w.add=d=>c.add(d).then(wDoc);return w}
+ function wCol(c){const w=wQ(c);w.path=c.path;w.doc=id=>wDoc(id?c.doc(id):c.doc());w.add=d=>ro()||c.add(d).then(wDoc);return w}
  const DB={doc:p=>wDoc(fs.doc(p)),collection:p=>wCol(fs.collection(p))};
  const me=()=>{const u=auth.currentUser;return{id:u.uid,name:u.displayName||'',email:u.email||'',avatarUrl:u.photoURL||'',color:color(u.uid),isOwner:isAdmin(u),canEdit:isAdmin(u),pw:u.providerData.some(p=>p.providerId==='password')}};
  const USER={me:async()=>me(),id:async()=>auth.currentUser&&auth.currentUser.uid,name:async()=>me().name,email:async()=>me().email,
@@ -774,7 +780,7 @@ textarea:focus{outline:none;background:var(--card);box-shadow:0 0 0 3px rgba(184
 })();
 </script>
 
-<header class="mast"><div class="in"><div class="brand"><h1>Bro 2 Bro <span class="gc">Golf Club</span></h1><p class="tag">Made by Bros, for Bros.</p><p class="est">EST. 2026</p></div><div id="fhome"></div><div id="thome"></div></div></header><div class="navbar" id="navbar"><nav role="tablist" id="nav"></nav></div>
+<div id="vabar"></div><header class="mast"><div class="in"><div class="brand"><h1>Bro 2 Bro <span class="gc">Golf Club</span></h1><p class="tag">Made by Bros, for Bros.</p><p class="est">EST. 2026</p></div><div id="fhome"></div><div id="thome"></div></div></header><div class="navbar" id="navbar"><nav role="tablist" id="nav"></nav></div>
 <main>
 <div id="note" role="status" aria-live="polite"></div><div id="view"></div>
 </main>
@@ -795,11 +801,11 @@ const colors={white:'#fff',blue:'#2f6fcf',black:'#111',red:'#d33',gold:'#e0b100'
 /* ---------- shared data (db) ---------- */
 let meEmail='',meAvatar='',db=null,user=null,me=null,meName='',canWrite=true,owner=false,state='loading';
 const D={},pend={},fly={},tmr={},busy={},real={};
-let prof={},note='',noteT=0;
+let prof={},note='',noteT=0,VIEW=null;/* VIEW: {uid,name} while the admin is viewing as another player */
 function doc(p){if(!D[p]&&!pend[p]&&!fly[p])return null;return merge(merge(D[p]||{},fly[p]),pend[p])}
 function say(t){note=t;clearTimeout(noteT);noteT=setTimeout(()=>{note='';render()},6000);render()}
-function fail(e){const c=e&&e.code;if(c==='invalid_argument'){canWrite=false;say('This page is view-only for you, so that change wasn’t saved.')}else if(c==='quota_exceeded')say('Storage is full, so that change wasn’t saved.');else say('Couldn’t save that change. Check your connection and try again.')}
-function patch(p,o){if(!canWrite)return;pend[p]=merge(pend[p]||{},o);render();clearTimeout(tmr[p]);tmr[p]=setTimeout(()=>flush(p),300)}
+function fail(e){const c=e&&e.code;if(c==='view-as'){say('You’re viewing as '+VIEW.name+', so nothing is saved.');return}if(c==='invalid_argument'){canWrite=false;say('This page is view-only for you, so that change wasn’t saved.')}else if(c==='quota_exceeded')say('Storage is full, so that change wasn’t saved.');else say('Couldn’t save that change. Check your connection and try again.')}
+function patch(p,o){if(!canWrite)return;if(VIEW){fail({code:'view-as'});return}pend[p]=merge(pend[p]||{},o);render();clearTimeout(tmr[p]);tmr[p]=setTimeout(()=>flush(p),300)}
 async function write(p,o){if(D[p])return db.doc(p).update(o);const full=merge({},o);await db.doc(p).set(full);if(!D[p])D[p]=full}
 async function flush(p){
  if(busy[p]){tmr[p]=setTimeout(()=>flush(p),250);return}
@@ -936,7 +942,7 @@ function toolsHTML(here=true){
   gear:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
   shield:'<svg viewBox="0 0 24 24"><path d="M12 3l7 3v5.5c0 4.4-3 8-7 9.5-4-1.5-7-5.1-7-9.5V6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   out:'<svg viewBox="0 0 24 24"><path d="M14 4H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M11 12h9M17 8.5l3.5 3.5-3.5 3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'};
- const menu=menuOpen&&here?`<div class="amenu" role="menu" aria-label="Account"><div class="ahead"><span class="aav">${av}</span><span class="atx"><b>${esc(nm)}</b><small>${esc(meEmail||'Signed in')}</small></span></div>${item('settings',I.gear,'Settings')+item('friends',I.ppl,'Friends')+item('mine',I.card,'My rounds')+item('invite',I.inv,'Invite friends')}${owner?item('admin',I.shield,'Admin'+(fbOpenN()?`<span class="pill">${fbOpenN()}</span>`:'')):''}<div class="asep"></div>${item('signout',I.out,'Sign out')}</div>`:'';
+ const menu=menuOpen&&here?`<div class="amenu" role="menu" aria-label="Account"><div class="ahead"><span class="aav">${av}</span><span class="atx"><b>${esc(nm)}</b><small>${esc(meEmail||'Signed in')}</small></span></div>${item('settings',I.gear,'Settings')+item('friends',I.ppl,'Friends')+item('mine',I.card,'My rounds')+item('invite',I.inv,'Invite friends')}${owner?item('admin',I.shield,'Admin'+(fbOpenN()?`<span class="pill">${fbOpenN()}</span>`:'')):''}<div class="asep"></div>${VIEW?item('viewexit',I.out,'Exit view as'):item('signout',I.out,'Sign out')}</div>`:'';
  return `<div class="tools">${themeHTML()}<div class="acctw"><button class="acctbtn" data-acct aria-haspopup="menu" aria-expanded="${menuOpen}" aria-label="Account menu${fbOpenN()?', new feedback':''}">${av}</button>${fbOpenN()?'<span class="adot" aria-hidden="true"></span>':''}${menu}</div></div>`;
 }
 function closeMenu(){if(menuOpen){menuOpen=false;lastNav=null;render()}}
@@ -949,6 +955,7 @@ document.addEventListener('click',e=>{
   else if(k==='friends'){go('people')}
   else if(k==='admin'){go('admin')}
   else if(k==='signout'){if(window.B2B)B2B.signOut()}
+  else if(k==='viewexit'){viewExit()}
   else{go('settings');if(k==='invite')setTimeout(()=>{const t=[...document.querySelectorAll('.box b')].find(b=>b.textContent==='Invite friends');if(t)t.closest('.box').scrollIntoView({behavior:'smooth',block:'start'})},60)}
   return}
  if(menuOpen&&!e.target.closest('.amenu'))closeMenu();
@@ -1039,6 +1046,7 @@ const MAXSHOTS=100;/* merged averages keep the most recent 100 shots */
 const shotVals=()=>Array.from({length:SHOTS},(_,i)=>{const e=$('sh'+i),v=e?parseInt(e.value,10):NaN;return v>0&&v<=450?v:null});
 const fmtDay=t=>new Date(t).toLocaleDateString(undefined,{month:'short',day:'numeric'});
 function rangeView(){
+ if(VIEW)return box(`<b>Range</b><p class="sub" style="margin-top:6px">${esc(VIEW.name)}’s bag and distances are private, so even the admin can’t see them.</p>`);
  const b=bag();
  if(!canWrite)return box('<p class="empty">The range is view-only for you.</p>');
  if(bagEdit||!b.clubs.length){
@@ -1089,7 +1097,7 @@ const FBQ={bug:['What went wrong?','What you tapped, what you expected, and what
 // Keep the sheet inside the visible area so the iPhone keyboard never covers it
 function fbFit(){const b=$('fbbg'),v=window.visualViewport;if(!b||!v)return;b.style.top=v.offsetTop+'px';b.style.height=v.height+'px';b.style.bottom='auto';b.classList.toggle('kb',innerHeight-v.height>120)}
 if(window.visualViewport){visualViewport.addEventListener('resize',fbFit);visualViewport.addEventListener('scroll',fbFit)}
-function fbShow(){if(state!=='ok')return;menuOpen=false;fbOpen=true;lastNav=null;render();fbPaint()}
+function fbShow(){if(state!=='ok')return;if(VIEW){fail({code:'view-as'});return}menuOpen=false;fbOpen=true;lastNav=null;render();fbPaint()}
 function fbClose(){fbOpen=false;fbPaint()}
 function fbSend(){const t=$('fbtx'),v=t.value.trim();if(!v){t.focus();return}
  const body={by:me,name:pname(me).slice(0,40),kind:fbKind,text:v.slice(0,2000),page:fbPage().slice(0,80),ua:navigator.userAgent.slice(0,300),scr:(innerWidth+'×'+innerHeight).slice(0,20),at:Date.now(),status:'open'};
@@ -1133,6 +1141,7 @@ function adminView(){
   h+=box(`<label for="admn"><b>Display name</b></label><div class="row" style="flex-wrap:nowrap"><input id="admn" maxlength="24" value="${esc(pname(uid))}" style="flex:1;margin:0;min-width:0"><button class="btn" id="admsave">Save</button></div>${pic?`<div class="slist"><div class="srow photo"><span>Profile photo</span><button class="btn alt sm" id="admpic">Remove photo</button></div></div>`:''}`);
   {const em=doc('emails/'+uid);
    h+=box(`<b>Sign-in</b><div class="slist"><div class="srow static"><span>Email</span><span class="sv">${em?esc(em.email):'Not on file yet'}</span></div><div class="srow static"><span>Signs in with</span><span class="sv">${em?(em.pw?'Email and password':'Google or email link'):'Unknown'}</span></div></div>${em&&em.pw?`<button class="btn alt" id="admreset" style="width:100%;margin-top:12px">Send password reset email</button><p class="sub" style="margin-top:8px">Firebase emails them a link to choose a new password.</p>`:`<p class="sub" style="margin-top:10px">${em?'They don’t use a password, so there’s nothing to reset.':'Their email is saved the next time they open the site.'} Changing someone’s email or password directly needs Firebase’s paid plan.</p>`}`)}
+  if(!self)h+=box(`<b>View as ${esc(pname(uid))}</b><p class="sub" style="margin-top:6px">See the app exactly as they do. It’s read-only: nothing you tap is saved. Exit from the banner at the top.</p><button class="btn alt" id="admview" style="width:100%">View as ${esc(pname(uid))}</button>`);
   if(!self){const bl=D['blocked/'+uid];
    h+=box(bl?`<b>Blocked</b><p class="sub" style="margin-top:6px">Blocked since ${fmtDay(bl.at)}. They can sign in but can’t see or change anything.</p><button class="btn alt" id="admunblock" style="width:100%">Unblock player</button>`:admBlk?`<div class="delc" style="margin:0"><b>Block ${esc(pname(uid))}?</b><p class="sub">They’ll see a “Your account has been blocked” screen and can’t view or change anything in the club. Their profile and rounds stay. You can unblock them anytime.</p><div class="row"><button class="btn danger" id="admblkyes">Block player</button><button class="btn alt" id="admblkno">Cancel</button></div></div>`:`<b>Block from site</b><p class="sub" style="margin-top:6px">Stops them from using Bro 2 Bro without deleting anything.</p><button class="btn danger" id="admblk" style="width:100%">Block player</button>`)}
   if(!self)h+=box(admConf?`<div class="delc" style="margin:0"><b>Remove ${esc(pname(uid))} from the club?</b><p class="sub">Their name and photo are deleted, and they drop off friends lists and leaderboards. Rounds they played stay, but show them as “Friend”. If they sign in again they’ll be asked for a name and start over. This can’t be undone.</p><div class="row"><button class="btn danger" id="admrmyes">Remove player</button><button class="btn alt" id="admrmno">Cancel</button></div></div>`:`<b>Remove from club</b><p class="sub" style="margin-top:6px">Deletes their player profile. To also delete their login, use Firebase Console → Authentication.</p><button class="btn danger" id="admrm" style="width:100%">Remove player</button>`);
@@ -1234,6 +1243,13 @@ function roundsView(){
   return box(`<div class="rhead"><div><b>${esc(r.cn)}</b>${inc?' <span class="pill">Incomplete</span>':''}<br><span class="sub">${r.date} · ${r.rating?esc(r.tn||'Tees')+' · '+r.rating+' / '+r.slope:'no rating yet'}</span></div>${canDel(r)?`<button class="iconbtn" data-del="${r.id}" aria-label="Delete this round">${TRASH}</button>`:''}</div>${delConf===r.id?delBox(r):`${r.rating||!canWrite?'':`<div style="margin:8px 0"><button class="btn alt" data-fix="${r.id}">Add rating and slope</button></div>`}${r.n!==18?`<p class="sub">Only 18-hole rounds count toward handicap.</p>`:''}${open?card(r,false):`<table>${r.keys.map(k=>{const sc=r.sc[k],f=sc.every(v=>v!=null),t=sum(sc);return `<tr><td>${esc(kname(r,k))}</td><td class="r num">${f?t:'incomplete'}</td><td class="r ${full&&t>pp?'over':''}">${f&&full?fmtPar(t-pp):''}</td></tr>`}).join('')}</table>`}<p><button class="btn alt" data-card="${r.id}">${open?'Hide scorecard':'Scorecard'}</button></p>`}`)}).join('');
 }
 let fq='',rmConf=null;
+/* ---------- admin: view as another player (read-only) ---------- */
+function viewAs(uid){if(!owner||uid===me)return;VIEW={uid,name:pname(uid),admin:me};window.B2B_VIEW=true;
+ me=uid;owner=false;meName=VIEW.name;meEmail='';meAvatar='';curId=null;profUid=null;admUid=null;scope='mine';
+ document.body.classList.add('viewas');vaPaint();go('home')}
+// Exiting reloads the page, which signs everything back in as the admin with nothing left over
+function viewExit(){try{history.replaceState(null,'','#admin')}catch(e){}location.reload()}
+function vaPaint(){const k=$('vabar');if(!k)return;k.innerHTML=VIEW?`<div class="vabar" role="status"><span class="vat">Viewing as <b>${esc(VIEW.name)}</b> · nothing is saved</span><button class="vax" id="vaexit">Exit</button></div>`:'';const b=$('vaexit');if(b)b.onclick=viewExit}
 function frAction(uid){const r=rel(uid);if(!canWrite)return '';
  if(r==='friend')return `<span class="fstate">Friends ✓</span>`;
  if(r==='sent')return `<button class="btn alt sm" data-frcancel="${uid}">Requested</button>`;
@@ -1447,6 +1463,7 @@ function bind(){
  on('[data-leave2]',b=>b.onclick=()=>{patch('rounds/'+b.dataset.leave2,{players:{[me]:null}});if(curId===b.dataset.leave2)setCur(null);say('You left that round.')});
  on('[data-fix]',b=>b.onclick=()=>{ask={k:'round',id:b.dataset.fix};err='';render()});
  on('[data-prof]',b=>b.onclick=()=>openProf(b.dataset.prof));
+ click('admview',()=>viewAs(admUid));
  on('[data-crumb]',b=>b.onclick=()=>{const f=CRUMB[b.dataset.crumb];if(f){f();window.scrollTo(0,0)}});
  const fqi=$('fq');if(fqi)fqi.oninput=()=>{fq=fqi.value;render()};
  on('[data-fradd]',b=>b.onclick=()=>{b.disabled=true;frAdd(b.dataset.fradd)});
