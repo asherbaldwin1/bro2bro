@@ -403,9 +403,16 @@ ol.lb li{grid-template-columns:36px 30px 1fr auto}
 .shot input{width:100%;margin:0;padding:12px 2px;text-align:center;font-size:20px;font-weight:600}
 .ravg{display:flex;align-items:baseline;justify-content:center;gap:8px;margin:18px 0 6px}.ravg b{font-size:52px;line-height:1}
 .srow.opt span:first-child{display:flex;flex-direction:column;gap:3px;min-width:0}.srow.opt small{color:var(--mute);font-size:13.5px;line-height:1.35}.srow.opt{padding:14px}.srow.opt small.warn{color:var(--bad)}
+.warn{color:var(--bad)}
 .admrow{width:100%;background:none;border-left:0;border-right:0;border-bottom:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
 .srow .sv.uid{font-size:12px;font-family:ui-monospace,Menlo,monospace}
 .srow .yds{color:var(--ink);font-size:17px}
+.ctiles{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}
+.ctile{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0;padding:11px 12px;border:0;border-radius:12px;background:var(--fill);font:inherit;color:var(--ink);text-align:left;cursor:pointer}
+.ctile.static{cursor:default}
+.ctile>span{font-size:14px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.ctile b{font-size:30px;line-height:1.05}.ctile b small{font:500 14px "Public Sans",sans-serif;color:var(--mute);margin-left:3px}
+.ctile em{font-style:normal;font-size:15px;line-height:34px;color:var(--mute)}
 .srow.photo{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .srow.photo .btn{margin:0;display:inline-flex;align-items:center;justify-content:center;vertical-align:middle}
 .frow .hcp{font-size:30px;min-width:40px;text-align:right}
@@ -591,6 +598,7 @@ textarea:focus{outline:none;background:var(--card);box-shadow:0 0 0 3px rgba(184
 /* ---- computer screens: wider page, Home cards in a row, card pages in two columns ---- */
 @media (min-width:960px){
  main{max-width:1080px;padding-left:24px;padding-right:24px}
+ .ctiles{grid-template-columns:repeat(3,1fr)}
  .mast .in,.navbar nav,.hbin{max-width:1080px}
  #nav{max-width:1048px}
  .hgrid{grid-template-columns:repeat(4,1fr);gap:16px}
@@ -960,7 +968,7 @@ function main(){
 function nameForm(first){return box(`<label for="myn"><b>${first?'What should your friends call you?':'Your name'}</b></label><p class="sub">This name shows on every scorecard you’re on.</p><input id="myn" maxlength="24" value="${esc(first?meName:pname(me))}">${err?`<p class="over">${esc(err)}</p>`:''}<button class="btn" id="mysave">Save</button>${first?'':' <button class="btn alt" id="mycancel">Cancel</button>'}`)}
 function importBox(){if(!OLD||!canWrite)return '';const ps=OLD.players||[];return box(`<b>Rounds saved on this device</b><p class="sub">${OLD.rounds.length} round${OLD.rounds.length===1?'':'s'} from the earlier version live only in this browser. Bring them in so they count toward your handicap. Which player was you?</p><div class="row">${ps.map(p=>`<button class="chip" aria-pressed="${impSel===p.id}" data-imp="${esc(p.id)}">${esc(p.name)}</button>`).join('')}</div><p><button class="btn" id="impgo" ${impSel?'':'disabled'}>Import rounds</button> <button class="btn alt" id="impno">Not now</button></p>`)}
 const PAGES={play:'Play',rounds:'Rounds',people:'Friends',leaders:'Leaderboards',range:'Range',settings:'Settings',admin:'Admin'};
-function go(t,push=true){menuOpen=false;profUid=null;admFb=null;admFbDel=false;rClub=null;rMode=null;admUid=null;admConf=false;admBlk=false;bagEdit=false;bagSel=null;tab=t;ask=null;err='';conf=null;if(push){try{history.pushState({t},'',t==='home'?location.pathname+location.search:'#'+t)}catch(e){}}window.scrollTo(0,0);lastView=null;render();const v=$('view');v.classList.remove('view-in');void v.offsetWidth;v.classList.add('view-in')}
+function go(t,push=true){menuOpen=false;profUid=null;admFb=null;admFbDel=false;rClub=null;rMode=null;rReset=false;admUid=null;admConf=false;admBlk=false;bagEdit=false;bagSel=null;tab=t;ask=null;err='';conf=null;if(push){try{history.pushState({t},'',t==='home'?location.pathname+location.search:'#'+t)}catch(e){}}window.scrollTo(0,0);lastView=null;render();const v=$('view');v.classList.remove('view-in');void v.offsetWidth;v.classList.add('view-in')}
 window.addEventListener('popstate',e=>{const st=e.state||{},t=st.t||(location.hash.slice(1))||'home';go(PAGES[t]?t:'home',false);
  if(t==='admin'&&(st.adm||st.fb)){if(st.adm){admTab='players';admUid=st.adm}else{admTab='fb';admFb=st.fb}render()}
  if(t==='people'&&st.prof){profUid=st.prof;lastView=null;render()}});
@@ -1026,7 +1034,7 @@ const CLUBS=[['dr','Driver','Driver'],['3w','3 Wood','3W'],['5w','5 Wood','5W'],
  ['pw','Pitching Wedge','PW'],['gw','Gap Wedge','GW'],['sw','Sand Wedge','SW'],['lw','Lob Wedge','LW'],['pt','Putter','Putter']];
 const CLUB=Object.fromEntries(CLUBS.map(([k,n,sh])=>[k,{n,sh}])),MAXBAG=14,SHOTS=5;
 const bag=()=>{const d=me&&doc('bags/'+me)||{};return{clubs:(d.clubs||[]).filter(k=>CLUB[k]).sort((a,b)=>CLUBS.findIndex(c=>c[0]===a)-CLUBS.findIndex(c=>c[0]===b)),dist:d.dist||{}}};
-let bagEdit=false,bagSel=null,rClub=null,rMode=null;/* rMode: null (choosing), 'merge' or 'fresh' */
+let bagEdit=false,bagSel=null,rClub=null,rMode=null,rReset=false;/* rMode: null (choosing), 'merge' or 'fresh' */
 const MAXSHOTS=100;/* merged averages keep the most recent 100 shots */
 const shotVals=()=>Array.from({length:SHOTS},(_,i)=>{const e=$('sh'+i),v=e?parseInt(e.value,10):NaN;return v>0&&v<=450?v:null});
 const fmtDay=t=>new Date(t).toLocaleDateString(undefined,{month:'short',day:'numeric'});
@@ -1047,9 +1055,10 @@ function rangeView(){
  }
  rClub=null;
  const rows=b.clubs.map(k=>{const c=CLUB[k],d=b.dist[k];
-  if(k==='pt')return `<div class="srow static"><span>${c.n}</span><span class="sv">No distance</span></div>`;
-  return `<button class="srow" data-rclub="${k}"><span>${c.n}</span><span class="sv">${d?`<b class="yds">${d.avg}</b> yds`:'Add distance'}</span><span class="chev2"></span></button>`}).join('');
- return box(`<div class="rhead"><div><b>Your bag</b><br><span class="sub">${b.clubs.length} club${b.clubs.length===1?'':'s'} · average carry</span></div><button class="btn alt sm" id="bagedit">Edit bag</button></div><div class="slist">${rows}</div>`)+'<p class="sub">Tap a club to log 5 range shots. The new average replaces the old one.</p>';
+  if(k==='pt')return `<div class="ctile static"><span>${c.n}</span><em>No distance</em></div>`;
+  return `<button class="ctile" data-rclub="${k}"><span>${c.n}</span>${d?`<b class="num">${d.avg}<small>yds</small></b>`:'<em>+ Add distance</em>'}</button>`}).join('');
+ return box(`<div class="rhead"><div><b>Your bag</b><br><span class="sub">${b.clubs.length} club${b.clubs.length===1?'':'s'} · average carry</span></div><button class="btn alt sm" id="bagedit">Edit bag</button></div><div class="ctiles">${rows}</div>`)+'<p class="sub">Tap a club to log 5 range shots. The new average replaces the old one.</p>'+
+  (!Object.keys(b.dist).length?'':rReset?box(`<b>Reset all distances?</b><p class="sub" style="margin-top:6px">Erases the saved shots and average for every club. Your clubs stay in your bag.</p><p class="sub"><span class="warn">This can’t be undone.</span></p><div class="row" style="margin-top:12px"><button class="btn danger" id="rresetyes">Reset distances</button><button class="btn alt" id="rresetno">Cancel</button></div>`):'<div class="row"><button class="btn alt sm" id="rreset">Reset distances</button></div>');
 }
 /* ---------- feedback ---------- */
 let fbOpen=false,fbKind='bug',fbText='',admTab='players',admFb=null,admFbDel=false,fbArch=false;
@@ -1269,7 +1278,7 @@ const CRUMB={
  friends:()=>{const st=history.state;if(st&&st.prof)history.back();else{profUid=null;lastView=null;render()}},
  players:()=>{if(admBack())return;admUid=null;admConf=false;render()},
  fb:()=>{if(admBack())return;admFb=null;admFbDel=false;render()},
- bag:()=>{rClub=null;rMode=null;bagEdit=false;bagSel=null;render()},
+ bag:()=>{rClub=null;rMode=null;rReset=false;bagEdit=false;bagSel=null;render()},
  rounds:()=>{ask=null;err='';render()},
  courses:()=>{adding=false;err='';render()}};
 const PBACK=crumb('friends','All friends');
@@ -1373,7 +1382,10 @@ function bind(){
  on('[data-club]',b=>b.onclick=()=>{const k=b.dataset.club;bagSel.has(k)?bagSel.delete(k):bagSel.size<MAXBAG&&bagSel.add(k);render()});
  click('bagsave',()=>{patch('bags/'+me,{clubs:[...bagSel]});bagEdit=false;bagSel=null;render()});
  click('bagcancel',()=>{bagEdit=false;bagSel=null;render()});
- click('bagedit',()=>{bagEdit=true;bagSel=null;render();window.scrollTo(0,0)});
+ click('rreset',()=>{rReset=true;render()});
+ click('rresetno',()=>{rReset=false;render()});
+ click('rresetyes',()=>{db.doc('bags/'+me).set({clubs:bag().clubs,dist:{}}).catch(fail);rReset=false;say('All distances were reset.')});
+ click('bagedit',()=>{rReset=false;bagEdit=true;bagSel=null;render();window.scrollTo(0,0)});
  on('[data-rclub]',b=>b.onclick=()=>{rClub=b.dataset.rclub;rMode=null;render();window.scrollTo(0,0);const f=$('sh0');if(f)f.focus()});
  on('[data-rmode]',b=>b.onclick=()=>{rMode=b.dataset.rmode||null;render();window.scrollTo(0,0);const f=$('sh0');if(f)f.focus()});
  click('shotback',()=>{rClub=null;rMode=null;render()});
