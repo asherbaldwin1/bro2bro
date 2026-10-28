@@ -92,6 +92,8 @@ Upscale, clean, simple, elegant, with some color. Rejected directions: bright fa
 - **Logo:** a racing-green rounded tile with a cream "B2B", a brass "2" and a brass dot. Used as the favicon and on the login screen, not in the Home header.
 - **Phone first:** big tap targets and 16px minimum on inputs (prevents iOS zoom).
 - **Computer screens (960px and wider):** one `@media (min-width:960px)` block widens the page to 1080px. Home's four smaller cards sit in one row under Play. Rounds, Friends (and profiles), Leaderboards, Settings and Admin get `.cols`, and `pack()` stacks their cards into two columns, each card going to the shorter one. Play and Range stay one 720px column. Don't use CSS multi-column (`column-count`/`column-span`): Safari drew the Admin page twice with it.
+- **Glass look (trial, hidden):** only shows with `?look=glass` in the address (a tiny script in `<head>` adds `html.glass`). All its CSS is in one block marked `TRIAL: "glass" look`, scoped to `html.glass`, so the normal design is untouched. Frosted panels over `course-bg.jpg` (Unsplash, free license, saved with the site, pinned with a fixed `body::before` layer because iPhone Safari ignores `background-attachment:fixed`). Day (light) is bright glass with dark text; Night (dark) is dark glass with white text. Chip rows used as switches become iOS segmented controls via `:has()`. The Liquid Glass edge shimmer is a masked `::after` ring whose highlight follows `--sx/--sy`, set from the mouse or phone tilt; iPhones ask once for motion permission after the first tap.
+- **Feedback button:** a megaphone in soft oxblood (`#9A2E3A` light, `#E58A92` dark). Asher picked it over a speech bubble; keep it.
 
 ## Workflow
 

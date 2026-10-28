@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Bro 2 Bro Golf Club</title>
+<script>try{if(new URLSearchParams(location.search).get('look')==='glass')document.documentElement.classList.add('glass')}catch(e){}</script>
 <link rel="icon" type="image/png" href="favicon.png?v=2">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=2">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -672,6 +673,152 @@ body.viewas{padding-top:40px}body.viewas .navbar{top:40px}
 .prr .psc{font-size:26px;line-height:1;text-align:right;min-width:38px}
 .prr .ptp{min-width:34px;text-align:right;font:600 14px "Public Sans",sans-serif;color:var(--mute)}
 .prr .ptp.under{color:var(--accent)}
+/* ---- top spacing: room around Feedback, light/dark and the profile photo ---- */
+#fhome,#thome{top:26px}
+#fhome{left:20px}#thome{right:20px}
+.mast .in{padding-top:92px}
+#nav{padding:14px 4px 12px}
+/* Feedback megaphone: a soft oxblood red, so it stands out without shouting */
+.fbbtn svg{color:#9A2E3A}
+:root[data-theme="dark"] .fbbtn svg{color:#E58A92}
+/* ---- TRIAL: "glass" look, only with ?look=glass in the address ----
+   Frosted panels over a course photo, styled after iOS materials.
+   Night (dark theme) is dark glass with white text; Day (light theme) is bright glass with dark text. */
+html.glass:root{color-scheme:dark;
+ --g-glass:rgba(16,24,20,.44);--g-inner:rgba(255,255,255,.08);--g-chip:rgba(255,255,255,.14);--g-edge:rgba(255,255,255,.16);--g-sep:rgba(255,255,255,.1);
+ --g-ink:#fff;--g-mute:rgba(255,255,255,.66);--g-acc:#D9B77E;--g-btn:#F7F3EA;--g-btnink:#10201A;--g-veil:rgba(4,9,7,.46);--g-bar:rgba(12,19,16,.52);
+ --ink:var(--g-ink);--mute:var(--g-mute);--card:var(--g-glass);--fill:var(--g-inner);--fill2:var(--g-chip);--line:var(--g-sep);--hair:var(--g-sep);--green:var(--g-acc);--green2:var(--g-acc);--on:var(--g-btnink);--bg:#0B1411}
+html.glass[data-theme="light"]:root{color-scheme:light;
+ --g-glass:rgba(250,248,242,.66);--g-inner:rgba(15,61,46,.06);--g-chip:rgba(255,255,255,.55);--g-edge:rgba(255,255,255,.7);--g-sep:rgba(15,40,30,.1);
+ --g-ink:#14201A;--g-mute:rgba(20,32,26,.6);--g-acc:#0F3D2E;--g-btn:#0F3D2E;--g-btnink:#F7F3EA;--g-veil:rgba(4,9,7,.18);--g-bar:rgba(250,248,242,.62)}
+
+/* the photo and a veil so text stays readable */
+html.glass body{background:#0B1411;color:var(--g-ink)}
+/* a fixed layer instead of background-attachment:fixed, which iPhone Safari ignores */
+html.glass body::before{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(var(--g-veil),var(--g-veil)),#0B1411 url("course-bg.jpg") center 70%/cover no-repeat;pointer-events:none}
+html.glass main{padding-left:16px;padding-right:16px}
+
+/* glass surfaces */
+html.glass .box,html.glass .hcard,html.glass .amenu,html.glass .fbsheet,html.glass .popc,html.glass .lbhero{background:var(--g-glass)!important;-webkit-backdrop-filter:blur(28px) saturate(170%);backdrop-filter:blur(28px) saturate(170%);box-shadow:inset 0 0 0 .5px var(--g-edge),0 8px 28px rgba(0,0,0,.14)!important;border:0!important;color:var(--g-ink)!important}
+html.glass .box{border-radius:26px;padding:18px 16px;margin-bottom:14px}
+html.glass .box>b:first-child,html.glass .box .rhead b{font-size:17px;letter-spacing:-.005em}
+
+/* top bar and bottom bar: thin iOS material with a hairline */
+html.glass .navbar,html.glass .holebar{background:var(--g-bar)!important;-webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);border:0!important;box-shadow:inset 0 -.5px 0 var(--g-edge)!important}
+html.glass .holebar{box-shadow:inset 0 .5px 0 var(--g-edge)!important}
+html.glass #nav .back{color:var(--g-ink)}
+html.glass #nav .ttl{color:var(--g-ink)}
+
+/* Home */
+html.glass .mast h1{color:#fff;text-shadow:0 2px 20px rgba(0,0,0,.35)}
+html.glass .mast .gc,html.glass .mast .est{color:#E6C996}
+html.glass .mast .tag{color:rgba(255,255,255,.86);text-shadow:0 1px 10px rgba(0,0,0,.35)}
+html.glass .mast .est::before,html.glass .mast .est::after{background:rgba(230,201,150,.6)}
+html.glass .hgrid{gap:12px}
+html.glass .hcard{border-radius:26px;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s}
+html.glass .hcard:hover{transform:translateY(-5px)!important;box-shadow:inset 0 0 0 .5px var(--g-edge),0 20px 40px rgba(0,0,0,.24)!important}
+html.glass .hcard:active{transform:scale(.97)!important}
+html.glass .c-play{background:rgba(15,61,46,.58)!important;color:#F7F3EA!important}
+html.glass .c-play .hsub,html.glass .c-play .hti{color:#F7F3EA}
+html.glass .c-leaders{background:rgba(184,146,90,.34)!important}
+html.glass[data-theme="light"] .c-leaders{background:rgba(239,226,200,.72)!important}
+html.glass .hcard .chev,html.glass .c-leaders .chev{color:currentColor;opacity:.55}
+html.glass .hcard .hic{color:var(--g-acc)!important;background:var(--g-inner)!important;box-shadow:none!important}
+html.glass .c-play .hic{color:#E6C996!important;background:rgba(255,255,255,.14)!important}
+
+/* text that sits straight on the photo */
+html.glass #view>p.sub,html.glass #view>.sub,html.glass #view>p:not([class]){color:rgba(255,255,255,.86)!important;text-shadow:0 1px 8px rgba(0,0,0,.45);padding:0 4px}
+
+/* buttons */
+html.glass .btn{background:var(--g-btn)!important;color:var(--g-btnink)!important;box-shadow:none!important;min-height:48px;font-weight:600;transition:transform .12s,opacity .12s}
+html.glass .btn.alt,html.glass .pback,html.glass .fbx,html.glass .fbbtn,html.glass .theme{background:var(--g-chip)!important;color:var(--g-ink)!important;-webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%);box-shadow:inset 0 0 0 .5px var(--g-edge)!important}
+html.glass .btn.sm{min-height:36px}
+html.glass .btn.danger{background:#7A1F2B!important;color:#F7F3EA!important}
+html.glass .btn:active,html.glass .chip:active,html.glass .pk:active,html.glass .srow:active,html.glass .ctile:active,html.glass .fbbtn:active,html.glass .pback:active{transform:scale(.97);opacity:.85}
+html.glass .theme button{color:var(--g-mute)}
+html.glass .theme button[aria-pressed=true]{background:var(--g-btn)!important;color:var(--g-btnink)!important;box-shadow:0 1px 4px rgba(0,0,0,.18)!important}
+html.glass .acctbtn{box-shadow:0 0 0 .5px var(--g-edge),0 2px 8px rgba(0,0,0,.2)!important}
+
+/* chips, and chip rows used as switches become one iOS segmented control */
+html.glass .chip{background:var(--g-chip)!important;color:var(--g-ink)!important;box-shadow:inset 0 0 0 .5px var(--g-edge)}
+html.glass .chip[aria-pressed=true]{background:var(--g-btn)!important;color:var(--g-btnink)!important;box-shadow:none}
+html.glass .row:has(>.chip[data-lb]),html.glass .row:has(>.chip[data-scope]),html.glass .row:has(>.chip[data-admtab]),html.glass .row:has(>.chip[data-fba]){display:flex;flex-wrap:nowrap;gap:2px;padding:3px;border-radius:999px;background:var(--g-glass);-webkit-backdrop-filter:blur(24px) saturate(170%);backdrop-filter:blur(24px) saturate(170%);box-shadow:inset 0 0 0 .5px var(--g-edge)}
+html.glass .row:has(>.chip[data-lb])>.chip,html.glass .row:has(>.chip[data-scope])>.chip,html.glass .row:has(>.chip[data-admtab])>.chip,html.glass .row:has(>.chip[data-fba])>.chip{flex:1;margin:0;background:none!important;box-shadow:none;min-height:36px;padding:6px 10px;font-size:14.5px}
+html.glass .row:has(>.chip[data-lb])>.chip[aria-pressed=true],html.glass .row:has(>.chip[data-scope])>.chip[aria-pressed=true],html.glass .row:has(>.chip[data-admtab])>.chip[aria-pressed=true],html.glass .row:has(>.chip[data-fba])>.chip[aria-pressed=true]{background:var(--g-btn)!important;color:var(--g-btnink)!important;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+html.glass .box .row:has(>.chip[data-fba]){background:var(--g-inner);box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+
+/* grouped lists and tiles inside cards */
+html.glass .slist{background:var(--g-inner)!important;border-radius:16px}
+html.glass .srow{color:var(--g-ink);border-top:0!important}
+html.glass .srow+.srow::before{content:"";position:absolute;top:0;left:14px;right:0;height:.5px;background:var(--g-sep)}
+html.glass .frow{border-color:var(--g-sep)!important}
+html.glass .ctile,html.glass .pk{background:var(--g-inner)!important;color:var(--g-ink)}
+html.glass .pk.on{background:var(--g-btn)!important;color:var(--g-btnink)!important}
+html.glass .pill{background:color-mix(in srgb,var(--g-acc) 22%,transparent);color:var(--g-ink)}
+
+/* fields */
+html.glass input,html.glass select,html.glass textarea{background:var(--g-inner)!important;color:var(--g-ink)!important;border-radius:14px;box-shadow:inset 0 0 0 .5px var(--g-sep)}
+html.glass input:focus,html.glass select:focus,html.glass textarea:focus{box-shadow:inset 0 0 0 .5px var(--g-sep),0 0 0 3px color-mix(in srgb,var(--g-acc) 45%,transparent)!important}
+html.glass input::placeholder,html.glass textarea::placeholder{color:var(--g-mute)}
+html.glass .sub,html.glass small,html.glass .empty{color:var(--g-mute)}
+
+/* scorecard */
+html.glass .cardwrap{background:var(--g-inner)!important;box-shadow:none!important;border-radius:16px}
+html.glass table.sc{background:transparent!important}
+html.glass .sc th,html.glass .sc td{color:var(--g-ink);border-color:var(--g-sep)!important;background:transparent}
+html.glass .sc .cur{background:color-mix(in srgb,var(--g-acc) 22%,transparent)!important}
+
+/* menu, sheet, popup, toast */
+html.glass .amenu{border-radius:22px}
+html.glass .amenu [role=menuitem]:hover{background:var(--g-inner)}
+html.glass .fbk,html.glass .pop{background:rgba(0,0,0,.32)}
+html.glass .fbsheet{border-radius:30px 30px 0 0}
+html.glass .fbsheet::before{content:"";display:block;width:38px;height:5px;border-radius:3px;background:var(--g-mute);opacity:.5;margin:-8px auto 12px}
+@media (min-width:700px){html.glass .fbsheet{border-radius:30px}}
+html.glass .popc{border-radius:28px}
+html.glass .toast{background:var(--g-glass)!important;color:var(--g-ink)!important;-webkit-backdrop-filter:blur(28px) saturate(170%);backdrop-filter:blur(28px) saturate(170%);box-shadow:inset 0 0 0 .5px var(--g-edge),0 10px 30px rgba(0,0,0,.25)!important;border-radius:999px;padding:11px 18px}
+
+/* hole strip and hole buttons */
+html.glass .strip button{background:var(--g-inner)!important;color:var(--g-mute)!important;box-shadow:none!important}
+html.glass .strip button.done{background:var(--g-chip)!important;color:var(--g-ink)!important}
+html.glass .strip button[aria-current=true]{background:var(--g-btn)!important;color:var(--g-btnink)!important;box-shadow:0 2px 10px rgba(0,0,0,.2)!important}
+html.glass .hbtn{background:var(--g-chip)!important;color:var(--g-ink)!important;box-shadow:inset 0 0 0 .5px var(--g-edge)!important}
+html.glass .hbtn.nx{background:var(--g-btn)!important;color:var(--g-btnink)!important;box-shadow:none!important}
+
+/* breathing room under the top bar, and a soft shade behind the Home title so it reads on bright sky */
+html.glass main{padding-top:16px}
+html.glass .mast{background:linear-gradient(180deg,rgba(0,0,0,.34),rgba(0,0,0,0))!important}
+html.glass .mast .est{color:#F2DDB5;text-shadow:0 1px 8px rgba(0,0,0,.4)}
+
+/* top bar: thinner, and the Feedback icon sits plainly next to "‹ Home" like an iOS toolbar button */
+html.glass #nav{padding:5px 4px}
+html.glass #nav .fbbtn{background:none!important;box-shadow:none!important;-webkit-backdrop-filter:none;backdrop-filter:none;color:var(--g-ink)!important;width:40px}
+html.glass #nav .fbbtn:hover{background:var(--g-inner)!important}
+html.glass #nav .fbbtn svg{width:21px;height:21px}
+
+/* keep the frosted bars on their own layer so they don't flash while things under them redraw */
+html.glass .navbar,html.glass .holebar{transform:translateZ(0);-webkit-backface-visibility:hidden;backface-visibility:hidden}
+html.glass body::before{transform:translateZ(0)}
+html.glass body{background:#2E3B35}
+
+/* Liquid Glass shimmer: a thin light along each panel's edge that slides with phone tilt or the mouse */
+@property --sx{syntax:"<percentage>";inherits:true;initial-value:25%}
+@property --sy{syntax:"<percentage>";inherits:true;initial-value:0%}
+html.glass{transition:--sx .6s cubic-bezier(.2,.8,.2,1),--sy .6s cubic-bezier(.2,.8,.2,1)}
+html.glass .box,html.glass .lbhero{position:relative}
+html.glass :is(.box,.hcard,.amenu,.fbsheet,.popc,.lbhero,.toast)::after{content:"";display:block!important;position:absolute;inset:0;border-radius:inherit;pointer-events:none;padding:1.2px;z-index:1;
+ background:radial-gradient(130% 100% at var(--sx,25%) var(--sy,0%),rgba(255,255,255,.95),rgba(255,255,255,.28) 32%,rgba(255,255,255,0) 62%);
+ -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+html.glass[data-theme="light"] :is(.box,.hcard,.amenu,.fbsheet,.popc,.lbhero,.toast)::after{background:radial-gradient(130% 100% at var(--sx,25%) var(--sy,0%),#fff,rgba(255,255,255,.55) 32%,rgba(255,255,255,0) 62%)}
+html.glass .hcard::after{opacity:1!important;width:auto!important;height:auto!important;right:0!important;bottom:0!important}
+
+/* megaphone red in glass, tuned to each version */
+html.glass .fbbtn svg,html.glass #nav .fbbtn svg{color:#E8939A!important}
+html.glass[data-theme="light"] .fbbtn svg,html.glass[data-theme="light"] #nav .fbbtn svg{color:#9A2E3A!important}
+
+/* Home card icons: just the icon, no box behind it */
+html.glass .hcard .hic,html.glass .c-play .hic{background:none!important;box-shadow:none!important;width:auto;height:auto;padding:0}
+html.glass .hcard .hic svg{width:28px;height:28px}
 </style>
 </head>
 <body>
@@ -1068,9 +1215,20 @@ function rangeView(){
  return box(`<div class="rhead"><div><b>Your bag</b><br><span class="sub">${b.clubs.length} club${b.clubs.length===1?'':'s'} · average carry</span></div><button class="btn alt sm" id="bagedit">Edit bag</button></div><div class="ctiles">${rows}</div>`)+'<p class="sub">Tap a club to log 5 range shots. The new average replaces the old one.</p>'+
   (!Object.keys(b.dist).length?'':rReset?box(`<b>Reset all distances?</b><p class="sub" style="margin-top:6px">Erases the saved shots and average for every club. Your clubs stay in your bag.</p><p class="sub"><span class="warn">This can’t be undone.</span></p><div class="row" style="margin-top:12px"><button class="btn danger" id="rresetyes">Reset distances</button><button class="btn alt" id="rresetno">Cancel</button></div>`):'<div class="row"><button class="btn alt sm" id="rreset">Reset distances</button></div>');
 }
+/* ---------- Liquid Glass shimmer (glass look only): tilt or mouse moves the edge light ---------- */
+(()=>{const R=document.documentElement;if(!R.classList.contains('glass'))return;
+ // the CSS eases --sx/--sy (see @property in the glass styles), so this only sets where the light should be
+ const aim=(x,y)=>{R.style.setProperty('--sx',(Math.max(-.2,Math.min(1.2,x))*100).toFixed(1)+'%');R.style.setProperty('--sy',(Math.max(-.2,Math.min(1.2,y))*100).toFixed(1)+'%')};
+ addEventListener('pointermove',e=>{if(e.pointerType==='mouse')aim(e.clientX/innerWidth,e.clientY/innerHeight)},{passive:true});
+ // a phone held upright leans about 45° back; ±35° of tilt sweeps the light across
+ const ori=e=>{if(e.gamma==null)return;aim(.5+e.gamma/70,.5+(e.beta-45)/70)};
+ const DOE=window.DeviceOrientationEvent;
+ if(DOE&&typeof DOE.requestPermission==='function')addEventListener('touchend',()=>{DOE.requestPermission().then(s=>{if(s==='granted')addEventListener('deviceorientation',ori)}).catch(()=>{})},{once:true});
+ else if(DOE)addEventListener('deviceorientation',ori);
+})();
 /* ---------- feedback ---------- */
 let fbOpen=false,fbKind='bug',fbText='',admTab='players',admFb=null,admFbDel=false,fbArch=false;
-const FBI='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h14a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2h-7.5L7 20.5V17H5a2 2 0 0 1-2-2V6.5a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 8v3.6M12 14.3v.1" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
+const FBI='<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a3 3 0 0 1 0 6"/><path d="M10 8v11a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1v-5"/><path d="M12 8l4.52-3.77a.9.9 0 0 1 1.48.69v12.16a.9.9 0 0 1-1.48.69L12 14H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1h8"/></svg>';
 const fbBtn=()=>state==='ok'?`<button class="fbbtn" data-fb aria-label="Send feedback">${FBI}<span>Feedback</span></button>`:'';
 const fbs=()=>Object.keys(D).filter(k=>k.startsWith('feedback/')).map(k=>({id:k.slice(9),...doc(k)})).filter(f=>f.text).sort((a,b)=>(b.at||0)-(a.at||0));
 const fbOpenN=()=>owner?fbs().filter(f=>f.status==='open').length:0;
