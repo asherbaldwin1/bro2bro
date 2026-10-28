@@ -598,14 +598,14 @@ textarea:focus{outline:none;background:var(--card);box-shadow:0 0 0 3px rgba(184
  .hgrid .hcard:not(.c-play) .hti{font-size:28px}
  .c-play,:root[data-theme="dark"] .c-play{min-height:190px}
  #view.narrow{max-width:720px;margin:0 auto}
- #view.cols{column-count:2;column-gap:16px}
- #view.cols>*{break-inside:avoid}
- #view.cols>.box{display:inline-block;width:100%;vertical-align:top}
- #view.cols>.row,#view.cols>h2.sect,#view.cols>.lbhero,#view.cols>.pgrid,#view.cols>p,#view.cols>.note{column-span:all}
+ #view.cols{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;align-items:start}
+ #view.cols>:not(.box),#view.cols>.box:has(.phero){grid-column:1/-1}
  #view.cols>.pgrid{grid-template-columns:repeat(6,1fr)}
- #view.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;align-items:start}
- #view.rgrid>:not(.box){grid-column:1/-1}
- #view.cols>.box:has(.phero){display:block;column-span:all;margin-bottom:14px}
+ .mcols{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;margin-bottom:14px}
+ .mcol{min-width:0}.mcol>.box:last-child{margin-bottom:0}
+ #view.cols>.box:has(.admlist){grid-column:1/-1}
+ .admlist{display:grid;grid-template-columns:1fr 1fr;column-gap:28px}
+ .admlist>.frow:nth-child(2){border-top:0}
  #view .phero{flex-direction:row;text-align:left;gap:22px;padding:4px 6px 6px}
  #view .phero .pid{align-items:flex-start}
  #view .phero .pname{margin-top:0}
@@ -616,6 +616,7 @@ textarea:focus{outline:none;background:var(--card);box-shadow:0 0 0 3px rgba(184
 /* ---- friend profile ---- */
 .frbtn{display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
 .frrm{flex:none;white-space:nowrap}
+.admlist{margin-top:4px}.admlist>.frow:first-child{border-top:0}
 .pop{position:fixed;inset:0;z-index:60;background:rgba(11,20,17,.45);display:flex;align-items:center;justify-content:center;padding:16px;animation:fbfade .15s}
 .popc{width:100%;max-width:340px;background:var(--card);border-radius:22px;padding:24px 20px 18px;box-shadow:0 0 0 1px var(--hair);display:flex;flex-direction:column;align-items:center;text-align:center;animation:fbup .2s ease-out}
 .popt{font:700 24px/1.1 "Barlow Condensed","Arial Narrow",sans-serif;margin-top:12px;white-space:nowrap}
@@ -890,14 +891,23 @@ function render(){
  const html=main();if(html===lastView)return;lastView=html;
  const v=$('view');v.innerHTML=html;
  // On a computer, card pages flow into two columns; Play stays one column
- const one=tab==='play'||tab==='range'||(tab==='rounds'&&ask);
- v.classList.toggle('cols',state==='ok'&&COLS.includes(tab)&&!one&&tab!=='rounds');v.classList.toggle('rgrid',state==='ok'&&tab==='rounds'&&!one);v.classList.toggle('narrow',one||state!=='ok');
+ const two=state==='ok'&&COLS.includes(tab)&&!(tab==='rounds'&&ask);
+ v.classList.toggle('cols',two);v.classList.toggle('narrow',!two&&tab!=='home');
+ if(two&&wide())pack(v);
  for(const k in keep){const i=$(k);if(i&&(i.tagName==='INPUT'||i.tagName==='TEXTAREA')&&k!=='q')i.value=keep[k]}
  if(fid){const i=$(fid);if(i){i.focus();try{ss&&i.setSelectionRange(ss[0],ss[1])}catch(e){}}}
  bind();
 }
 let lastView=null,lastNav=null,lastNote=null;
 const COLS=['rounds','people','leaders','settings','admin'];
+const wide=()=>matchMedia('(min-width:960px)').matches;
+// Stacks each run of cards into two columns, each card going to the shorter column, so there are no gaps under short cards
+function pack(v){let run=[];
+ const flush=()=>{if(run.length>1){const hs=run.map(e=>e.offsetHeight),w=document.createElement('div'),c=[document.createElement('div'),document.createElement('div')],t=[0,0];
+  w.className='mcols';c.forEach(x=>{x.className='mcol';w.append(x)});run[0].before(w);
+  run.forEach((e,i)=>{const k=t[0]<=t[1]?0:1;c[k].append(e);t[k]+=hs[i]})}run=[]};
+ [...v.children].forEach(e=>{if(e.classList.contains('box')&&!e.querySelector('.phero,.admlist'))run.push(e);else flush()});flush()}
+let wasWide=wide();addEventListener('resize',()=>{if(wide()!==wasWide){wasWide=wide();lastView=null;render()}});
 // Shrinks the page title a little on narrow phones so it never overlaps the buttons beside it.
 function fitTtl(){const t=document.querySelector('#nav .ttl');if(!t)return;t.style.fontSize='';let f=22;while(t.scrollWidth>t.clientWidth+1&&f>16){f--;t.style.fontSize=f+'px'}}
 addEventListener('resize',fitTtl);
@@ -1026,14 +1036,14 @@ function rangeView(){
  if(bagEdit||!b.clubs.length){
   if(!bagSel)bagSel=new Set(b.clubs);
   const full=bagSel.size>=MAXBAG;
-  return box(`<div class="rhead"><div><b>What’s in your bag?</b><br><span class="sub">Pick up to ${MAXBAG} clubs.</span></div><span class="bagn num">${bagSel.size}<small>/${MAXBAG}</small></span></div><div class="clubgrid">${CLUBS.map(([k,,sh])=>{const on=bagSel.has(k);return `<button class="chip" data-club="${k}" aria-pressed="${on}" ${!on&&full?'disabled':''}>${sh}</button>`}).join('')}</div>${full?'<p class="sub" style="margin-top:12px">Your bag is full. Tap a club to take it out.</p>':''}<div class="row" style="margin-top:14px"><button class="btn" id="bagsave" ${bagSel.size?'':'disabled'}>Save bag</button>${b.clubs.length?'<button class="btn alt" id="bagcancel">Cancel</button>':''}</div>`);
+  return box(`${b.clubs.length?crumb('bag','Your bag'):''}<div class="rhead"><div><b>What’s in your bag?</b><br><span class="sub">Pick up to ${MAXBAG} clubs.</span></div><span class="bagn num">${bagSel.size}<small>/${MAXBAG}</small></span></div><div class="clubgrid">${CLUBS.map(([k,,sh])=>{const on=bagSel.has(k);return `<button class="chip" data-club="${k}" aria-pressed="${on}" ${!on&&full?'disabled':''}>${sh}</button>`}).join('')}</div>${full?'<p class="sub" style="margin-top:12px">Your bag is full. Tap a club to take it out.</p>':''}<div class="row" style="margin-top:14px"><button class="btn" id="bagsave" ${bagSel.size?'':'disabled'}>Save bag</button>${b.clubs.length?'<button class="btn alt" id="bagcancel">Cancel</button>':''}</div>`);
  }
  if(rClub&&CLUB[rClub]){const c=CLUB[rClub],d=b.dist[rClub],n=d&&d.shots?d.shots.length:0;
   if(!d)rMode='fresh';
-  const head=`<div class="rhead"><div><b class="an">${c.n}</b><br><span class="sub">${d?`Current average <b>${d.avg} yds</b> · ${n} shot${n===1?'':'s'} · ${fmtDay(d.at)}`:'No distance yet'}</span></div></div>`;
-  if(!rMode)return box(`${head}<p class="sub" style="margin-top:12px">How do you want to log this session?</p><div class="slist"><button class="srow opt" data-rmode="merge"><span><b>Add to my average</b><small>Your next ${SHOTS} shots join the ${n} already saved.</small></span><span class="chev2"></span></button><button class="srow opt" data-rmode="fresh"><span><b>Start fresh</b><small>Replace your average with just these ${SHOTS} shots.</small><small class="warn">Erases all ${n} saved shot${n===1?'':'s'} and your ${d.avg} yd average. This can’t be undone.</small></span><span class="chev2"></span></button></div><div class="row" style="margin-top:14px"><button class="btn alt" id="shotback">Back</button></div>`);
+  const head=`${crumb('bag','Your bag')}<div class="rhead"><div><b class="an">${c.n}</b><br><span class="sub">${d?`Current average <b>${d.avg} yds</b> · ${n} shot${n===1?'':'s'} · ${fmtDay(d.at)}`:'No distance yet'}</span></div></div>`;
+  if(!rMode)return box(`${head}<p class="sub" style="margin-top:12px">How do you want to log this session?</p><div class="slist"><button class="srow opt" data-rmode="merge"><span><b>Add to my average</b><small>Your next ${SHOTS} shots join the ${n} already saved.</small></span><span class="chev2"></span></button><button class="srow opt" data-rmode="fresh"><span><b>Start fresh</b><small>Replace your average with just these ${SHOTS} shots.</small><small class="warn">Erases all ${n} saved shot${n===1?'':'s'} and your ${d.avg} yd average. This can’t be undone.</small></span><span class="chev2"></span></button></div>`);
   const merge=rMode==='merge';
-  return box(`${head}<p class="sub" style="margin-top:12px">${merge?`Adding to your average. `:''}Hit ${SHOTS} shots and enter how far each one carried, in yards.</p><div class="shots">${Array.from({length:SHOTS},(_,i)=>`<label class="shot"><small>Shot ${i+1}</small><input id="sh${i}" inputmode="numeric" pattern="[0-9]*" maxlength="3" enterkeyhint="${i<SHOTS-1?'next':'done'}" autocomplete="off" aria-label="Shot ${i+1} yards"></label>`).join('')}</div><div class="ravg"><span class="sub">${merge?'New average':'Average'}</span><b class="num" id="ravg">–</b><span class="sub">yds</span></div>${merge?'<p class="sub" id="ravgsub" style="text-align:center;margin:0 0 6px">&nbsp;</p>':''}<div class="row endrow"><button class="btn" id="shotsave" disabled>Save average</button><button class="btn alt" id="shotback">Back</button></div>`);
+  return box(`${head}<p class="sub" style="margin-top:12px">${merge?`Adding to your average. `:''}Hit ${SHOTS} shots and enter how far each one carried, in yards.</p><div class="shots">${Array.from({length:SHOTS},(_,i)=>`<label class="shot"><small>Shot ${i+1}</small><input id="sh${i}" inputmode="numeric" pattern="[0-9]*" maxlength="3" enterkeyhint="${i<SHOTS-1?'next':'done'}" autocomplete="off" aria-label="Shot ${i+1} yards"></label>`).join('')}</div><div class="ravg"><span class="sub">${merge?'New average':'Average'}</span><b class="num" id="ravg">–</b><span class="sub">yds</span></div>${merge?'<p class="sub" id="ravgsub" style="text-align:center;margin:0 0 6px">&nbsp;</p>':''}<div class="row endrow"><button class="btn" id="shotsave" disabled>Save average</button><button class="btn alt" id="shotback">Cancel</button></div>`);
  }
  rClub=null;
  const rows=b.clubs.map(k=>{const c=CLUB[k],d=b.dist[k];
@@ -1090,14 +1100,14 @@ function fbAdmin(){
  if(admFb&&!f)admFb=null;
  if(f){const notes=Object.entries(f.notes||{}).filter(([,t])=>t).sort((a,b)=>+a[0]-+b[0]),arch=f.status==='done';
   const cur=FBST[f.status]?f.status:'open';
-  let h=box(`<div><span class="pill ${f.kind==='bug'?'bug':''}" style="margin:0">${KIND[f.kind]||'Feedback'}</span> ${fbPill(cur)}</div><p class="fbtext">${esc(f.text)}</p><div class="slist"><div class="srow static"><span>From</span><span class="sv">${esc(f.by&&doc('players/'+f.by)?pname(f.by):f.name||'Unknown')}</span></div><div class="srow static"><span>Sent</span><span class="sv">${f.at?fmtWhen(f.at):''}</span></div><div class="srow static"><span>Page</span><span class="sv">${esc(f.page||'')}</span></div><div class="srow static"><span>Device</span><span class="sv">${esc(devName(f.ua))}</span></div>${f.scr?`<div class="srow static"><span>Screen</span><span class="sv">${esc(f.scr)}</span></div>`:''}${arch&&f.closed?`<div class="srow static"><span>Completed</span><span class="sv">${fmtWhen(f.closed)}</span></div>`:''}</div>`);
+  let h=box(`${crumb('fb',arch?'Complete':'Queue')}<div><span class="pill ${f.kind==='bug'?'bug':''}" style="margin:0">${KIND[f.kind]||'Feedback'}</span> ${fbPill(cur)}</div><p class="fbtext">${esc(f.text)}</p><div class="slist"><div class="srow static"><span>From</span><span class="sv">${esc(f.by&&doc('players/'+f.by)?pname(f.by):f.name||'Unknown')}</span></div><div class="srow static"><span>Sent</span><span class="sv">${f.at?fmtWhen(f.at):''}</span></div><div class="srow static"><span>Page</span><span class="sv">${esc(f.page||'')}</span></div><div class="srow static"><span>Device</span><span class="sv">${esc(devName(f.ua))}</span></div>${f.scr?`<div class="srow static"><span>Screen</span><span class="sv">${esc(f.scr)}</span></div>`:''}${arch&&f.closed?`<div class="srow static"><span>Completed</span><span class="sv">${fmtWhen(f.closed)}</span></div>`:''}</div>`);
   h+=box(`<b>Status</b><div class="seg fbseg" role="radiogroup" aria-label="Status">${Object.entries(FBST).map(([k,l])=>`<button role="radio" data-fbst="${k}" aria-checked="${k===cur}" aria-selected="${k===cur}">${l}</button>`).join('')}</div><p class="sub" style="margin:0">${cur==='done'?'Complete tickets live in the Complete list.':'Mark it Complete when it’s fixed or done.'}</p>`);
   h+=box(`<b>Notes</b><p class="sub" style="margin-top:4px">Only you can see these.</p>${notes.map(([at,t])=>`<div class="fbnote"><small class="sub">${fmtWhen(+at)}</small><p>${esc(t)}</p></div>`).join('')}<label for="fbnote" class="sr" style="position:absolute;left:-9999px">Add a note</label><textarea id="fbnote" rows="3" maxlength="1000" placeholder="Add a note, like what you found or what you fixed" style="margin-top:10px;min-height:80px"></textarea><button class="btn alt" id="fbnadd" style="width:100%">Add note</button>`);
   h+=box(admFbDel?`<div class="delc" style="margin:0"><b>Delete this for good?</b><p class="sub">The feedback and your notes are erased. This can’t be undone.</p><div class="row"><button class="btn danger" id="fbdelyes">Delete</button><button class="btn alt" id="fbdelno">Cancel</button></div></div>`:`<b>Delete</b><p class="sub" style="margin-top:6px">Erase it completely instead of archiving.</p><button class="btn danger" id="fbdel" style="width:100%">Delete for good</button>`);
-  return h+`<p><button class="btn alt" id="fbback">Back to ${arch?'Complete':'Queue'}</button></p>`;
+  return h;
  }
  const list=fbArch?done:open;
- return box(`<div class="rhead"><div><b>${fbArch?'Complete':'Feedback queue'}</b><br><span class="sub">${fbArch?'Finished feedback, newest first':open.length?open.length+' to review · newest first':'All caught up'}</span></div></div><div class="row" style="margin-top:12px;flex-wrap:nowrap"><button class="chip" aria-pressed="${!fbArch}" data-fba="">Queue · ${open.length}</button><button class="chip" aria-pressed="${fbArch}" data-fba="1">Complete · ${done.length}</button></div>${list.map(f=>{const n=Object.values(f.notes||{}).filter(Boolean).length;return `<button class="frow admrow fbrow" data-fbid="${esc(f.id)}">${face(f.by,f.name)}<span class="fwho"><b class="fbline">${esc(f.text.split('\n')[0])}</b><small>${fbArch?'':fbPill(f.status)}<span class="pill ${f.kind==='bug'?'bug':''}" style="margin:0 4px 0 0">${KIND[f.kind]||'Feedback'}</span>${esc(f.by&&doc('players/'+f.by)?pname(f.by):f.name||'')} · ${f.at?fmtDay(f.at):''}${n?' · '+n+' note'+(n===1?'':'s'):''}</small></span><span class="chev2"></span></button>`}).join('')||`<p class="empty">${fbArch?'Nothing complete yet.':'No open feedback. Nice.'}</p>`}`)+'<p class="sub">Testers send these with the Feedback button at the top left of every page. Tap one to set its status, add notes, or delete it.</p>';
+ return box(`<div class="rhead"><div><b>${fbArch?'Complete':'Feedback queue'}</b><br><span class="sub">${fbArch?'Finished feedback, newest first':open.length?open.length+' to review · newest first':'All caught up'}</span></div></div><div class="row" style="margin-top:12px;flex-wrap:nowrap"><button class="chip" aria-pressed="${!fbArch}" data-fba="">Queue · ${open.length}</button><button class="chip" aria-pressed="${fbArch}" data-fba="1">Complete · ${done.length}</button></div><div class="admlist">${list.map(f=>{const n=Object.values(f.notes||{}).filter(Boolean).length;return `<button class="frow admrow fbrow" data-fbid="${esc(f.id)}">${face(f.by,f.name)}<span class="fwho"><b class="fbline">${esc(f.text.split('\n')[0])}</b><small>${fbArch?'':fbPill(f.status)}<span class="pill ${f.kind==='bug'?'bug':''}" style="margin:0 4px 0 0">${KIND[f.kind]||'Feedback'}</span>${esc(f.by&&doc('players/'+f.by)?pname(f.by):f.name||'')} · ${f.at?fmtDay(f.at):''}${n?' · '+n+' note'+(n===1?'':'s'):''}</small></span><span class="chev2"></span></button>`}).join('')}</div>${list.length?'':`<p class="empty">${fbArch?'Nothing complete yet.':'No open feedback. Nice.'}</p>`}`)+'<p class="sub">Testers send these with the Feedback button at the top left of every page. Tap one to set its status, add notes, or delete it.</p>';
 }
 /* ---------- admin ---------- */
 let admUid=null,admConf=false,admQ='',admBlk=false;
@@ -1110,19 +1120,19 @@ function adminView(){
  const p=admUid&&doc('players/'+admUid);
  if(admUid&&!p)admUid=null;
  if(admUid&&admTab==='players'){const uid=admUid,st=pstats(uid),self=uid===me,pic=picOf(uid);
-  let h=box(`<div class="acct">${face(uid,'','xl')}<div class="grow"><b class="an">${esc(pname(uid))}${self?' <span class="sub">(you)</span>':''}</b><span class="sub">Code ${fcode(uid)}${p.joined?' · joined '+fmtDay(p.joined):''}</span></div></div><div class="slist"><div class="srow static"><span>Rounds saved</span><span class="sv">${st.rounds}${st.live?' · '+st.live+' unfinished':''}</span></div><div class="srow static"><span>Last round</span><span class="sv">${st.last?esc(st.last.cn)+' · '+st.last.date:'None yet'}</span></div><div class="srow static"><span>Handicap index</span><span class="sv">${st.ix==null?'Not yet':st.ix}</span></div><div class="srow static"><span>Friends</span><span class="sv">${st.friends}</span></div><div class="srow static"><span>Account ID</span><span class="sv uid">${esc(uid)}</span></div></div>`);
+  let h=box(`${crumb('players','All players')}<div class="acct">${face(uid,'','xl')}<div class="grow"><b class="an">${esc(pname(uid))}${self?' <span class="sub">(you)</span>':''}</b><span class="sub">Code ${fcode(uid)}${p.joined?' · joined '+fmtDay(p.joined):''}</span></div></div><div class="slist"><div class="srow static"><span>Rounds saved</span><span class="sv">${st.rounds}${st.live?' · '+st.live+' unfinished':''}</span></div><div class="srow static"><span>Last round</span><span class="sv">${st.last?esc(st.last.cn)+' · '+st.last.date:'None yet'}</span></div><div class="srow static"><span>Handicap index</span><span class="sv">${st.ix==null?'Not yet':st.ix}</span></div><div class="srow static"><span>Friends</span><span class="sv">${st.friends}</span></div><div class="srow static"><span>Account ID</span><span class="sv uid">${esc(uid)}</span></div></div>`);
   h+=box(`<label for="admn"><b>Display name</b></label><div class="row" style="flex-wrap:nowrap"><input id="admn" maxlength="24" value="${esc(pname(uid))}" style="flex:1;margin:0;min-width:0"><button class="btn" id="admsave">Save</button></div>${pic?`<div class="slist"><div class="srow photo"><span>Profile photo</span><button class="btn alt sm" id="admpic">Remove photo</button></div></div>`:''}`);
   {const em=doc('emails/'+uid);
    h+=box(`<b>Sign-in</b><div class="slist"><div class="srow static"><span>Email</span><span class="sv">${em?esc(em.email):'Not on file yet'}</span></div><div class="srow static"><span>Signs in with</span><span class="sv">${em?(em.pw?'Email and password':'Google or email link'):'Unknown'}</span></div></div>${em&&em.pw?`<button class="btn alt" id="admreset" style="width:100%;margin-top:12px">Send password reset email</button><p class="sub" style="margin-top:8px">Firebase emails them a link to choose a new password.</p>`:`<p class="sub" style="margin-top:10px">${em?'They don’t use a password, so there’s nothing to reset.':'Their email is saved the next time they open the site.'} Changing someone’s email or password directly needs Firebase’s paid plan.</p>`}`)}
   if(!self){const bl=D['blocked/'+uid];
    h+=box(bl?`<b>Blocked</b><p class="sub" style="margin-top:6px">Blocked since ${fmtDay(bl.at)}. They can sign in but can’t see or change anything.</p><button class="btn alt" id="admunblock" style="width:100%">Unblock player</button>`:admBlk?`<div class="delc" style="margin:0"><b>Block ${esc(pname(uid))}?</b><p class="sub">They’ll see a “Your account has been blocked” screen and can’t view or change anything in the club. Their profile and rounds stay. You can unblock them anytime.</p><div class="row"><button class="btn danger" id="admblkyes">Block player</button><button class="btn alt" id="admblkno">Cancel</button></div></div>`:`<b>Block from site</b><p class="sub" style="margin-top:6px">Stops them from using Bro 2 Bro without deleting anything.</p><button class="btn danger" id="admblk" style="width:100%">Block player</button>`)}
   if(!self)h+=box(admConf?`<div class="delc" style="margin:0"><b>Remove ${esc(pname(uid))} from the club?</b><p class="sub">Their name and photo are deleted, and they drop off friends lists and leaderboards. Rounds they played stay, but show them as “Friend”. If they sign in again they’ll be asked for a name and start over. This can’t be undone.</p><div class="row"><button class="btn danger" id="admrmyes">Remove player</button><button class="btn alt" id="admrmno">Cancel</button></div></div>`:`<b>Remove from club</b><p class="sub" style="margin-top:6px">Deletes their player profile. To also delete their login, use Firebase Console → Authentication.</p><button class="btn danger" id="admrm" style="width:100%">Remove player</button>`);
-  return h+`<p><button class="btn alt" id="admback">All players</button></p>`;
+  return h;
  }
  const n=fbOpenN(),tabs=`<div class="row" style="margin-bottom:12px;flex-wrap:nowrap"><button class="chip" aria-pressed="${admTab==='players'}" data-admtab="players">Players</button><button class="chip" aria-pressed="${admTab==='fb'}" data-admtab="fb">Feedback${n?' · '+n:''}</button></div>`;
  if(admTab==='fb')return (admFb?'':tabs)+fbAdmin();
  const k=admQ.toLowerCase().trim(),ps=players().filter(p=>!k||pname(p.id).toLowerCase().includes(k)||fcode(p.id).toLowerCase().includes(k)).sort((a,b)=>(b.joined||0)-(a.joined||0));
- return tabs+box(`<div class="rhead"><div><b>Players</b><br><span class="sub">${players().length} in the club · newest first</span></div></div><input id="admq" type="search" placeholder="Search by name or friend code" value="${esc(admQ)}" style="margin-top:12px">${ps.map(p=>{const st=pstats(p.id);return `<button class="frow admrow" data-adm="${p.id}">${face(p.id)}<span class="fwho"><b>${esc(pname(p.id))}${p.id===me?' <span class="sub">(you)</span>':''}${isBlocked(p.id)?' <span class="pill">Blocked</span>':''}</b><small>${fcode(p.id)} · ${st.rounds} round${st.rounds===1?'':'s'} · ${st.friends} friend${st.friends===1?'':'s'}</small></span><span class="chev2"></span></button>`}).join('')||'<p class="empty">No one matches.</p>'}`)+'<p class="sub">Only you can see this page. Tap a player to rename them, send a password reset, block them or remove them from the club.</p>';
+ return tabs+box(`<div class="rhead"><div><b>Players</b><br><span class="sub">${players().length} in the club · newest first</span></div></div><input id="admq" type="search" placeholder="Search by name or friend code" value="${esc(admQ)}" style="margin-top:12px"><div class="admlist">${ps.map(p=>{const st=pstats(p.id);return `<button class="frow admrow" data-adm="${p.id}">${face(p.id)}<span class="fwho"><b>${esc(pname(p.id))}${p.id===me?' <span class="sub">(you)</span>':''}${isBlocked(p.id)?' <span class="pill">Blocked</span>':''}</b><small>${fcode(p.id)} · ${st.rounds} round${st.rounds===1?'':'s'} · ${st.friends} friend${st.friends===1?'':'s'}</small></span><span class="chev2"></span></button>`}).join('')}</div>${ps.length?'':'<p class="empty">No one matches.</p>'}`)+'<p class="sub">Only you can see this page. Tap a player to rename them, send a password reset, block them or remove them from the club.</p>';
 }
 /* ---------- settings ---------- */
 function settings(){
@@ -1161,8 +1171,8 @@ function setup(){
  }
  return h+'</div>';
 }
-function addForm(){return `<b>Add a course</b><label for="an">Course name</label><input id="an" maxlength="60" value="${esc(af.n)}"><label for="ac">City</label><input id="ac" maxlength="40" value="${esc(af.c)}"><label for="as">State</label><select id="as"><option value="">Choose</option>${STATES.map(s=>`<option ${s===af.s?'selected':''}>${s}</option>`).join('')}</select><p><b>Holes</b></p><div class="row">${[9,18].map(x=>`<button class="chip" aria-pressed="${holes===x}" data-holes="${x}">${x}</button>`).join('')}</div>${err?`<p class="over">${esc(err)}</p>`:''}<p><button class="btn" id="asave">Save course</button> <button class="btn alt" id="acancel">Cancel</button></p>`}
-function rateForm(r){return box(`<b>Rating and slope</b><p class="sub">Printed on the scorecard for the tees you played, like 71.4 and 128. Handicap math needs both.</p><label for="rn">Tee name</label><input id="rn" maxlength="20" value="${esc(r.tn||'')}" placeholder="e.g. White"><label for="rr">Course rating</label><input id="rr" inputmode="decimal" placeholder="71.4"><label for="rs">Slope</label><input id="rs" inputmode="numeric" placeholder="128">${err?`<p class="over">${esc(err)}</p>`:''}<div class="row"><button class="btn" id="rsave">Save</button><button class="btn alt" id="rskip">${ask.k==='cur'?'Save round without it':'Cancel'}</button></div>`)}
+function addForm(){return `${crumb('courses','Courses')}<br><b>Add a course</b><label for="an">Course name</label><input id="an" maxlength="60" value="${esc(af.n)}"><label for="ac">City</label><input id="ac" maxlength="40" value="${esc(af.c)}"><label for="as">State</label><select id="as"><option value="">Choose</option>${STATES.map(s=>`<option ${s===af.s?'selected':''}>${s}</option>`).join('')}</select><p><b>Holes</b></p><div class="row">${[9,18].map(x=>`<button class="chip" aria-pressed="${holes===x}" data-holes="${x}">${x}</button>`).join('')}</div>${err?`<p class="over">${esc(err)}</p>`:''}<p><button class="btn" id="asave">Save course</button> <button class="btn alt" id="acancel">Cancel</button></p>`}
+function rateForm(r){return box(`${ask.k==='cur'?'':crumb('rounds','Rounds')}<b>Rating and slope</b><p class="sub">Printed on the scorecard for the tees you played, like 71.4 and 128. Handicap math needs both.</p><label for="rn">Tee name</label><input id="rn" maxlength="20" value="${esc(r.tn||'')}" placeholder="e.g. White"><label for="rr">Course rating</label><input id="rr" inputmode="decimal" placeholder="71.4"><label for="rs">Slope</label><input id="rs" inputmode="numeric" placeholder="128">${err?`<p class="over">${esc(err)}</p>`:''}<div class="row"><button class="btn" id="rsave">Save</button><button class="btn alt" id="rskip">${ask.k==='cur'?'Save round without it':'Cancel'}</button></div>`)}
 function card(r,tap,compact){const cur=tap?hole[r.id]:-1;
  const parts=r.n>9?[[0,9,'Out'],[9,r.n,'In']]:[[0,r.n,'Tot']];let h='';
  parts.forEach(([a,b,lab])=>{const idx=Array.from({length:b-a},(_,x)=>x+a);
@@ -1253,7 +1263,16 @@ function rmPaint(){const k=$('popk');if(!k)return;const u=tab==='people'&&!profU
 let profUid=null;
 function openProf(uid){profUid=uid;try{history.pushState({t:'people',prof:uid},'','#people')}catch(e){}window.scrollTo(0,0);lastView=null;render()}
 const fmtDate=d=>{const [y,m,x]=String(d||'').split('-').map(Number);return y?new Date(y,m-1,x).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}):''};
-const PBACK=`<button class="pback" id="profback"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>All friends</button>`;
+// Back pill for sub-pages ("‹ All friends", "‹ All players"…); CRUMB says where each one goes
+const crumb=(k,label)=>`<button class="pback" data-crumb="${k}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>${label}</button>`;
+const CRUMB={
+ friends:()=>{const st=history.state;if(st&&st.prof)history.back();else{profUid=null;lastView=null;render()}},
+ players:()=>{if(admBack())return;admUid=null;admConf=false;render()},
+ fb:()=>{if(admBack())return;admFb=null;admFbDel=false;render()},
+ bag:()=>{rClub=null;rMode=null;bagEdit=false;bagSel=null;render()},
+ rounds:()=>{ask=null;err='';render()},
+ courses:()=>{adding=false;err='';render()}};
+const PBACK=crumb('friends','All friends');
 function profileView(uid){
  const p=doc('players/'+uid);if(!p)return PBACK+box('<p class="empty">This player isn’t in the club anymore.</p>');
  const self=uid===me,S=stats(uid,'all'),ix=index(uid),cn=diffs(uid).length;
@@ -1331,12 +1350,10 @@ function bind(){
  click('mycancel',()=>{editName=false;err='';render()});
  click('edname',()=>{editName=true;render()});
  on('[data-adm]',b=>b.onclick=()=>{admUid=b.dataset.adm;admConf=false;admOpen('adm',admUid);render();window.scrollTo(0,0)});
- click('admback',()=>{if(admBack())return;admUid=null;admConf=false;render()});
  on('[data-admtab]',b=>b.onclick=()=>{admTab=b.dataset.admtab;admUid=null;admFb=null;render()});
  click('setfb',()=>{admTab='fb';fbArch=false;go('admin')});
  on('[data-fba]',b=>b.onclick=()=>{fbArch=!!b.dataset.fba;render()});
  on('[data-fbid]',b=>b.onclick=()=>{admFb=b.dataset.fbid;admFbDel=false;admOpen('fb',admFb);render();window.scrollTo(0,0)});
- click('fbback',()=>{if(admBack())return;admFb=null;admFbDel=false;render()});
  click('fbnadd',()=>{const t=$('fbnote'),v=t.value.trim();if(!v)return t.focus();t.value='';patch('feedback/'+admFb,{notes:{[Date.now()]:v.slice(0,1000)}});say('Note added.')});
  on('[data-fbst]',b=>b.onclick=()=>{const st=b.dataset.fbst,f=doc('feedback/'+admFb);if(!f||f.status===st)return;patch('feedback/'+admFb,{status:st,closed:st==='done'?Date.now():0});if(st==='done'){admFb=null;admBack()}say('Marked '+FBST[st]+'.')});
   click('fbdel',()=>{admFbDel=true;render()});
@@ -1418,7 +1435,7 @@ function bind(){
  on('[data-leave2]',b=>b.onclick=()=>{patch('rounds/'+b.dataset.leave2,{players:{[me]:null}});if(curId===b.dataset.leave2)setCur(null);say('You left that round.')});
  on('[data-fix]',b=>b.onclick=()=>{ask={k:'round',id:b.dataset.fix};err='';render()});
  on('[data-prof]',b=>b.onclick=()=>openProf(b.dataset.prof));
- click('profback',()=>{const st=history.state;if(st&&st.prof)history.back();else{profUid=null;lastView=null;render()}});
+ on('[data-crumb]',b=>b.onclick=()=>{const f=CRUMB[b.dataset.crumb];if(f){f();window.scrollTo(0,0)}});
  const fqi=$('fq');if(fqi)fqi.oninput=()=>{fq=fqi.value;render()};
  on('[data-fradd]',b=>b.onclick=()=>{b.disabled=true;frAdd(b.dataset.fradd)});
  on('[data-fraccept]',b=>b.onclick=()=>{b.disabled=true;frAccept(b.dataset.fraccept)});
