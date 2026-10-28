@@ -604,6 +604,7 @@ textarea:focus{outline:none;background:var(--card);box-shadow:0 0 0 3px rgba(184
  #nav{max-width:1048px}
  .hgrid{grid-template-columns:repeat(4,1fr);gap:16px}
  .hgrid .hcard:not(.c-play):last-child:nth-child(even){grid-column:auto}
+ .hgrid .c-prof{grid-column:1/-1!important;min-height:0}
  .hgrid .hcard:not(.c-play) .hti{font-size:28px}
  .c-play,:root[data-theme="dark"] .c-play{min-height:190px}
  #view.narrow{max-width:720px;margin:0 auto}
@@ -674,6 +675,13 @@ body.viewas{padding-top:40px}body.viewas .navbar{top:40px}
 .prr .psc{font-size:26px;line-height:1;text-align:right;min-width:38px}
 .prr .ptp{min-width:34px;text-align:right;font:600 14px "Public Sans",sans-serif;color:var(--mute)}
 .prr .ptp.under{color:var(--accent)}
+.msr{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.lbh+.msr,.msh+.msr{border-top:0}
+.msr .fwho{min-width:0}.msr .fwho b{font-weight:600;white-space:nowrap}.msr .fwho small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msi{width:28px;height:28px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;background:var(--green);color:var(--on)}.msi svg{width:18px;height:18px}
+.msr.lock .msi{background:none;box-shadow:inset 0 0 0 1.5px var(--line)}.msr.lock .fwho b{color:var(--mute)}
+.msd{margin-left:auto;flex:none;white-space:nowrap;font-size:13.5px;color:var(--mute);font-variant-numeric:tabular-nums}
+.msh{margin:16px 0 2px;font:600 12px "Public Sans",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
 /* ---- top spacing: room around Feedback, light/dark and the profile photo ---- */
 #fhome,#thome{top:26px}
 #fhome{left:20px}#thome{right:20px}
@@ -1091,7 +1099,8 @@ const thru=r=>Math.max(0,...r.keys.map(k=>r.sc[k].filter(v=>v!=null).length));
 const counts=r=>r.status==='done'&&r.n===18&&r.par.every(Boolean)&&r.rating&&r.slope;
 const byDate=(a,b)=>a.date<b.date?-1:a.date>b.date?1:(a.created||0)-(b.created||0);
 function diffs(uid){return rounds().filter(r=>counts(r)&&r.pl[uid]&&r.sc[uid].every(v=>v!=null)).sort(byDate).map(r=>({d:r.date,v:Math.round(113/r.slope*(sum(r.sc[uid])-r.rating)*10)/10}))}
-function index(uid){const d=diffs(uid).slice(-20);if(d.length<3)return null;const k=LOW[d.length],a=d.map(x=>x.v).sort((x,y)=>x-y).slice(0,k);return Math.round((sum(a)/k+(ADJ[d.length]||0))*10)/10}
+function ixOf(d){d=d.slice(-20);if(d.length<3)return null;const k=LOW[d.length],a=d.map(x=>x.v).sort((x,y)=>x-y).slice(0,k);return Math.round((sum(a)/k+(ADJ[d.length]||0))*10)/10}
+const index=uid=>ixOf(diffs(uid));
 const added=()=>Object.keys(D).filter(k=>k.startsWith('courseinfo/')).map(k=>[k.slice(11),doc(k)]).filter(([,d])=>d&&d.added).map(([id,d])=>({id,n:d.added.n,t:d.added.t||'',s:d.added.s||'',p:null,h:null,hc:d.added.hc||18,tees:[],k:(d.added.n+' '+(d.added.t||'')+' '+(d.added.s||'')).toLowerCase()}));
 const all=()=>added().concat(COURSES);
 const course=id=>all().find(c=>c.id===id);
@@ -1189,11 +1198,11 @@ function mainView(){
  if(real.players&&canWrite&&!doc('players/'+me))return nameForm(true);
  if(tab==='home')return home();
  if(tab==='play'){const r=curId&&R(curId);return r&&r.status==='live'&&r.pl[me]?scorecard(r):setup()}
- return tab==='rounds'?roundsView():tab==='leaders'?leaders():tab==='settings'?settings():tab==='range'?rangeView():tab==='admin'?adminView():profUid?profileView(profUid):people();
+ return tab==='rounds'?roundsView():tab==='leaders'?leaders():tab==='settings'?settings():tab==='range'?rangeView():tab==='admin'?adminView():tab==='profile'?profileView(me):profUid?profileView(profUid):people();
 }
 function nameForm(first){return box(`<label for="myn"><b>${first?'What should your friends call you?':'Your name'}</b></label><p class="sub">This name shows on every scorecard you’re on.</p><input id="myn" maxlength="24" value="${esc(first?meName:pname(me))}">${err?`<p class="over">${esc(err)}</p>`:''}<button class="btn" id="mysave">Save</button>${first?'':' <button class="btn alt" id="mycancel">Cancel</button>'}`)}
 function importBox(){if(!OLD||!canWrite)return '';const ps=OLD.players||[];return box(`<b>Rounds saved on this device</b><p class="sub">${OLD.rounds.length} round${OLD.rounds.length===1?'':'s'} from the earlier version live only in this browser. Bring them in so they count toward your handicap. Which player was you?</p><div class="row">${ps.map(p=>`<button class="chip" aria-pressed="${impSel===p.id}" data-imp="${esc(p.id)}">${esc(p.name)}</button>`).join('')}</div><p><button class="btn" id="impgo" ${impSel?'':'disabled'}>Import rounds</button> <button class="btn alt" id="impno">Not now</button></p>`)}
-const PAGES={play:'Play',rounds:'Rounds',people:'Friends',leaders:'Leaderboards',range:'Range',settings:'Settings',admin:'Admin'};
+const PAGES={play:'Play',rounds:'Rounds',people:'Friends',leaders:'Leaderboards',range:'Range',settings:'Settings',admin:'Admin',profile:'My profile'};
 function go(t,push=true){menuOpen=false;profUid=null;admFb=null;admFbDel=false;rClub=null;rMode=null;rReset=false;admUid=null;admConf=false;admBlk=false;bagEdit=false;bagSel=null;tab=t;ask=null;err='';conf=null;if(push){try{history.pushState({t},'',t==='home'?location.pathname+location.search:'#'+t)}catch(e){}}window.scrollTo(0,0);lastView=null;render();const v=$('view');v.classList.remove('view-in');void v.offsetWidth;v.classList.add('view-in')}
 window.addEventListener('popstate',e=>{const st=e.state||{},t=st.t||(location.hash.slice(1))||'home';go(PAGES[t]?t:'home',false);
  if(t==='admin'&&(st.adm||st.fb)){if(st.adm){admTab='players';admUid=st.adm}else{admTab='fb';admFb=st.fb}render()}
@@ -1207,6 +1216,7 @@ const ICON={
  rounds:'<svg viewBox="0 0 32 32" aria-hidden="true"><rect x="5" y="6" width="22" height="20" rx="4" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M5 12h22M12 12v14M19 12v14" stroke="currentColor" stroke-width="2"/></svg>',
  leaders:'<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M10 5h12v6a6 6 0 0 1-12 0z" fill="currentColor"/><path d="M10 7H5.5a4.5 4.5 0 0 0 5 5M22 7h4.5a4.5 4.5 0 0 1-5 5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M14.5 17h3v5h-3z" fill="currentColor"/><rect x="10" y="22" width="12" height="4" rx="1.5" fill="currentColor"/></svg>',
  settings:'<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M13.6 3h4.8l.7 3.6 2.4 1 3-2.1 3.4 3.4-2.1 3 1 2.4 3.6.7v4.8l-3.6.7-1 2.4 2.1 3-3.4 3.4-3-2.1-2.4 1-.7 3.6h-4.8l-.7-3.6-2.4-1-3 2.1-3.4-3.4 2.1-3-1-2.4L3 18.4v-4.8l3.6-.7 1-2.4-2.1-3 3.4-3.4 3 2.1 2.4-1z" fill="currentColor"/><circle cx="16" cy="16" r="4.5" fill="#fff"/></svg>',
+ profile:'<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="11" r="5.5" fill="currentColor"/><path d="M5.5 27c0-6 4.7-9.5 10.5-9.5S26.5 21 26.5 27z" fill="currentColor"/></svg>',
  people:'<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="12" cy="11" r="4.5" fill="currentColor"/><path d="M3.5 25c0-5 3.8-8 8.5-8s8.5 3 8.5 8" fill="currentColor"/><circle cx="22.5" cy="12.5" r="3.6" fill="currentColor" opacity=".55"/><path d="M19 18.4c.9-.3 2-.5 3.5-.5 3.8 0 6.5 2.4 6.5 6.6h-7" fill="currentColor" opacity=".55"/></svg>'};
 function home(){
  const rs=rounds(),mine=curId&&R(curId),live=rs.filter(r=>r.status==='live'&&Date.now()-(r.created||0)<18*36e5&&touchesCircle(r)),done=rs.filter(r=>r.status==='done'),ix=me?index(me):null,ps=players();
@@ -1221,6 +1231,8 @@ function home(){
  const lb=handicapBoard()[0];
  h+=card('leaders','c-leaders','Leaderboards','See who’s on top.',lb?'Leader: <b>'+esc(pname(lb.id))+'</b>':'');
  {const b=bag(),n=b.clubs.filter(c=>b.dist[c]).length;h+=card('range','c-rounds','Range',b.clubs.length?`${b.clubs.length} club${b.clubs.length===1?'':'s'} in bag`:'Club distances.',b.clubs.length?`<b>${n}</b> of ${b.clubs.filter(c=>c!=='pt').length} measured`:'')}
+
+ {const mine=done.filter(r=>r.pl[me]&&r.sc[me].some(v=>v!=null)).sort(byDate),n=Object.keys(milestones(me,mine)).length;h+=card('profile','c-rounds c-prof','My profile','Your stats and milestones.',n?`<b>${n}</b> of ${MS.length} milestones`:'')}
  return h+'</div>';
 }
 /* ---------- leaderboards ---------- */
@@ -1518,7 +1530,7 @@ const CRUMB={
  courses:()=>{adding=false;err='';render()}};
 const PBACK=crumb('friends','All friends');
 function profileView(uid){
- const p=doc('players/'+uid);if(!p)return PBACK+box('<p class="empty">This player isn’t in the club anymore.</p>');
+ const PB=tab==='profile'?'':PBACK,p=doc('players/'+uid);if(!p)return PB+box('<p class="empty">This player isn’t in the club anymore.</p>');
  const self=uid===me,S=stats(uid,'all'),ix=index(uid),cn=diffs(uid).length;
  const done=rounds().filter(r=>r.status==='done'&&r.pl[uid]&&r.sc[uid].some(v=>v!=null)).sort(byDate);
  const first=done[0],since=p.joined||(first&&first.date&&new Date(first.date+'T12:00').getTime());
@@ -1527,7 +1539,7 @@ function profileView(uid){
  done.forEach(r=>{crs[r.cn]=(crs[r.cn]||0)+1;r.sc[uid].forEach((v,j)=>{if(v==null)return;holes++;if(!r.par[j])return;const d=v-r.par[j];mix[d<0?0:d===0?1:d===1?2:3]++})});
  const fav=Object.entries(crs).sort((a,b)=>b[1]-a[1])[0],together=self?0:done.filter(r=>r.pl[me]).length,fr=pstats(uid).friends,last=done[done.length-1];
  const r=rel(uid),tag=self?'You':r==='friend'?'Friends ✓':r==='sent'?'Requested':r==='received'?'Wants to be friends':'';
- let h=box(`${PBACK}<div class="phero">${face(uid,'','pro')}<div class="pid"><b class="pname">${esc(pname(uid))}</b><p class="psince">${since?'Member since '+new Date(since).toLocaleDateString(undefined,{month:'long',year:'numeric'}):'Club member'}</p><div class="ptags"><span class="ptag code">${fcode(uid)}</span>${tag?`<span class="ptag">${tag}</span>`:''}</div></div></div>`);
+ let h=box(`${PB}<div class="phero">${face(uid,'','pro')}<div class="pid"><b class="pname">${esc(pname(uid))}</b><p class="psince">${since?'Member since '+new Date(since).toLocaleDateString(undefined,{month:'long',year:'numeric'}):'Club member'}</p><div class="ptags"><span class="ptag code">${fcode(uid)}</span>${tag?`<span class="ptag">${tag}</span>`:''}</div></div></div>`);
  const tile=(l,v,s,cls)=>`<div class="pstat${cls?' '+cls:''}"><span class="pl2">${l}</span><span class="pv num">${v}</span><span class="ps">${s}</span></div>`;
  h+=`<div class="pgrid">`+tile('Handicap',ix==null?'–':ix,ix==null?(cn?`${3-cn} more counted round${3-cn===1?'':'s'}`:'After 3 counted rounds'):`From ${Math.min(cn,20)} round${cn===1?'':'s'}`,'hi')
   +tile('Rounds',S.played,done.length?`${holes} holes played`:'None saved yet')
@@ -1538,11 +1550,40 @@ function profileView(uid){
  const mt=sum(mix);
  if(mt){const L=['Birdie or better','Par','Bogey','Double or worse'],pc=n=>Math.round(n/mt*100);
   h+=box(`<b>Scoring mix</b><div class="mixbar" role="img" aria-label="${L.map((l,i)=>l+' '+pc(mix[i])+'%').join(', ')}">${mix.map((n,i)=>n?`<span class="m${i+1}" style="flex:${n}"></span>`:'').join('')}</div><div class="mixl">${L.map((l,i)=>`<div><i class="m${i+1}"></i>${l}<b>${mix[i]}</b><small>${pc(mix[i])}%</small></div>`).join('')}</div>`)}
+ h+=msBox(uid,done);
  h+=box(`<b>Around the club</b><div class="slist pinfo">${self?'':`<div class="srow static"><span>Rounds with you</span><span class="sv">${together}</span></div>`}<div class="srow static"><span>Favorite course</span><span class="sv">${fav?esc(fav[0]):'None yet'}</span></div><div class="srow static"><span>Last played</span><span class="sv">${last?fmtDate(last.date):'Not yet'}</span></div><div class="srow static"><span>Friends</span><span class="sv">${fr}</span></div></div>`);
  if(done.length)h+=box(`<b>Recent rounds</b>${done.slice(-5).reverse().map(r=>{const sc=r.sc[uid],f=sc.every(v=>v!=null),t=sum(sc),tp=f&&r.par.every(Boolean)?t-sum(r.par):null;
   return `<div class="prr"><span class="fwho"><b>${esc(r.cn)}</b><small>${fmtDate(r.date)}${r.n!==18?' · '+r.n+' holes':''}${f?'':' · incomplete'}</small></span><span class="ptp${tp!=null&&tp<0?' under':''}">${tp==null?'':fmtPar(tp)}</span><span class="psc num">${f?t:'–'}</span></div>`}).join('')}`);
  return h;
 }
+
+// Milestones: each is dated by the round where it was first hit. Tiers in a group (10, 25, 50 rounds…) show one at a time while locked
+const MS=[['r1','rounds','First round','First saved round'],['r10','rounds','10 rounds','Rounds saved'],['r25','rounds','25 rounds','Rounds saved'],['r50','rounds','50 rounds','Rounds saved'],['r100','rounds','100 rounds','Rounds saved'],
+ ['f18','f18','Full 18','Every hole scored'],['pals','pals','Round with a bro','Played with a member'],['c5','c5','Course explorer','5 different courses'],
+ ['par','hole','First par','Par on a hole'],['bird','hole','First birdie','One under on a hole'],['eagle','hole','First eagle','Two under on a hole'],['ace','ace','Hole in one','The big one'],
+ ['run3','run3','Hat trick','3 pars or better in a row'],['b10','bc','10 birdies','Birdie or better, all time'],['b50','bc','50 birdies','Birdie or better, all time'],
+ ['u100','brk','Broke 100','Under 100 for 18'],['u90','brk','Broke 90','Under 90 for 18'],['u80','brk','Broke 80','Under 80 for 18'],['u70','brk','Broke 70','Under 70 for 18'],['even','brk','Even par','Par or better for 18'],
+ ['ix','ix','Handicap index','After 3 counted rounds'],['h20','ix','Index under 20','Handicap index'],['h10','ix','Single digits','Index under 10']];
+function milestones(uid,done){
+ const hit={},at=(k,d)=>{if(!hit[k])hit[k]=d},crs=new Set();let birdies=0;
+ done.forEach((r,i)=>{const sc=r.sc[uid],d=r.date;let run=0;
+  at('r1',d);[10,25,50,100].forEach(n=>{if(i+1===n)at('r'+n,d)});
+  crs.add(r.cn);if(crs.size>=5)at('c5',d);
+  if(Object.entries(r.pl).some(([k,p])=>k!==uid&&p.uid))at('pals',d);
+  sc.forEach((v,j)=>{const p=r.par[j];if(v==null||!p){run=0;return}
+   if(v===1)at('ace',d);if(v===p)at('par',d);
+   if(v<p){at('bird',d);birdies++;if(birdies>=10)at('b10',d);if(birdies>=50)at('b50',d)}
+   if(v<=p-2)at('eagle',d);
+   if(v<=p){if(++run>=3)at('run3',d)}else run=0});
+  if(r.n===18&&sc.every(v=>v!=null)){const g=sum(sc);at('f18',d);[100,90,80,70].forEach(n=>{if(g<n)at('u'+n,d)});if(r.par.every(Boolean)&&g<=sum(r.par))at('even',d)}});
+ const df=diffs(uid);df.forEach((x,i)=>{const v=ixOf(df.slice(0,i+1));if(v==null)return;at('ix',x.d);if(v<20)at('h20',x.d);if(v<10)at('h10',x.d)});
+ return hit}
+const MSOK='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function msBox(uid,done){
+ const hit=milestones(uid,done),won=MS.filter(m=>hit[m[0]]).sort((a,b)=>hit[b[0]]<hit[a[0]]?-1:hit[b[0]]>hit[a[0]]?1:0),seen=new Set();
+ const next=MS.filter(m=>!hit[m[0]]&&!seen.has(m[1])&&seen.add(m[1]));
+ const row=(m,d)=>`<div class="msr${d?'':' lock'}"><span class="msi">${d?MSOK:''}</span><span class="fwho"><b>${m[2]}</b><small>${m[3]}</small></span><span class="msd">${d?fmtDate(d):'Not yet'}</span></div>`;
+ return box(`<div class="lbh"><b>Milestones</b><span class="sub">${won.length} of ${MS.length} reached</span></div>${won.map(m=>row(m,hit[m[0]])).join('')||'<p class="empty">None yet. Save a round to start the list.</p>'}${next.length?`<h3 class="msh">Next up</h3>`+next.map(m=>row(m)).join(''):''}`)}
 
 /* ---------- actions ---------- */
 const gkey=()=>'g'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);

@@ -53,12 +53,12 @@ Keep the app a single self-contained `index.html`. No build step, no bundler, no
 
 Details are in the code; these are the choices and preferences behind them.
 
-- **Navigation:** Home has the brand header, then Play (full width), then Rounds, Friends, Leaderboards and Range. Settings lives in the account menu (top right), not on Home. The account menu ends with Sign out in oxblood. Feedback is top left on every signed-in page.
+- **Navigation:** Home has the brand header, then Play (full width), then Rounds, Friends, Leaderboards and Range, then My profile (full width, the `profile` tab, which shows `profileView(me)` with no back pill). Settings lives in the account menu (top right), not on Home. The account menu ends with Sign out in oxblood. Feedback is top left on every signed-in page.
 - **Back pills:** every sub-page gets a "‹ …" pill at the top of its first card, made with `crumb(key,label)` (`CRUMB` says where each goes). Use it for new sub-pages instead of a back button at the bottom.
 - **Popups over inline confirms** when an inline confirm would squash text (for example "Remove friend?").
 - **Friends scope the app:** pickers, Rounds' Friends toggle, Live now and Leaderboards show only your circle. You don't appear in your own friends list.
 - **Friend codes** are generated from the account ID. Custom codes go in `CODES` in `index.html` (Asher is `AHB-000`); use 0 or 1 in them, since generated codes never contain those, so they can't clash.
-- **Friend profiles** show stats, a scoring mix and recent rounds. **No graphs:** Asher removed the handicap graph on purpose and prefers just the number.
+- **Friend profiles** show stats, a scoring mix, milestones and recent rounds. Milestones (`MS` list, `milestones()`) are worked out from saved rounds, never stored, and each is dated by the round where it was first hit. Locked ones show under "Next up", one tier per group. **No graphs:** Asher removed the handicap graph on purpose and prefers just the number.
 - **In-round layout is phone-first:** scorecard, hole strip, "Hole N" with par, one-tap score buttons, then inline hole navigation. Anyone in the round can score for anyone.
 - **Leaderboards (first version):** Asher will give more detail; **don't redesign this without him.**
 - **Range:** one choice page for "Add to my average" or "Start fresh", with the erase warning on that same page. Asher doesn't want an extra confirm step.
