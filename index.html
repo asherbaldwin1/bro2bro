@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Bro 2 Bro Golf Club</title>
-<script>try{if(new URLSearchParams(location.search).get('look')==='glass')document.documentElement.classList.add('glass')}catch(e){}</script>
+<script>try{if(new URLSearchParams(location.search).get('look')==='glass'){document.documentElement.classList.add('glass');const m=document.createElement('meta');m.name='theme-color';m.content='#18221E';document.head.appendChild(m)}}catch(e){}</script>
 <link rel="icon" type="image/png" href="favicon.png?v=2">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=2">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -693,9 +693,11 @@ html.glass[data-theme="light"]:root{color-scheme:light;
  --g-ink:#14201A;--g-mute:rgba(20,32,26,.6);--g-acc:#0F3D2E;--g-btn:#0F3D2E;--g-btnink:#F7F3EA;--g-veil:rgba(4,9,7,.18);--g-bar:rgba(250,248,242,.62)}
 
 /* the photo and a veil so text stays readable */
-html.glass body{background:#0B1411;color:var(--g-ink)}
+html.glass{background:#18221E}
+html.glass body{background:transparent;color:var(--g-ink)}
 /* a fixed layer instead of background-attachment:fixed, which iPhone Safari ignores */
-html.glass body::before{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(var(--g-veil),var(--g-veil)),#0B1411 url("course-bg.jpg") center 70%/cover no-repeat;pointer-events:none}
+/* iPhone Safari fills the strips under its status bar and address bar with one solid color, so the photo fades into that same color (#18221E) at the top and bottom */
+html.glass body::before{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg,#18221E 0,rgba(24,34,30,0) 13%,rgba(24,34,30,0) 84%,#18221E 100%),linear-gradient(var(--g-veil),var(--g-veil)),#18221E url("course-bg.jpg") center 70%/cover no-repeat;pointer-events:none}
 html.glass main{padding-left:16px;padding-right:16px}
 
 /* glass surfaces */
@@ -799,18 +801,7 @@ html.glass #nav .fbbtn svg{width:21px;height:21px}
 /* keep the frosted bars on their own layer so they don't flash while things under them redraw */
 html.glass .navbar,html.glass .holebar{transform:translateZ(0);-webkit-backface-visibility:hidden;backface-visibility:hidden}
 html.glass body::before{transform:translateZ(0)}
-html.glass body{background:#2E3B35}
 
-/* Liquid Glass shimmer: a thin light along each panel's edge that slides with phone tilt or the mouse */
-@property --sx{syntax:"<percentage>";inherits:true;initial-value:25%}
-@property --sy{syntax:"<percentage>";inherits:true;initial-value:0%}
-html.glass{transition:--sx .6s cubic-bezier(.2,.8,.2,1),--sy .6s cubic-bezier(.2,.8,.2,1)}
-html.glass .box,html.glass .lbhero{position:relative}
-html.glass :is(.box,.hcard,.amenu,.fbsheet,.popc,.lbhero,.toast)::after{content:"";display:block!important;position:absolute;inset:0;border-radius:inherit;pointer-events:none;padding:1.2px;z-index:1;
- background:radial-gradient(130% 100% at var(--sx,25%) var(--sy,0%),rgba(255,255,255,.95),rgba(255,255,255,.28) 32%,rgba(255,255,255,0) 62%);
- -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
-html.glass[data-theme="light"] :is(.box,.hcard,.amenu,.fbsheet,.popc,.lbhero,.toast)::after{background:radial-gradient(130% 100% at var(--sx,25%) var(--sy,0%),#fff,rgba(255,255,255,.55) 32%,rgba(255,255,255,0) 62%)}
-html.glass .hcard::after{opacity:1!important;width:auto!important;height:auto!important;right:0!important;bottom:0!important}
 
 /* megaphone red in glass, tuned to each version */
 html.glass .fbbtn svg,html.glass #nav .fbbtn svg{color:#E8939A!important}
@@ -821,11 +812,8 @@ html.glass .hcard .hic,html.glass .c-play .hic{background:none!important;box-sha
 html.glass .hcard .hic svg{width:28px;height:28px}
 
 /* sign-in screen: one frosted card over the course photo */
-html.glass #gate{background:linear-gradient(var(--g-veil),var(--g-veil)),#2E3B35 url("course-bg.jpg") center 70%/cover no-repeat;color:var(--g-ink);padding:max(24px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
+html.glass #gate{background:linear-gradient(180deg,#18221E 0,rgba(24,34,30,0) 13%,rgba(24,34,30,0) 84%,#18221E 100%),linear-gradient(var(--g-veil),var(--g-veil)),#18221E url("course-bg.jpg") center 70%/cover no-repeat;color:var(--g-ink);padding:max(24px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
 html.glass #gate .gbox{position:relative;max-width:400px;padding:30px 22px 22px;border-radius:32px;background:var(--g-glass);-webkit-backdrop-filter:blur(30px) saturate(170%);backdrop-filter:blur(30px) saturate(170%);box-shadow:inset 0 0 0 .5px var(--g-edge),0 20px 50px rgba(0,0,0,.25)}
-html.glass #gate .gbox::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;padding:1.2px;
- background:radial-gradient(130% 100% at var(--sx,25%) var(--sy,0%),rgba(255,255,255,.95),rgba(255,255,255,.28) 32%,rgba(255,255,255,0) 62%);
- -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
 html.glass #gate .glogo{width:60px;height:60px;margin-bottom:16px;filter:drop-shadow(0 6px 16px rgba(0,0,0,.25))}
 html.glass #gate .gtitle{color:var(--g-ink)}
 html.glass #gate .gtitle span{color:var(--g-acc)}
@@ -1243,17 +1231,6 @@ function rangeView(){
  return box(`<div class="rhead"><div><b>Your bag</b><br><span class="sub">${b.clubs.length} club${b.clubs.length===1?'':'s'} · average carry</span></div><button class="btn alt sm" id="bagedit">Edit bag</button></div><div class="ctiles">${rows}</div>`)+'<p class="sub">Tap a club to log 5 range shots. The new average replaces the old one.</p>'+
   (!Object.keys(b.dist).length?'':rReset?box(`<b>Reset all distances?</b><p class="sub" style="margin-top:6px">Erases the saved shots and average for every club. Your clubs stay in your bag.</p><p class="sub"><span class="warn">This can’t be undone.</span></p><div class="row" style="margin-top:12px"><button class="btn danger" id="rresetyes">Reset distances</button><button class="btn alt" id="rresetno">Cancel</button></div>`):'<div class="row"><button class="btn alt sm" id="rreset">Reset distances</button></div>');
 }
-/* ---------- Liquid Glass shimmer (glass look only): tilt or mouse moves the edge light ---------- */
-(()=>{const R=document.documentElement;if(!R.classList.contains('glass'))return;
- // the CSS eases --sx/--sy (see @property in the glass styles), so this only sets where the light should be
- const aim=(x,y)=>{R.style.setProperty('--sx',(Math.max(-.2,Math.min(1.2,x))*100).toFixed(1)+'%');R.style.setProperty('--sy',(Math.max(-.2,Math.min(1.2,y))*100).toFixed(1)+'%')};
- addEventListener('pointermove',e=>{if(e.pointerType==='mouse')aim(e.clientX/innerWidth,e.clientY/innerHeight)},{passive:true});
- // a phone held upright leans about 45° back; ±35° of tilt sweeps the light across
- const ori=e=>{if(e.gamma==null)return;aim(.5+e.gamma/70,.5+(e.beta-45)/70)};
- const DOE=window.DeviceOrientationEvent;
- if(DOE&&typeof DOE.requestPermission==='function')addEventListener('touchend',()=>{DOE.requestPermission().then(s=>{if(s==='granted')addEventListener('deviceorientation',ori)}).catch(()=>{})},{once:true});
- else if(DOE)addEventListener('deviceorientation',ori);
-})();
 /* ---------- feedback ---------- */
 let fbOpen=false,fbKind='bug',fbText='',admTab='players',admFb=null,admFbDel=false,fbArch=false;
 const FBI='<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a3 3 0 0 1 0 6"/><path d="M10 8v11a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1v-5"/><path d="M12 8l4.52-3.77a.9.9 0 0 1 1.48.69v12.16a.9.9 0 0 1-1.48.69L12 14H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1h8"/></svg>';
