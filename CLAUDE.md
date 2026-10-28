@@ -57,6 +57,7 @@ Details are in the code; these are the choices and preferences behind them.
 - **Back pills:** every sub-page gets a "‹ …" pill at the top of its first card, made with `crumb(key,label)` (`CRUMB` says where each goes). Use it for new sub-pages instead of a back button at the bottom.
 - **Popups over inline confirms** when an inline confirm would squash text (for example "Remove friend?").
 - **Friends scope the app:** pickers, Rounds' Friends toggle, Live now and Leaderboards show only your circle. You don't appear in your own friends list.
+- **Friend codes** are generated from the account ID. Custom codes go in `CODES` in `index.html` (Asher is `AHB-000`); use 0 or 1 in them, since generated codes never contain those, so they can't clash.
 - **Friend profiles** show stats, a scoring mix and recent rounds. **No graphs:** Asher removed the handicap graph on purpose and prefers just the number.
 - **In-round layout is phone-first:** scorecard, hole strip, "Hole N" with par, one-tap score buttons, then inline hole navigation. Anyone in the round can score for anyone.
 - **Leaderboards (first version):** Asher will give more detail; **don't redesign this without him.**

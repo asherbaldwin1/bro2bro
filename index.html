@@ -1067,7 +1067,9 @@ const circle=()=>players().filter(p=>p.id===me||isFriend(p.id));
 const incoming=()=>players().filter(p=>rel(p.id)==='received');
 const outgoing=()=>players().filter(p=>rel(p.id)==='sent');
 const touchesCircle=r=>!!r.pl[me]||r.keys.some(k=>r.pl[k].uid&&isFriend(r.pl[k].uid));
-function fcode(uid){let h=2166136261;for(const c of String(uid)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)>>>0}const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<6;i++){s+=A[h%32];h=Math.floor(h/32)}return s.slice(0,3)+'-'+s.slice(3)}
+// Custom friend codes by account ID. Generated codes never contain 0 or 1, so these can't clash with anyone's
+const CODES={'luHWGpswl8MhxYuWJEHos7sqN8R2':'AHB-000'};
+function fcode(uid){if(CODES[uid])return CODES[uid];let h=2166136261;for(const c of String(uid)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)>>>0}const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<6;i++){s+=A[h%32];h=Math.floor(h/32)}return s.slice(0,3)+'-'+s.slice(3)}
 async function frSet(uid,data){if(!canWrite)return;const p='friends/'+fid(me,uid);try{if(data===null){await db.doc(p).delete();delete D[p]}else{const [a,b]=[me,uid].sort();const body={a,b,...data};await db.doc(p).set(body);D[p]=body}}catch(e){fail(e);return}lastView=null;render()}
 const frAdd=uid=>rel(uid)==='received'?frAccept(uid):frSet(uid,{from:me,status:'pending',created:Date.now()});
 const frAccept=uid=>{const f=doc('friends/'+fid(me,uid))||{};return frSet(uid,{from:f.from||uid,status:'accepted',created:f.created||Date.now(),since:Date.now()}).then(()=>say('You and '+pname(uid)+' are now friends.'))};
