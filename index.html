@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Bro 2 Bro Golf Club</title>
-<script>try{if(new URLSearchParams(location.search).get('look')==='glass'){document.documentElement.classList.add('glass');const m=document.createElement('meta');m.name='theme-color';m.content='#212C0B';document.head.appendChild(m)}}catch(e){}</script>
+<script>/* The glass look is the main design. ?look=classic in the address shows the original Clubhouse design. */(()=>{let classic=false;try{classic=new URLSearchParams(location.search).get('look')==='classic'}catch(e){}if(classic)return;document.documentElement.classList.add('glass');const m=document.createElement('meta');m.name='theme-color';m.content='#212C0B';document.head.appendChild(m)})()</script>
 <link rel="icon" type="image/png" href="favicon.png?v=2">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=2">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -688,7 +688,7 @@ body.viewas{padding-top:40px}body.viewas .navbar{top:40px}
 /* tee picker: center the color dot on the box itself, not on the box plus its spacing */
 .teepick{margin:4px 0 10px}
 .teepick select{margin:0}
-/* ---- TRIAL: "glass" look, only with ?look=glass in the address ----
+/* ---- "Glass" look: the main design (html.glass). ?look=classic in the address turns it off ----
    Frosted panels over a course photo, styled after iOS materials.
    Night (dark theme) is dark glass with white text; Day (light theme) is bright glass with dark text. */
 html.glass:root{color-scheme:dark;

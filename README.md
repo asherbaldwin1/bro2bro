@@ -17,6 +17,8 @@ A website where a small group of friends tracks golf rounds, scores, handicaps a
 - **Feedback:** a Feedback button at the top left of every page sends bug reports and ideas straight to the club admin.
 - **Courses:** about 12,700 US courses built in, with Arizona shown first.
 
+The site uses a frosted-glass design over a course photo, in a Day and a Night version. Add `?look=classic` to the address for the original design.
+
 On iPhone, open the site in Safari and tap **Share → Add to Home Screen** to get an app icon.
 
 ## How it's built
