@@ -819,6 +819,34 @@ html.glass[data-theme="light"] .fbbtn svg,html.glass[data-theme="light"] #nav .f
 /* Home card icons: just the icon, no box behind it */
 html.glass .hcard .hic,html.glass .c-play .hic{background:none!important;box-shadow:none!important;width:auto;height:auto;padding:0}
 html.glass .hcard .hic svg{width:28px;height:28px}
+
+/* sign-in screen: one frosted card over the course photo */
+html.glass #gate{background:linear-gradient(var(--g-veil),var(--g-veil)),#2E3B35 url("course-bg.jpg") center 70%/cover no-repeat;color:var(--g-ink);padding:max(24px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
+html.glass #gate .gbox{position:relative;max-width:400px;padding:30px 22px 22px;border-radius:32px;background:var(--g-glass);-webkit-backdrop-filter:blur(30px) saturate(170%);backdrop-filter:blur(30px) saturate(170%);box-shadow:inset 0 0 0 .5px var(--g-edge),0 20px 50px rgba(0,0,0,.25)}
+html.glass #gate .gbox::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;padding:1.2px;
+ background:radial-gradient(130% 100% at var(--sx,25%) var(--sy,0%),rgba(255,255,255,.95),rgba(255,255,255,.28) 32%,rgba(255,255,255,0) 62%);
+ -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+html.glass #gate .glogo{width:60px;height:60px;margin-bottom:16px;filter:drop-shadow(0 6px 16px rgba(0,0,0,.25))}
+html.glass #gate .gtitle{color:var(--g-ink)}
+html.glass #gate .gtitle span{color:var(--g-acc)}
+html.glass[data-theme="dark"] #gate .gtitle span{color:#E6C996}
+html.glass #gate .gsub{color:var(--g-mute);margin:10px 0 22px}
+html.glass #gate .glbl{color:var(--g-ink);text-align:left;margin:6px 2px -2px}
+html.glass #gate input{background:var(--g-inner)!important;color:var(--g-ink)!important;border-radius:14px;box-shadow:inset 0 0 0 .5px var(--g-sep)}
+html.glass #gate input::placeholder{color:var(--g-mute)}
+html.glass #gate input:focus{box-shadow:inset 0 0 0 .5px var(--g-sep),0 0 0 3px color-mix(in srgb,var(--g-acc) 45%,transparent)}
+html.glass #gate .gbtn{background:var(--g-chip);color:var(--g-ink);box-shadow:inset 0 0 0 .5px var(--g-edge);transition:transform .12s,opacity .12s}
+html.glass #gate .gbtn:active{transform:scale(.97);opacity:.85}
+html.glass #gate .gbtn.primary{background:var(--g-btn);color:var(--g-btnink);box-shadow:none}
+html.glass #gate .gbtn.google{background:#fff;color:#1F1F1F;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+html.glass #gate .gor{color:var(--g-mute)}
+html.glass #gate .gor::before,html.glass #gate .gor::after{background:var(--g-sep)}
+html.glass #gate .glinks{color:var(--g-mute);align-items:center;flex-wrap:nowrap;gap:2px;white-space:nowrap;margin-top:8px}
+html.glass #gate .glink{font-size:13.5px;padding:6px 4px}
+html.glass #gate .glink{color:var(--g-acc)}
+html.glass[data-theme="dark"] #gate .glink{color:#E6C996}
+html.glass #gate .gmsg{color:var(--g-mute)}
+html.glass #gate .gmsg:empty{display:none}
 </style>
 </head>
 <body>
