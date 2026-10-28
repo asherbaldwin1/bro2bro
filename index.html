@@ -1215,7 +1215,7 @@ function home(){
  const last=done.slice().sort(byDate).pop();
  const card=(k,cls,title,desc,meta)=>`<button class="hcard ${cls}" data-go="${k}"><span class="hic">${ICON[k]}</span><span class="htx"><span class="hti">${title}</span><span class="hde">${desc}</span>${meta?`<span class="hme">${meta}</span>`:''}</span><span class="chev" aria-hidden="true"></span></button>`;
  let h=ro()+'<div class="hgrid">';
- h+=card('play','c-play',myLive?'Back to your round':'Play a round',myLive?esc(myLive.cn)+' · '+(thru(myLive)?'thru '+thru(myLive):'just started'):'Solo or with friends, scored live.',myLive?'<b class="live">Live</b>':others?`<b class="live">${others} live now</b>`:'');
+ h+=card('play','c-play',myLive?'Back to your round':'Start a round',myLive?esc(myLive.cn)+' · '+(thru(myLive)?'thru '+thru(myLive):'just started'):'Solo or with friends, scored live.',myLive?'<b class="live">Live</b>':others?`<b class="live">${others} live now</b>`:'');
  h+=card('rounds','c-rounds','Rounds',done.length?`${done.length} round${done.length===1?'':'s'} saved`:'Your round history.',last?'Last: '+esc(last.cn):'');
  {const nf=friends().length,ni=incoming().length;h+=card('people','c-people','Friends',nf?`${nf} friend${nf===1?'':'s'}`:'Add your buddies.',ni?`<b class="badge">${ni} request${ni===1?'':'s'}</b>`:ix!=null?`Your index <b>${ix}</b>`:'')}
  const lb=handicapBoard()[0];

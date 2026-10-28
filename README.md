@@ -8,7 +8,7 @@ A website where a small group of friends tracks golf rounds, scores, handicaps a
 
 ## What you can do
 
-- **Play a round:** score solo or with friends, hole by hole, live on your phone. One person can score for everyone, or each player can score on their own phone.
+- **Start a round:** score solo or with friends, hole by hole, live on your phone. One person can score for everyone, or each player can score on their own phone.
 - **Rounds:** see your round history and your friends' rounds.
 - **Friends:** add friends by name or friend code, and tap a friend to see their profile: member since, handicap, best round, scoring mix and recent rounds.
 - **Leaderboards:** handicap index, best round, scoring average, birdies and more.
