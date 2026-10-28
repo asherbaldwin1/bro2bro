@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Bro 2 Bro Golf Club</title>
-<script>try{if(new URLSearchParams(location.search).get('look')==='glass'){document.documentElement.classList.add('glass');const m=document.createElement('meta');m.name='theme-color';m.content='#18221E';document.head.appendChild(m)}}catch(e){}</script>
+<script>try{if(new URLSearchParams(location.search).get('look')==='glass'){document.documentElement.classList.add('glass');const m=document.createElement('meta');m.name='theme-color';m.content='#537174';document.head.appendChild(m)}}catch(e){}</script>
 <link rel="icon" type="image/png" href="favicon.png?v=2">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=2">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -681,23 +681,30 @@ body.viewas{padding-top:40px}body.viewas .navbar{top:40px}
 /* Feedback megaphone: a soft oxblood red, so it stands out without shouting */
 .fbbtn svg{color:#9A2E3A}
 :root[data-theme="dark"] .fbbtn svg{color:#E58A92}
+/* light/dark switch: perfectly round buttons, centered in the pill */
+.theme{align-items:center;padding:3px}
+.theme button,#nav .theme button{width:32px;height:32px;padding:0;border-radius:50%}
+@media (max-width:370px){.theme button,#nav .theme button{width:30px;height:30px}}
+/* tee picker: center the color dot on the box itself, not on the box plus its spacing */
+.teepick{margin:4px 0 10px}
+.teepick select{margin:0}
 /* ---- TRIAL: "glass" look, only with ?look=glass in the address ----
    Frosted panels over a course photo, styled after iOS materials.
    Night (dark theme) is dark glass with white text; Day (light theme) is bright glass with dark text. */
 html.glass:root{color-scheme:dark;
  --g-glass:rgba(16,24,20,.44);--g-inner:rgba(255,255,255,.08);--g-chip:rgba(255,255,255,.14);--g-edge:rgba(255,255,255,.16);--g-sep:rgba(255,255,255,.1);
- --g-ink:#fff;--g-mute:rgba(255,255,255,.66);--g-acc:#D9B77E;--g-btn:#F7F3EA;--g-btnink:#10201A;--g-veil:rgba(4,9,7,.46);--g-bar:rgba(12,19,16,.52);
+ --g-ink:#fff;--g-mute:rgba(255,255,255,.66);--g-acc:#D9B77E;--g-btn:#F7F3EA;--g-btnink:#10201A;--g-veil:rgba(4,9,7,.46);--g-bar:rgba(12,19,16,.52);--g-top:#537174;
  --ink:var(--g-ink);--mute:var(--g-mute);--card:var(--g-glass);--fill:var(--g-inner);--fill2:var(--g-chip);--line:var(--g-sep);--hair:var(--g-sep);--green:var(--g-acc);--green2:var(--g-acc);--on:var(--g-btnink);--bg:#0B1411}
 html.glass[data-theme="light"]:root{color-scheme:light;
  --g-glass:rgba(250,248,242,.66);--g-inner:rgba(15,61,46,.06);--g-chip:rgba(255,255,255,.55);--g-edge:rgba(255,255,255,.7);--g-sep:rgba(15,40,30,.1);
- --g-ink:#14201A;--g-mute:rgba(20,32,26,.6);--g-acc:#0F3D2E;--g-btn:#0F3D2E;--g-btnink:#F7F3EA;--g-veil:rgba(4,9,7,.18);--g-bar:rgba(250,248,242,.62)}
+ --g-ink:#14201A;--g-mute:rgba(20,32,26,.6);--g-acc:#0F3D2E;--g-btn:#0F3D2E;--g-btnink:#F7F3EA;--g-veil:rgba(4,9,7,.18);--g-bar:rgba(250,248,242,.62);--g-top:#7CA7AD}
 
 /* the photo and a veil so text stays readable */
-html.glass{background:#18221E}
+html.glass{background:var(--g-top)}
 html.glass body{background:transparent;color:var(--g-ink)}
 /* a fixed layer instead of background-attachment:fixed, which iPhone Safari ignores */
 /* iPhone Safari fills the strips under its status bar and address bar with one solid color, so the photo fades into that same color (#18221E) at the top and bottom */
-html.glass body::before{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg,#18221E 0,#18221E env(safe-area-inset-top,0px),rgba(24,34,30,.55) calc(env(safe-area-inset-top,0px) + 50px),rgba(24,34,30,0) calc(env(safe-area-inset-top,0px) + 170px),rgba(24,34,30,0) 84%,#18221E 100%),linear-gradient(var(--g-veil),var(--g-veil)),#18221E url("course-bg.jpg") center 70%/cover no-repeat;pointer-events:none}
+html.glass body::before{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg,var(--g-top) 0,transparent 90px),linear-gradient(180deg,transparent 84%,#18221E 100%),linear-gradient(var(--g-veil),var(--g-veil)),#18221E url("course-bg.jpg") center 70%/cover no-repeat;pointer-events:none}
 html.glass main{padding-left:16px;padding-right:16px}
 
 /* glass surfaces */
@@ -813,7 +820,7 @@ html.glass .hcard .hic,html.glass .c-play .hic{background:none!important;box-sha
 html.glass .hcard .hic svg{width:28px;height:28px}
 
 /* sign-in screen: one frosted card over the course photo */
-html.glass #gate{background:linear-gradient(180deg,#18221E 0,#18221E env(safe-area-inset-top,0px),rgba(24,34,30,.55) calc(env(safe-area-inset-top,0px) + 50px),rgba(24,34,30,0) calc(env(safe-area-inset-top,0px) + 170px),rgba(24,34,30,0) 84%,#18221E 100%),linear-gradient(var(--g-veil),var(--g-veil)),#18221E url("course-bg.jpg") center 70%/cover no-repeat;color:var(--g-ink);padding:max(24px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
+html.glass #gate{background:linear-gradient(180deg,var(--g-top) 0,transparent 90px),linear-gradient(180deg,transparent 84%,#18221E 100%),linear-gradient(var(--g-veil),var(--g-veil)),#18221E url("course-bg.jpg") center 70%/cover no-repeat;color:var(--g-ink);padding:max(24px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
 html.glass #gate .gbox{position:relative;max-width:400px;padding:30px 22px 22px;border-radius:32px;background:var(--g-glass);-webkit-backdrop-filter:blur(30px) saturate(170%);backdrop-filter:blur(30px) saturate(170%);box-shadow:0 20px 50px rgba(0,0,0,.25)}
 html.glass #gate .glogo{width:60px;height:60px;margin-bottom:16px;filter:drop-shadow(0 6px 16px rgba(0,0,0,.25))}
 html.glass #gate .gtitle{color:var(--g-ink)}
@@ -1092,7 +1099,11 @@ addEventListener('resize',fitTtl);
 let theme=(()=>{try{return localStorage.getItem('ww-theme')==='dark'?'dark':'light'}catch(e){return 'light'}})();
 document.documentElement.dataset.theme=theme;
 function themeHTML(){return `<div class="theme" role="group" aria-label="Appearance"><button data-theme-set="light" aria-pressed="${theme==='light'}" aria-label="Light mode"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></g></svg></button><button data-theme-set="dark" aria-pressed="${theme==='dark'}" aria-label="Dark mode"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.5 8.5 0 0 1 9.4 3.5a8.5 8.5 0 1 0 11.1 11.1z" fill="currentColor"/></svg></button></div>`}
-function paintTheme(){const h=toolsHTML(tab==='home');const t=$('thome');if(t&&t.dataset.h!==h){t.innerHTML=h;t.dataset.h=h}const fb=fbBtn(),f=$('fhome');if(f&&f.dataset.h!==fb){f.innerHTML=fb;f.dataset.h=fb}}
+// Glass look: iPhone Safari fills the strip behind the time and battery with one color, so match it to
+// what sits right below: the sky at the top of the photo on Home, the top bar on every other page.
+function paintChrome(){const R=document.documentElement;if(!R.classList.contains('glass'))return;const day=theme==='light',home=tab==='home'||!$('gate').hidden;
+ const c=home?(day?'#7CA7AD':'#537174'):(day?'#C9D4D1':'#2E4040');if(c===paintChrome.c)return;paintChrome.c=c;R.style.backgroundColor=c;const m=document.querySelector('meta[name=theme-color]');if(m)m.content=c}
+function paintTheme(){paintChrome();const h=toolsHTML(tab==='home');const t=$('thome');if(t&&t.dataset.h!==h){t.innerHTML=h;t.dataset.h=h}const fb=fbBtn(),f=$('fhome');if(f&&f.dataset.h!==fb){f.innerHTML=fb;f.dataset.h=fb}}
 let menuOpen=false;
 const PERSON='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="4" fill="currentColor"/><path d="M4 20.5c0-4.2 3.6-6.8 8-6.8s8 2.6 8 6.8" fill="currentColor"/></svg>';
 function toolsHTML(here=true){
