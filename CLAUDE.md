@@ -99,8 +99,8 @@ Upscale, clean, simple, elegant, with some color. Rejected directions: bright fa
 - **Fonts:** Barlow Condensed for headings and Public Sans for body text. Asher likes these, so keep them.
 - **Header:**
   - Centered, every line on a single line.
-  - Order: the logo, then "Bro 2 Bro **Golf Club**", then "Made by Bros, for Bros.", then "EST. 2026" in brass between hairlines.
-- **Logo:** a racing-green rounded tile with a cream "B2B", a brass "2" and a brass dot.
+  - Order: "Bro 2 Bro **Golf Club**", then "Made by Bros, for Bros.", then "EST. 2026" in brass between hairlines.
+- **Logo:** a racing-green rounded tile with a cream "B2B", a brass "2" and a brass dot. Used as the favicon (`favicon.png`, `apple-touch-icon.png`) and on the login screen, not in the Home header.
 - **Phone first:** big tap targets and 16px minimum on inputs (prevents iOS zoom). Check every change at phone width in both light and dark.
 
 ## Workflow
