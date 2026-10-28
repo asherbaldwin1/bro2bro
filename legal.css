@@ -1,0 +1,22 @@
+/* Shared look for privacy.html and terms.html: the classic Clubhouse colors, with dark mode following the site's saved theme. */
+:root{--bg:#F7F3EA;--card:#fff;--ink:#1B231F;--mute:#6E6A60;--hair:rgba(27,35,31,.1);--accent:#0F3D2E;--metal:#9C7A45;--fill:rgba(15,61,46,.06)}
+:root[data-theme="dark"]{--bg:#0B1411;--card:#16211C;--ink:#F2EDE2;--mute:#A39E92;--hair:rgba(242,237,226,.1);--accent:#D9B77E;--metal:#D9B77E;--fill:rgba(242,237,226,.07)}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.6 "Public Sans",system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px 16px 64px}
+.back{display:inline-flex;align-items:center;gap:3px;height:36px;padding:0 14px 0 8px;border-radius:999px;background:var(--fill);color:var(--accent);font:600 14px "Public Sans",sans-serif;text-decoration:none;white-space:nowrap}
+.back svg{width:18px;height:18px}
+h1{font:700 clamp(30px,9vw,44px)/1.05 "Barlow Condensed","Arial Narrow",sans-serif;margin:22px 0 4px;letter-spacing:.01em}
+h2{font:700 24px/1.2 "Barlow Condensed","Arial Narrow",sans-serif;margin:30px 0 6px;letter-spacing:.01em}
+.date{color:var(--mute);margin:0 0 18px;font-size:14.5px}
+.sum{background:var(--card);border-radius:20px;padding:16px 18px;box-shadow:0 0 0 1px var(--hair);margin:18px 0 8px}
+.sum ul{margin:6px 0 0;padding-left:20px}
+p,li{margin:8px 0}
+ul{padding-left:22px}
+a{color:var(--accent);text-underline-offset:2px}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:15px}
+th,td{text-align:left;vertical-align:top;padding:9px 8px;border-top:1px solid var(--hair)}
+th{color:var(--mute);font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase;border-top:0}
+code{font-size:14px;background:var(--fill);padding:1px 6px;border-radius:6px}
+.foot{margin-top:40px;padding-top:16px;border-top:1px solid var(--hair);color:var(--mute);font-size:14px}

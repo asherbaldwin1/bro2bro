@@ -29,6 +29,8 @@ On iPhone, open the site in Safari and tap **Share → Add to Home Screen** to g
 | `index.html` | The whole app in one file: pages, styling and code |
 | `config.js` | Firebase project settings and the admin account ID |
 | `firestore.rules` | Database security rules (a copy of what's published in Firebase) |
+| `privacy.html`, `terms.html`, `legal.css` | The Privacy Policy and Terms of Use pages |
+| `fonts/` | Barlow Condensed and Public Sans, hosted with the site so no page loads Google Fonts |
 | [GitHub Pages](https://pages.github.com/) | Hosts the site for free from the `main` branch |
 | [Firebase](https://firebase.google.com/) | Sign-in (Google, email and password, or email link) and the database for rounds, scores and friends. Free plan |
 
@@ -40,6 +42,11 @@ There's no build step: the files in this repo are exactly what the site serves.
 - Rounds, scores and friends live in Firebase, so updating the site never erases them.
 - Editing `firestore.rules` here does **not** change the live rules. Paste it into Firebase Console → Firestore → Rules and click **Publish**.
 
+## Privacy
+
+- Read the [Privacy Policy](https://asherbaldwin1.github.io/bro2bro/privacy.html) and [Terms of Use](https://asherbaldwin1.github.io/bro2bro/terms.html).
+- No ads, no analytics and no tracking cookies. Members can delete their account in Settings → Privacy & terms.
+
 ## Security
 
 - The Firebase `apiKey` in `config.js` is meant to be public. It's locked to this site's address, and the data is protected by the database rules.
@@ -48,3 +55,5 @@ There's no build step: the files in this repo are exactly what the site serves.
 ## License
 
 Copyright © 2026 Asher Baldwin. All rights reserved. This code is shared for viewing only and may not be copied, reused or hosted elsewhere without permission. See [LICENSE](LICENSE).
+
+The fonts in `fonts/` are © their authors and licensed under the SIL Open Font License 1.1 (see the OFL files in that folder).

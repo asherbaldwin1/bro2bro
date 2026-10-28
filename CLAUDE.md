@@ -17,6 +17,8 @@ A website where a small group of friends in Arizona track golf rounds, scores, h
 | `config.js` | Firebase project keys plus the admin account ID (`adminUids`) | **Never overwrite or regenerate this.** Edit only if asked |
 | `firestore.rules` | Firestore security rules | Changes do NOTHING until pasted into Firebase Console → Firestore → Rules → Publish. Tell Asher whenever this is needed |
 | `favicon.png`, `apple-touch-icon.png` | The B2B logo as the browser tab icon and iPhone home-screen icon | The `<link>` tags carry `?v=2`; bump it if the icon changes so browsers fetch the new one |
+| `privacy.html`, `terms.html`, `legal.css` | Privacy Policy and Terms of Use, standalone pages anyone can read before signing in | **Keep them true to what the app does.** If you add data, a service, cookies or storage, update `privacy.html` and its date, then ask Asher before publishing |
+| `fonts/` | Barlow Condensed and Public Sans files plus `fonts.css` and the OFL license texts | Self-hosted on purpose so no page contacts Google Fonts; don't switch back to fonts.googleapis.com |
 | `README.md` | Public description of the project shown on GitHub | Keep it accurate when features change |
 | `LICENSE` | All rights reserved, Asher Baldwin | Don't replace with an open-source license unless asked |
 
@@ -63,6 +65,7 @@ Details are in the code; these are the choices and preferences behind them.
 - **Leaderboards (first version):** Asher will give more detail; **don't redesign this without him.**
 - **Range:** one choice page for "Add to my average" or "Start fresh", with the erase warning on that same page. Asher doesn't want an extra confirm step.
 - **Admin** is reached from Settings or the account menu. It can't change a player's email or password directly (needs the paid Blaze plan), so it offers a password reset email instead. Removing a player deletes their profile but not their login.
+- **Privacy and deleting accounts:** the sign-in screen says that continuing means agreeing to the Terms and Privacy Policy. Settings → Privacy & terms links both pages and has **Delete my account**: a popup, then deletion of the player's friend links, bag, email record and profile, then their login. Firebase needs a sign-in from the last ~5 minutes, otherwise the popup asks them to sign in again. Rounds stay, with the name shown as "Former player". Contact is the Feedback button only, by Asher's choice; no public email. The admin account can't delete itself here.
 - **View as (admin):** a player's Admin page has "View as …", which shows the app as they see it. It's read-only on purpose: real impersonation needs the paid plan. The Firebase bridge refuses every write while `window.B2B_VIEW` is set, an oxblood banner shows who you're viewing, and Exit reloads the page. Their Range stays hidden because bags are private.
 
 ## Design system: "Clubhouse"

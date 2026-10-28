@@ -20,7 +20,8 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly(['email', 'pw'])
         && request.resource.data.email == request.auth.token.email
         && request.resource.data.pw is bool;
-      allow delete: if isAdmin();
+      // The admin, or the player deleting their own account.
+      allow delete: if isAdmin() || (signedIn() && me() == uid);
     }
 
     // Blocked players: { at, by }. Only the admin can add or remove one.
@@ -73,7 +74,8 @@ service cloud.firestore {
             || (request.resource.data.pic is string
                 && request.resource.data.pic.size() <= 100000
                 && request.resource.data.pic.matches('^data:image/jpeg;base64,[A-Za-z0-9+/=]+$')));
-      allow delete: if isAdmin();
+      // The admin, or the player deleting their own account.
+      allow delete: if isAdmin() || (signedIn() && me() == uid);
     }
 
     // Range: { clubs: [up to 14 club ids], dist: { clubId: { avg, shots, at } } }.
