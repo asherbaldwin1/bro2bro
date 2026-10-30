@@ -109,18 +109,20 @@ service cloud.firestore {
       allow delete: if active() && (resource.data.host == me() || isAdmin());
     }
 
-    // Shared course details people add during rounds (pars, tee ratings, new courses).
+    // Shared course details: pars, hole handicaps (h), tees with rating and slope, courses added to the list,
+    // and ad = when the admin verified them. Only the admin can change these, in Admin -> Courses.
+    // Players' in-round pars and ratings are saved on their own round instead.
     match /courseinfo/{id} {
       function shapeOk() {
-        return request.resource.data.keys().hasOnly(['par', 'pn', 'tees', 'added'])
+        return request.resource.data.keys().hasOnly(['par', 'pn', 'tees', 'added', 'h', 'ad'])
           && (!('par' in request.resource.data) || (request.resource.data.par is map && request.resource.data.par.size() <= 27))
+          && (!('h' in request.resource.data) || (request.resource.data.h is map && request.resource.data.h.size() <= 27))
           && (!('pn' in request.resource.data) || request.resource.data.pn is int)
+          && (!('ad' in request.resource.data) || request.resource.data.ad is int)
           && (!('tees' in request.resource.data) || (request.resource.data.tees is map && request.resource.data.tees.size() <= 20));
       }
       allow read: if active();
-      allow create: if active() && shapeOk();
-      // A course someone added can't be renamed or removed by others later.
-      allow update: if active() && shapeOk() && !changed().hasAny(['added']);
+      allow create, update: if isAdmin() && shapeOk();
       allow delete: if isAdmin();
     }
 

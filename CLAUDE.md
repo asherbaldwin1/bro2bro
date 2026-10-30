@@ -35,7 +35,7 @@ Keep the app in `index.html` (plus `config.js` and the course list in `courses.j
   - Must be signed in to read anything. Every rule checks `active()` (signed in and not blocked; the admin can't be blocked).
   - `players/{uid}`: each user can edit only their own. Only `name`, `joined` and `pic` (a small JPEG data URL, about 10–20 KB, or `''`; there's no Firebase Storage on the free plan).
   - `rounds/{id}`: created with yourself as host. Only the host or an admin can delete.
-  - `courseinfo/{id}`: only `par`, `pn`, `tees` and `added`. Pars and rating/slope added during a round are shared with the group.
+  - `courseinfo/{id}`: only `par`, `pn`, `h` (hole handicaps), `tees` (`{name: {r, s, o}}`), `added` and `ad` (when the admin verified it). **Admin-only writes**, from Admin → Courses. Players' in-round pars and ratings save only to their round, and only the admin adds courses (players get "Ask to add it", which opens Feedback). When `ad` is set, `cdata()` uses these details instead of the built-in ones in `courses.js`.
   - `friends/{uidA~uidB}`: `{a, b, from, status, created, since}`. Writable only by those two users.
   - `blocked/{uid}`: `{at, by}`. Admin-only writes. A blocked player sees a "Your account has been blocked" screen.
   - `feedback/{id}`: `{by, name, kind ('bug'|'idea'), text, page, ua, scr, at, status ('open'|'prog'|'done'), notes {timestamp: text}, closed}`. Any active player can create one as themselves (status `open`, no notes). Only the admin can read, update or delete.

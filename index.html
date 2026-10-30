@@ -627,6 +627,11 @@ textarea:focus{outline:none;background:var(--card);box-shadow:0 0 0 3px rgba(184
 .frrm{flex:none;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;width:52px;min-height:36px;padding:0}
 .frrm svg{width:19px;height:19px}
 a.srow{text-decoration:none}
+.box>.pback+b{display:block}
+.cegrid{width:100%;border-collapse:collapse;table-layout:fixed;margin-top:12px}
+.cegrid th{font:600 12px "Public Sans",sans-serif;color:var(--mute);padding:4px 0;text-align:center}.cegrid tr>th:first-child{width:38px;text-align:left}
+.cegrid td{padding:2px}.cegrid input{width:100%;margin:0;padding:8px 0;text-align:center;font-size:16px;border-radius:8px}
+.cetee{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr) 34px;gap:6px;align-items:center;margin-top:8px}.cetee input{margin:0;min-width:0;padding-left:10px;padding-right:8px}
 .geohd{display:flex;align-items:center;gap:6px;margin:14px 0 4px;flex-wrap:wrap}.geohd svg{width:16px;height:16px;flex:none;color:var(--accent)}
 .credit a{color:inherit;text-underline-offset:2px}
 .vabar{position:fixed;top:0;left:0;right:0;z-index:70;height:calc(40px + env(safe-area-inset-top,0px));padding:env(safe-area-inset-top,0px) 12px 0 16px;display:flex;align-items:center;justify-content:center;gap:12px;background:#7A1F2B;color:#F7F3EA;font:500 14px "Public Sans",sans-serif}
@@ -1144,9 +1149,13 @@ const added=()=>Object.keys(D).filter(k=>k.startsWith('courseinfo/')).map(k=>[k.
 const all=()=>added().concat(COURSES);
 const course=id=>all().find(c=>c.id===id);
 function cdata(c){const u=doc('courseinfo/'+c.id)||{};
+ if(u.ad){// Verified by the admin in Admin → Courses: these replace the built-in details
+  const n=holesN(u.pn||c.hc||18),a=nums(u.par,n),hh=nums(u.h,n);
+  const tees=Object.entries(u.tees||{}).filter(([,v])=>v).map(([k,v])=>{const b=c.tees.find(t=>t.n===k);return{n:k,c:b?b.c:'',r:num(v.r),s:num(v.s),y:b&&b.y&&b.y.length===n?b.y:null,o:num(v.o)}}).sort((x,y)=>(x.o==null?99:x.o)-(y.o==null?99:y.o));
+  return{par:a.some(Boolean)?a:null,h:hh.every(Boolean)?hh:null,tees,n,ad:u.ad}}
  const ct=Object.entries(u.tees||{}).filter(([k,v])=>v&&!c.tees.some(t=>t.n===k)).map(([k,v])=>({n:k,c:'',r:num(v.r),s:num(v.s),y:null}));
  let par=c.p;if(!par&&u.par&&u.pn){const a=nums(u.par,holesN(u.pn));if(a.some(Boolean))par=a}
- return{par,tees:c.tees.concat(ct)}}
+ return{par,h:c.h,tees:c.tees.concat(ct),n:null}}
 const STD=['Red','White','Blue','Black','Gold'];
 function teeList(c){const d=cdata(c),out=STD.map(n=>{const t=d.tees.find(t=>t.n.toLowerCase()===n.toLowerCase());return t?{...t,n}:{n,c:n,r:null,s:null,y:null}});d.tees.forEach(t=>{if(t.r&&!/green/i.test(t.n)&&!STD.some(n=>n.toLowerCase()===t.n.toLowerCase()))out.push(t)});return out}
 const dot=c=>`<span class="dot" style="background:${colors[String(c).toLowerCase()]||'var(--card)'}"></span>`;
@@ -1399,6 +1408,54 @@ function fbAdmin(){
 }
 /* ---------- admin ---------- */
 let admUid=null,admConf=false,admQ='',admBlk=false;
+/* ---------- admin: course editor ---------- */
+// ceId: the course being edited ('new' for a new one); ce: its draft {n,t,s,holes,par[],h[],tees:[{k,n,r,s}]}
+let ceQ='',ceId=null,ce=null,ceDel=false;
+const ceKey=()=>Math.random().toString(36).slice(2,8);
+function ceOpen(id){const c=id==='new'?null:course(id);ceDel=false;err='';
+ if(!c){ce={n:'',t:'',s:st||'AZ',holes:18,par:[],h:[],tees:[{k:ceKey(),n:'White',r:'',s:''}],isNew:true,added:true};ceId='new';render();return}
+ const d=cdata(c),n=d.par?d.par.length:(d.n||c.hc||18);
+ ce={n:c.n,t:c.t,s:c.s,holes:n>=18?18:9,par:(d.par||[]).slice(),h:(d.h||[]).slice(),tees:d.tees.map(t=>({k:ceKey(),n:t.n,r:t.r==null?'':t.r,s:t.s==null?'':t.s})),added:!!(doc('courseinfo/'+id)||{}).added};
+ if(!ce.tees.length)ce.tees.push({k:ceKey(),n:'White',r:'',s:''});
+ ceId=id;window.scrollTo(0,0);render()}
+// Copies what's typed into the draft, so re-drawing the page never loses it
+function ceRead(){if(!ce)return;const v=id=>{const e=$(id);return e?e.value.trim():null};
+ if(ce.added){ce.n=v('ce-n')??ce.n;ce.t=v('ce-t')??ce.t;ce.s=v('ce-s')??ce.s}
+ for(let i=0;i<ce.holes;i++){const a=v('ce-p'+i),b=v('ce-h'+i);if(a!=null)ce.par[i]=a;if(b!=null)ce.h[i]=b}
+ ce.tees.forEach(t=>{t.n=v('ce-tn-'+t.k)??t.n;t.r=v('ce-tr-'+t.k)??t.r;t.s=v('ce-ts-'+t.k)??t.s})}
+function courseAdmin(){
+ if(ceId&&ce){const c=ceId==='new'?null:course(ceId),ci=c&&doc('courseinfo/'+c.id),hasPar=ce.par.slice(0,ce.holes).some(x=>x!==''&&x!=null);
+  const nine=(f)=>`<table class="cegrid"><tr><th>Hole</th>${[...Array(9)].map((_,j)=>`<th>${f+j+1}</th>`).join('')}</tr><tr><th>Par</th>${[...Array(9)].map((_,j)=>{const i=f+j;return `<td><input id="ce-p${i}" inputmode="numeric" maxlength="1" aria-label="Hole ${i+1} par" value="${esc(ce.par[i]??'')}"></td>`}).join('')}</tr><tr><th>Hcp</th>${[...Array(9)].map((_,j)=>{const i=f+j;return `<td><input id="ce-h${i}" inputmode="numeric" maxlength="2" aria-label="Hole ${i+1} handicap" value="${esc(ce.h[i]??'')}"></td>`}).join('')}</tr></table>`;
+  let h=box(`${crumb('admcourses','All courses')}${ce.added?`<b>${ce.isNew?'Add a course':'Course details'}</b><label for="ce-n">Course name</label><input id="ce-n" maxlength="60" value="${esc(ce.n)}"><div class="row" style="flex-wrap:nowrap"><div style="flex:2;min-width:0"><label for="ce-t">City</label><input id="ce-t" maxlength="40" value="${esc(ce.t)}"></div><div style="flex:1;min-width:0"><label for="ce-s">State</label><select id="ce-s">${STATES.map(x=>`<option ${x===ce.s?'selected':''}>${x}</option>`).join('')}</select></div></div>`:`<b class="an">${esc(ce.n)}</b><p class="sub" style="margin:2px 0 0">${esc(ce.t)}${ce.t&&ce.s?', ':''}${esc(ce.s)}${ci&&ci.ad?' · <span class="pill">Verified</span>':''}</p>`}<p style="margin:14px 0 6px"><b>Holes</b></p><div class="row">${[9,18].map(x=>`<button class="chip" aria-pressed="${ce.holes===x}" data-ceh="${x}">${x}</button>`).join('')}</div>`);
+  h+=box(`<b>Pars and hole handicaps</b><p class="sub" style="margin-top:4px">Hcp is the hole’s handicap from the scorecard, 1 for the hardest. Leave it blank if you don’t know it.</p>${nine(0)}${ce.holes===18?nine(9):''}<p class="sub" id="ce-tot" style="margin:8px 0 0">${ceTot()}</p>`);
+  h+=box(`<b>Tees</b><p class="sub" style="margin-top:4px">Rating and slope are printed on the scorecard for each set of tees. They’re used for handicaps.</p>${ce.tees.map(t=>`<div class="cetee"><input id="ce-tn-${t.k}" maxlength="20" placeholder="Tee name" aria-label="Tee name" value="${esc(t.n)}"><input id="ce-tr-${t.k}" inputmode="decimal" maxlength="5" placeholder="Rating" aria-label="Course rating" value="${esc(t.r)}"><input id="ce-ts-${t.k}" inputmode="numeric" maxlength="3" placeholder="Slope" aria-label="Slope" value="${esc(t.s)}"><button class="iconbtn sm" data-cetx="${t.k}" aria-label="Remove tee">×</button></div>`).join('')}<button class="btn alt sm" id="ce-addtee" style="margin-top:10px">Add tees</button>`);
+  h+=box(`${err?`<p class="over" style="margin:0 0 10px">${esc(err)}</p>`:''}<button class="btn" id="ce-save" style="width:100%">Save for everyone</button><p class="sub" style="margin:8px 0 0">Saving marks the course as verified. New rounds use these pars, handicaps and ratings; rounds already played keep theirs.</p>${ceId==='new'?'':ceDel?`<div class="delc" style="margin:14px 0 0"><b>${ce.added?'Delete this course?':'Undo your edits?'}</b><p class="sub">${ce.added?'It disappears from the course list. Rounds already played keep their scores.':'The course goes back to the details it came with.'}</p><div class="row"><button class="btn danger" id="ce-delyes">${ce.added?'Delete course':'Undo edits'}</button><button class="btn alt" id="ce-delno">Cancel</button></div></div>`:ce.added||(ci&&ci.ad)?`<button class="btn alt" id="ce-del" style="width:100%;margin-top:12px">${ce.added?'Delete course':'Undo my edits'}</button>`:''}`);
+  return h}
+ const k=ceQ.toLowerCase().trim(),edited=Object.keys(D).filter(x=>x.startsWith('courseinfo/')&&(doc(x).ad||doc(x).added)).map(x=>course(x.slice(11))).filter(Boolean);
+ const list=k?all().filter(c=>c.k.includes(k)).slice(0,25):edited;
+ const row=c=>{const u=doc('courseinfo/'+c.id)||{};return `<button class="frow admrow" data-ce="${c.id}"><span class="fwho"><b>${esc(c.n)}${u.ad?' <span class="pill">Verified</span>':''}</b><small>${esc(c.t)}${c.t&&c.s?', ':''}${esc(c.s)} · ${cdata(c).par?'pars':'no pars'} · ${cdata(c).tees.some(t=>t.r)?'rating':'no rating'}</small></span><span class="chev2"></span></button>`};
+ return box(`<div class="rhead"><div><b>Courses</b><br><span class="sub">${COURSES.length.toLocaleString()} built in · only you can change them</span></div><button class="btn alt sm" id="ce-new" style="white-space:nowrap;flex:none">Add course</button></div><input id="ceq" type="search" placeholder="Search by name or city" value="${esc(ceQ)}" autocomplete="off" style="margin-top:12px">${k?'':`<p class="sub" style="margin:12px 0 0">${edited.length?'Courses you’ve added or verified':'Search to find a course, then set its pars, hole handicaps and tees.'}</p>`}<div class="admlist">${list.map(row).join('')}</div>${k&&!list.length?'<p class="empty">No course matches.</p>':''}`)+'<p class="sub">Players can tap pars and enter ratings during their own rounds, but only your edits here change a course for everyone.</p>';
+}
+function ceTot(){const p=ce.par.slice(0,ce.holes).map(Number),out=p.slice(0,9).reduce((a,b)=>a+(b||0),0),inn=p.slice(9).reduce((a,b)=>a+(b||0),0);return ce.holes===18?`Out ${out||'–'} · In ${inn||'–'} · Par ${out+inn||'–'}`:`Par ${out||'–'}`}
+async function ceSave(){ceRead();const n=ce.holes,par={},hh={},tees={};err='';
+ if(ce.added&&!ce.n){err='Enter the course name.';return render()}
+ for(let i=0;i<n;i++){const v=String(ce.par[i]??'').trim();if(!v)continue;const x=+v;if(!(Number.isInteger(x)&&x>=3&&x<=6)){err=`Hole ${i+1}: par should be 3, 4, 5 or 6.`;return render()}par[i]=x}
+ const hv=[...Array(n)].map((_,i)=>String(ce.h[i]??'').trim());
+ if(hv.some(Boolean)){if(hv.some(x=>!x)){err='Fill in a handicap for every hole, or leave them all blank.';return render()}
+  const xs=hv.map(Number);if(xs.some(x=>!(Number.isInteger(x)&&x>=1&&x<=18))||new Set(xs).size!==n){err='Hole handicaps should be different whole numbers from 1 to 18.';return render()}
+  xs.forEach((x,i)=>hh[i]=x)}
+ for(const [o,t] of ce.tees.entries()){if(!t.n&&!t.r&&!t.s)continue;if(!t.n){err='Give each set of tees a name.';return render()}
+  if(tees[t.n]){err='Two tees are both called '+t.n+'.';return render()}
+  const r=t.r===''?null:parseFloat(t.r),sl=t.s===''?null:parseInt(t.s,10);
+  if((r==null)!==(sl==null)){err=t.n+': enter both the rating and the slope, or neither.';return render()}
+  if(r!=null&&!(r>=25&&r<=85)){err=t.n+': course rating is usually between 25 and 85.';return render()}
+  if(sl!=null&&!(sl>=55&&sl<=155)){err=t.n+': slope is a whole number from 55 to 155.';return render()}
+  tees[t.n]=r==null?{o}:{r,s:sl,o}}
+ const id=ceId==='new'?'x'+Date.now().toString(36):ceId,body={par,pn:n,h:hh,tees,ad:Date.now()};
+ if(ce.added)body.added={n:ce.n.slice(0,60),t:(ce.t||'').slice(0,40),s:ce.s||'',hc:n};
+ const b=$('ce-save');if(b)b.disabled=true;
+ try{await db.doc('courseinfo/'+id).set(body)}catch(e){fail(e);if(b)b.disabled=false;return}
+ D['courseinfo/'+id]=body;say((ce.n||'Course')+' saved for everyone.');ceId=null;ce=null;render()}
 const isBlocked=uid=>!!D['blocked/'+uid];
 function pstats(uid){const rs=rounds().filter(r=>r.pl[uid]),done=rs.filter(r=>r.status==='done'),last=done.slice().sort(byDate).pop(),
  fr=Object.keys(D).filter(k=>k.startsWith('friends/')&&k.includes(uid)).map(k=>doc(k)).filter(f=>f&&f.status==='accepted'&&(f.a===uid||f.b===uid)).length;
@@ -1418,8 +1475,9 @@ function adminView(){
   if(!self)h+=box(admConf?`<div class="delc" style="margin:0"><b>Remove ${esc(pname(uid))} from the club?</b><p class="sub">Their name and photo are deleted, and they drop off friends lists and leaderboards. Rounds they played stay, but show them as “Former player”. If they sign in again they’ll be asked for a name and start over. This can’t be undone.</p><div class="row"><button class="btn danger" id="admrmyes">Remove player</button><button class="btn alt" id="admrmno">Cancel</button></div></div>`:`<b>Remove from club</b><p class="sub" style="margin-top:6px">Deletes their player profile. To also delete their login, use Firebase Console → Authentication.</p><button class="btn danger" id="admrm" style="width:100%">Remove player</button>`);
   return h;
  }
- const n=fbOpenN(),tabs=`<div class="row" style="margin-bottom:12px;flex-wrap:nowrap"><button class="chip" aria-pressed="${admTab==='players'}" data-admtab="players">Players</button><button class="chip" aria-pressed="${admTab==='fb'}" data-admtab="fb">Feedback${n?' · '+n:''}</button></div>`;
+ const n=fbOpenN(),tabs=`<div class="row" style="margin-bottom:12px;flex-wrap:nowrap"><button class="chip" aria-pressed="${admTab==='players'}" data-admtab="players">Players</button><button class="chip" aria-pressed="${admTab==='courses'}" data-admtab="courses">Courses</button><button class="chip" aria-pressed="${admTab==='fb'}" data-admtab="fb">Feedback${n?' · '+n:''}</button></div>`;
  if(admTab==='fb')return (admFb?'':tabs)+fbAdmin();
+ if(admTab==='courses')return (ceId?'':tabs)+courseAdmin();
  const k=admQ.toLowerCase().trim(),ps=players().filter(p=>!k||pname(p.id).toLowerCase().includes(k)||fcode(p.id).toLowerCase().includes(k)).sort((a,b)=>(b.joined||0)-(a.joined||0));
  return tabs+box(`<div class="rhead"><div><b>Players</b><br><span class="sub">${players().length} in the club · newest first</span></div></div><input id="admq" type="search" placeholder="Search by name or friend code" value="${esc(admQ)}" style="margin-top:12px"><div class="admlist">${ps.map(p=>{const st=pstats(p.id);return `<button class="frow admrow" data-adm="${p.id}">${face(p.id)}<span class="fwho"><b>${esc(pname(p.id))}${p.id===me?' <span class="sub">(you)</span>':''}${isBlocked(p.id)?' <span class="pill">Blocked</span>':''}</b><small>${fcode(p.id)} · ${st.rounds} round${st.rounds===1?'':'s'} · ${st.friends} friend${st.friends===1?'':'s'}</small></span><span class="chev2"></span></button>`}).join('')}</div>${ps.length?'':'<p class="empty">No one matches.</p>'}`)+'<p class="sub">Only you can see this page. Tap a player to rename them, send a password reset, block them or remove them from the club.</p>';
 }
@@ -1464,9 +1522,9 @@ function setup(){
  h+=`<div class="box"><b>Who’s playing</b><p class="sub">Just you for a solo round. Friends you add see this round on their own phone and can enter scores too.</p><div class="row"><span class="chip" aria-pressed="true">${esc(pname(me))} (you)</span>${fr.map(p=>`<button class="chip" aria-pressed="${sel.has(p.id)}" data-sel="${p.id}">${esc(pname(p.id))}</button>`).join('')}${guests.map((g,i)=>`<button class="chip" aria-pressed="true" data-ung="${i}" aria-label="Remove ${esc(g)}">${esc(g)} ×</button>`).join('')}</div>${fr.length?'':'<p class="sub" style="margin-top:8px">Add friends to play with them. <button class="linkbtn" data-go="people">Find friends</button></p>'}<div class="row" style="margin-top:8px"><input id="gn" placeholder="Guest without the app" maxlength="24" style="flex:1;margin:0;min-width:150px"><button class="btn alt" id="addg">Add guest</button></div></div><div class="box">`;
  if(adding)return h+addForm()+'</div>';
  h+=`<label for="q"><b>Course</b></label><div class="row"><input id="q" type="search" style="flex:2;min-width:150px" placeholder="Name or city" value="${esc(q)}"><select id="st" style="flex:1;min-width:110px" aria-label="State"><option value="">All states</option>${STATES.map(s=>`<option ${s===st?'selected':''}>${s}</option>`).join('')}</select></div>`;
- if(pick&&course(pick)){const c=course(pick),d=cdata(c),n=d.par?d.par.length:c.hc;
+ if(pick&&course(pick)){const c=course(pick),d=cdata(c),n=d.par?d.par.length:(d.n||c.hc);
   h+=`<p><b>${esc(c.n)}</b><br><span class="sub">${esc(c.t)}${c.t&&c.s?', ':''}${esc(c.s)}${n?' · '+n+' holes':''}${d.par&&d.par.every(Boolean)?' · par '+sum(d.par):''}</span></p>`;
-  if(!d.par)h+=`<p class="note">This course has no pars on file. You’ll set each hole’s par as you play, and it’s saved for everyone next time.</p>`;
+  if(!d.par)h+=`<p class="note">This course has no pars on file yet. You’ll set each hole’s par as you play, and it’s saved with your round.</p>`;
   if(!n)h+=`<p><b>Holes</b></p><div class="row">${[9,18].map(x=>`<button class="chip" aria-pressed="${holes===x}" data-holes="${x}">${x}</button>`).join('')}</div>`;
   h+=`<label for="tee"><b>Tees</b></label>${(()=>{const L=teeList(c),cur=L.find(t=>t.n===teeSel)||L.find(t=>t.n==='White');return `<div class="teepick"><span class="dot big" style="background:${colors[cur.n.toLowerCase()]||'var(--fill2)'}"></span><select id="tee">${L.map(t=>`<option value="${esc(t.n)}" ${t===cur?'selected':''}>${esc(t.n)}${t.y?' · '+sum(t.y).toLocaleString()+' yds':''}</option>`).join('')}</select></div><p class="sub" style="margin-top:-2px">${cur.r?`Rating ${cur.r} · Slope ${cur.s}, used for your handicap.`:'No rating on file for these tees yet. When you finish, you can add the rating and slope from the scorecard so the round counts toward handicap.'}</p>`})()}<button class="btn" id="start">Start ${sel.size||guests.length?'group':'solo'} round</button> <button class="btn alt" id="back">Change course</button>`;
  }else{
@@ -1483,7 +1541,7 @@ function setup(){
    h+=m.slice(0,25).map(row).join('')||'<p class="empty">No course matches. Try fewer letters, or add it yourself below.</p>';
    if(m.length>25)h+=`<p class="sub">Showing 25 of ${m.length.toLocaleString()}. Keep typing or pick a state to narrow it.</p>`;
   }
-  h+=`<p><button class="btn alt" id="addc">Course not listed? Add it</button></p>`;
+  h+=owner?`<p><button class="btn alt" id="addc">Course not listed? Add it</button></p>`:`<p><button class="btn alt" id="askc">Course not listed? Ask to add it</button></p>`;
  }
  return h+'</div>';
 }
@@ -1612,6 +1670,7 @@ const crumb=(k,label)=>`<button class="pback" data-crumb="${k}"><svg viewBox="0 
 const CRUMB={
  friends:()=>{const st=history.state;if(st&&st.prof)history.back();else{profUid=null;lastView=null;render()}},
  players:()=>{if(admBack())return;admUid=null;admConf=false;render()},
+ admcourses:()=>{ceId=null;ce=null;err='';render()},
  fb:()=>{if(admBack())return;admFb=null;admFbDel=false;render()},
  bag:()=>{rClub=null;rMode=null;rReset=false;bagEdit=false;bagSel=null;render()},
  rounds:()=>{ask=null;err='';render()},
@@ -1677,10 +1736,10 @@ function msBox(uid,done){
 const gkey=()=>'g'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const nextO=r=>Math.max(0,...Object.values(r.pl).map(p=>p.o||0))+1;
 async function startRound(){
- const c=course(pick),d=cdata(c),t=teeList(c).find(x=>x.n===teeSel)||teeList(c).find(x=>x.n==='White'),n=d.par?d.par.length:(c.hc||holes),pl={};let o=1;
+ const c=course(pick),d=cdata(c),t=teeList(c).find(x=>x.n===teeSel)||teeList(c).find(x=>x.n==='White'),n=d.par?d.par.length:(d.n||c.hc||holes),pl={};let o=1;
  pl[me]={uid:me,o:o++};friends().filter(p=>sel.has(p.id)).forEach(p=>pl[p.id]={uid:p.id,o:o++});guests.forEach(g=>pl[gkey()]={name:g,o:o++});
  const par={};(d.par||[]).forEach((v,i)=>{if(v)par[i]=v});
- const body={status:'live',host:me,created:Date.now(),date:today(),cid:c.id,cn:c.n,tn:t?t.n:'',rating:t?t.r:null,slope:t?t.s:null,n,par,si:c.h&&c.h.length===n?c.h:null,yds:t&&t.y&&t.y.length===n?t.y:null,players:pl,scores:{}};
+ const body={status:'live',host:me,created:Date.now(),date:today(),cid:c.id,cn:c.n,tn:t?t.n:'',rating:t?t.r:null,slope:t?t.s:null,n,par,si:d.h&&d.h.length===n?d.h:null,yds:t&&t.y&&t.y.length===n?t.y:null,players:pl,scores:{}};
  const ref=db.collection('rounds').doc();
  $('start').disabled=true;
  try{await ref.set(body)}catch(e){fail(e);render();return}
@@ -1724,7 +1783,7 @@ function bind(){
  click('edname',()=>{editName=true;render()});
  click('reload',()=>location.reload());
  on('[data-adm]',b=>b.onclick=()=>{admUid=b.dataset.adm;admConf=false;admOpen('adm',admUid);render();window.scrollTo(0,0)});
- on('[data-admtab]',b=>b.onclick=()=>{admTab=b.dataset.admtab;admUid=null;admFb=null;render()});
+ on('[data-admtab]',b=>b.onclick=()=>{admTab=b.dataset.admtab;admUid=null;admFb=null;ceId=null;ce=null;render()});
  click('setfb',()=>{admTab='fb';fbArch=false;go('admin')});
  on('[data-fba]',b=>b.onclick=()=>{fbArch=!!b.dataset.fba;render()});
  on('[data-fbid]',b=>b.onclick=()=>{admFb=b.dataset.fbid;admFbDel=false;admOpen('fb',admFb);render();window.scrollTo(0,0)});
@@ -1769,7 +1828,8 @@ function bind(){
  const se=$('st');if(se)se.onchange=()=>{st=se.value;pick=null;render()};
  const te=$('tee');if(te)te.onchange=()=>{teeSel=te.value;render()};
  click('back',()=>{pick=null;render()});
- click('addc',()=>{adding=true;err='';render()});
+ click('addc',()=>{if(owner){adding=true;err='';render()}});
+ click('askc',()=>{fbKind='idea';fbText='Please add this course:\nName: '+(q.trim()||'')+'\nCity and state: ';fbShow()});
  click('geoask',()=>{locate(true);render()});
  click('acancel',()=>{adding=false;render()});
  click('asave',()=>{const n=$('an').value.trim();if(!n){af={n:'',c:$('ac').value,s:$('as').value};err='Enter the course name.';render();return}
@@ -1784,7 +1844,7 @@ function bind(){
  document.body.classList.toggle('has-bar',!!$('view').querySelector('.holebar'));
  const strip=v.querySelector('.strip'),curH=strip&&strip.querySelector('[aria-current=true]');if(curH)strip.scrollLeft=curH.offsetLeft-strip.clientWidth/2+curH.offsetWidth/2;
  const ent=v.querySelector('.entry');if(ent&&r){let sx=0,sy=0,tr=false;ent.addEventListener('touchstart',e=>{const t=e.touches[0];sx=t.clientX;sy=t.clientY;tr=!e.target.closest('.pkrow,input,select')},{passive:true});ent.addEventListener('touchend',e=>{if(!tr)return;const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)>60&&Math.abs(dy)<45){const n=hole[r.id]+(dx<0?1:-1);if(n>=0&&n<r.n){hole[r.id]=n;render()}}},{passive:true})}
- on('[data-par]',b=>b.onclick=()=>{const i=hole[r.id],p=+b.dataset.par;patch('rounds/'+r.id,{par:{[i]:p}});patch('courseinfo/'+r.cid,{par:{[i]:p},pn:r.n})});
+ on('[data-par]',b=>b.onclick=()=>{const i=hole[r.id],p=+b.dataset.par;patch('rounds/'+r.id,{par:{[i]:p}})});
  const setScore=(k,v)=>{const i=hole[r.id];patch('rounds/'+r.id,{scores:{[k]:{[i]:v}}})};
  on('[data-set]',b=>b.onclick=()=>{const k=b.dataset.set,v=+b.dataset.v,c=R(r.id).sc[k][hole[r.id]];setScore(k,c===v&&!b.classList.contains('more')?null:v)});
  on('[data-a]',b=>b.onclick=()=>{const k=b.dataset.a,c=R(r.id).sc[k][hole[r.id]];setScore(k,c==null?1:Math.min(20,c+1))});
@@ -1800,7 +1860,7 @@ function bind(){
  click('rsave',()=>{const x=ask.k==='cur'?r:R(ask.id),ra=parseFloat($('rr').value),sl=parseInt($('rs').value,10),nm=$('rn').value.trim()||'Standard';
   if(!(ra>=55&&ra<=85)){err='Course rating is usually between 55 and 85.';render();return}
   if(!(sl>=55&&sl<=155)){err='Slope is a whole number from 55 to 155.';render();return}
-  patch('rounds/'+x.id,{rating:ra,slope:sl,tn:nm});patch('courseinfo/'+x.cid,{tees:{[nm]:{r:ra,s:sl}}});
+  patch('rounds/'+x.id,{rating:ra,slope:sl,tn:nm});
   if(ask.k==='cur')finishRound(x);else{ask=null;err='';render()}});
  click('rskip',()=>{if(ask.k==='cur')finishRound(r);else{ask=null;err='';render()}});
  // rounds + people
@@ -1815,6 +1875,16 @@ function bind(){
  on('[data-prof]',b=>b.onclick=()=>openProf(b.dataset.prof));
  click('admview',()=>viewAs(admUid));
  click('delme',()=>{if(VIEW){fail({code:'view-as'});return}delAsk='ask';render()});
+ on('[data-ce]',b=>b.onclick=()=>ceOpen(b.dataset.ce));
+ click('ce-new',()=>ceOpen('new'));
+ {const i=$('ceq');if(i)i.oninput=()=>{ceQ=i.value;render()}}
+ on('[data-ceh]',b=>b.onclick=()=>{ceRead();ce.holes=+b.dataset.ceh;render()});
+ on('[data-cetx]',b=>b.onclick=()=>{ceRead();ce.tees=ce.tees.filter(t=>t.k!==b.dataset.cetx);lastView=null;render()});
+ click('ce-addtee',()=>{ceRead();ce.tees.push({k:ceKey(),n:'',r:'',s:''});render();const t=ce.tees[ce.tees.length-1];const e=$('ce-tn-'+t.k);if(e)e.focus()});
+ v.querySelectorAll('.cegrid input').forEach(e=>e.oninput=()=>{ceRead();const t=$('ce-tot');if(t)t.textContent=ceTot()});
+ click('ce-save',ceSave);
+ click('ce-del',()=>{ceRead();ceDel=true;render()});click('ce-delno',()=>{ceDel=false;render()});
+ click('ce-delyes',async()=>{const id=ceId,n=ce.n;$('ce-delyes').disabled=true;try{await db.doc('courseinfo/'+id).delete()}catch(e){fail(e);return}delete D['courseinfo/'+id];say(ce.added?n+' was deleted.':n+' is back to its original details.');ceId=null;ce=null;ceDel=false;render()});
  on('[data-crumb]',b=>b.onclick=()=>{const f=CRUMB[b.dataset.crumb];if(f){f();window.scrollTo(0,0)}});
  const fqi=$('fq');if(fqi)fqi.oninput=()=>{fq=fqi.value;render()};
  on('[data-fradd]',b=>b.onclick=()=>{b.disabled=true;frAdd(b.dataset.fradd)});
