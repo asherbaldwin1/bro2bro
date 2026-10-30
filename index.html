@@ -627,6 +627,7 @@ textarea:focus{outline:none;background:var(--card);box-shadow:0 0 0 3px rgba(184
 .frrm{flex:none;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;width:52px;min-height:36px;padding:0}
 .frrm svg{width:19px;height:19px}
 a.srow{text-decoration:none}
+.geohd{display:flex;align-items:center;gap:6px;margin:14px 0 4px;flex-wrap:wrap}.geohd svg{width:16px;height:16px;flex:none;color:var(--accent)}
 .credit a{color:inherit;text-underline-offset:2px}
 .vabar{position:fixed;top:0;left:0;right:0;z-index:70;height:calc(40px + env(safe-area-inset-top,0px));padding:env(safe-area-inset-top,0px) 12px 0 16px;display:flex;align-items:center;justify-content:center;gap:12px;background:#7A1F2B;color:#F7F3EA;font:500 14px "Public Sans",sans-serif}
 .vat{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
@@ -1433,6 +1434,22 @@ function settings(){
  h+=box(`<b>About</b><div class="slist"><div class="srow static"><span>App</span><span class="sv">Bro 2 Bro Golf Club</span></div><div class="srow static"><span>Courses</span><span class="sv">${COURSES.length.toLocaleString()} US courses</span></div><div class="srow static"><span>Handicap</span><span class="sv">Best 8 of last 20</span></div></div><p class="sub" style="margin-top:10px">Handicap index follows the World Handicap System: each 18-hole round becomes a differential, (113 ÷ slope) × (score − course rating), and your index averages the best of your recent differentials. You need 3 counted rounds to get one. Scores aren’t capped per hole yet, so it can run a little high after blow-up holes.</p><p class="sub credit" style="margin-top:10px">Course data © OpenStreetMap contributors. Course list from <a href="https://lukeheide.com/sports/yardage-hub">yardage-hub</a> and <a href="https://opengolfapi.org">OpenGolfAPI</a>, under the <a href="https://opendatacommons.org/licenses/odbl/1-0/">ODbL</a>.</p>`);
  return h;
 }
+/* ---------- courses near you ---------- */
+// The device's location is only used here, on the device, to sort the course list. It's never saved or sent anywhere.
+const NEAR_MI=15;
+let geo={st:'idle',pos:null,at:0};
+const GEOI='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6.2-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 14.8 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="9.8" r="2.4" fill="currentColor"/></svg>';
+function miles(a,b){const r=x=>x*Math.PI/180,dl=r(b[0]-a[0]),dn=r(b[1]-a[1]),h=Math.sin(dl/2)**2+Math.cos(r(a[0]))*Math.cos(r(b[0]))*Math.sin(dn/2)**2;return 3958.8*2*Math.asin(Math.sqrt(h))}
+function locate(again){
+ if(!('geolocation' in navigator)){geo.st='error';return}
+ if(geo.st==='asking'||(!again&&(geo.st==='denied'||geo.st==='error'||(geo.pos&&Date.now()-geo.at<10*60e3))))return;
+ geo.st='asking';
+ navigator.geolocation.getCurrentPosition(p=>{geo={st:'ok',pos:[p.coords.latitude,p.coords.longitude],at:Date.now()};if(tab==='play')render()},
+  e=>{geo.st=e&&e.code===1?'denied':'error';if(tab==='play')render()},{enableHighAccuracy:false,timeout:12000,maximumAge:10*60e3})}
+let nearCache=null;
+function nearby(){const key=geo.at+'|'+added().length;if(nearCache&&nearCache.key===key)return nearCache.list;
+ const list=all().filter(c=>c.la!=null).map(c=>({...c,mi:miles(geo.pos,[c.la,c.lo])})).filter(c=>c.mi<=NEAR_MI).sort((a,b)=>a.mi-b.mi);
+ nearCache={key,list};return list}
 function setup(){
  let h=ro()+importBox();
  const live=rounds().filter(r=>r.status==='live'&&Date.now()-(r.created||0)<18*36e5&&touchesCircle(r));
@@ -1448,9 +1465,19 @@ function setup(){
   if(!n)h+=`<p><b>Holes</b></p><div class="row">${[9,18].map(x=>`<button class="chip" aria-pressed="${holes===x}" data-holes="${x}">${x}</button>`).join('')}</div>`;
   h+=`<label for="tee"><b>Tees</b></label>${(()=>{const L=teeList(c),cur=L.find(t=>t.n===teeSel)||L.find(t=>t.n==='White');return `<div class="teepick"><span class="dot big" style="background:${colors[cur.n.toLowerCase()]||'var(--fill2)'}"></span><select id="tee">${L.map(t=>`<option value="${esc(t.n)}" ${t===cur?'selected':''}>${esc(t.n)}${t.y?' · '+sum(t.y).toLocaleString()+' yds':''}</option>`).join('')}</select></div><p class="sub" style="margin-top:-2px">${cur.r?`Rating ${cur.r} · Slope ${cur.s}, used for your handicap.`:'No rating on file for these tees yet. When you finish, you can add the rating and slope from the scorecard so the round counts toward handicap.'}</p>`})()}<button class="btn" id="start">Start ${sel.size||guests.length?'group':'solo'} round</button> <button class="btn alt" id="back">Change course</button>`;
  }else{
-  const k=q.toLowerCase().trim(),m=all().filter(c=>(!st||c.s===st)&&(!k||c.k.includes(k))),top=m.slice(0,25);
-  h+=top.map(c=>`<button class="course" data-c="${c.id}">${esc(c.n)}<br><small>${esc(c.t)}${c.t&&c.s?', ':''}${esc(c.s)} · ${c.p||cdata(c).par?'pars':'pars needed'} · ${cdata(c).tees.length?'rating on file':'rating needed'}</small></button>`).join('')||'<p class="empty">No course matches. Try fewer letters, or add it yourself below.</p>';
-  if(m.length>25)h+=`<p class="sub">Showing 25 of ${m.length.toLocaleString()}. Keep typing or pick a state to narrow it.</p>`;
+  const k=q.toLowerCase().trim();locate();
+  const row=c=>`<button class="course" data-c="${c.id}">${esc(c.n)}<br><small>${esc(c.t)}${c.t&&c.s?', ':''}${esc(c.s)}${c.mi!=null?' · '+(c.mi<10?c.mi.toFixed(1):Math.round(c.mi))+' mi':''} · ${c.p||cdata(c).par?'pars':'pars needed'} · ${cdata(c).tees.length?'rating on file':'rating needed'}</small></button>`;
+  const near=!k&&geo.pos?nearby():null;
+  if(near&&near.length){
+   h+=`<p class="sub geohd">${GEOI}Courses within ${NEAR_MI} miles of you</p>`+near.slice(0,25).map(row).join('');
+   if(near.length>25)h+=`<p class="sub">Showing the closest 25 of ${near.length}. Search above for the rest.</p>`;
+  }else{
+   if(!k)h+=geo.st==='asking'?`<p class="sub geohd">${GEOI}Finding courses near you…</p>`:near?`<p class="sub geohd">${GEOI}No courses within ${NEAR_MI} miles. Search above or pick a state.</p>`:geo.st==='denied'||geo.st==='error'?`<p class="sub geohd">${GEOI}${geo.st==='denied'?'Location is off for this site, so':'Couldn’t find your location, so'} here are ${st?esc(st):'all'} courses. <button class="linkbtn" id="geoask">Try again</button></p>`:'';
+   let m=all().filter(c=>(!st||c.s===st)&&(!k||c.k.includes(k)));
+   if(geo.pos)m=m.map(c=>({...c,mi:c.la!=null?miles(geo.pos,[c.la,c.lo]):null})).sort((a,b)=>(a.mi==null)-(b.mi==null)||a.mi-b.mi);
+   h+=m.slice(0,25).map(row).join('')||'<p class="empty">No course matches. Try fewer letters, or add it yourself below.</p>';
+   if(m.length>25)h+=`<p class="sub">Showing 25 of ${m.length.toLocaleString()}. Keep typing or pick a state to narrow it.</p>`;
+  }
   h+=`<p><button class="btn alt" id="addc">Course not listed? Add it</button></p>`;
  }
  return h+'</div>';
@@ -1738,6 +1765,7 @@ function bind(){
  const te=$('tee');if(te)te.onchange=()=>{teeSel=te.value;render()};
  click('back',()=>{pick=null;render()});
  click('addc',()=>{adding=true;err='';render()});
+ click('geoask',()=>{locate(true);render()});
  click('acancel',()=>{adding=false;render()});
  click('asave',()=>{const n=$('an').value.trim();if(!n){af={n:'',c:$('ac').value,s:$('as').value};err='Enter the course name.';render();return}
   const id='x'+Date.now().toString(36);patch('courseinfo/'+id,{added:{n,t:$('ac').value.trim(),s:$('as').value,hc:holes}});af={n:'',c:'',s:'AZ'};pick=id;adding=false;err='';render()});
