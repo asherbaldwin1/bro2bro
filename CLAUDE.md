@@ -15,6 +15,7 @@ A website where a small group of friends in Arizona track golf rounds, scores, h
 |---|---|---|
 | `index.html` | The whole app: HTML, CSS and JS in one file, plus the login screen and the Firebase bridge | Almost all changes happen here |
 | `config.js` | Firebase project keys plus the admin account ID (`adminUids`) | **Never overwrite or regenerate this.** Edit only if asked |
+| `courses.js` | The US course list, about 1.8 MB | Open data under the ODbL, not "all rights reserved"; keep the credits (see Course data) |
 | `firestore.rules` | Firestore security rules | Changes do NOTHING until pasted into Firebase Console → Firestore → Rules → Publish. Tell Asher whenever this is needed |
 | `favicon.png`, `apple-touch-icon.png` | The B2B logo as the browser tab icon and iPhone home-screen icon | The `<link>` tags carry `?v=2`; bump it if the icon changes so browsers fetch the new one |
 | `privacy.html`, `terms.html`, `legal.css` | Privacy Policy and Terms of Use, standalone pages anyone can read before signing in | **Keep them true to what the app does.** If you add data, a service, cookies or storage, update `privacy.html` and its date, then ask Asher before publishing |
@@ -22,7 +23,7 @@ A website where a small group of friends in Arizona track golf rounds, scores, h
 | `README.md` | Public description of the project shown on GitHub | Keep it accurate when features change |
 | `LICENSE` | All rights reserved, Asher Baldwin | Don't replace with an open-source license unless asked |
 
-Keep the app a single self-contained `index.html`. No build step, no bundler, no npm. Load libraries from a CDN with pinned versions.
+Keep the app in `index.html` (plus `config.js` and the course list in `courses.js`). No build step, no bundler, no npm. Load libraries from a CDN with pinned versions.
 
 ## Architecture
 
@@ -42,7 +43,7 @@ Keep the app a single self-contained `index.html`. No build step, no bundler, no
   - `bags/{uid}`: `{clubs: [up to 14 club ids], dist: {clubId: {avg, shots, at}}}`. Private: only that user can read or write it.
   - The admin is matched by Firebase account ID (UID), not email, and that UID is hard-coded in both `config.js` and `firestore.rules`. Keep them in sync.
 - **Feedback email (EmailJS):** after a ticket saves, `fbMail()` emails it to Asher. Free plan, 200 emails/month. The `EMAILJS` constant in `index.html` holds the Service ID, Template ID and Public Key. Template variables: `name`, `kind`, `title`, `message`, `page`, `device`, `time`. If an email fails, the ticket is still saved and shows in Admin → Feedback.
-- **Course data:** about 12,700 real US courses from a one-time snapshot of github.com/lukhed/yardage-hub-data (about 350 fake/duplicate entries removed). Arizona is shown by default, other states are searchable.
+- **Course data:** `courses.js` (loaded by `index.html` as `courses.js?v=N`; bump N when it changes) holds about 17,500 US courses. Pars, hole handicaps, tees, ratings and slopes come from a snapshot of yardage-hub (github.com/lukhed/yardage-hub-data, about 350 fake/duplicate entries removed) and stay the main source. OpenGolfAPI v2.1.0 added only missing cities, latitude/longitude and courses we lacked, matched by state and name; same-name courses in towns over ~35 km apart and separate courses at one facility are kept apart, and rows whose location falls outside their state are skipped. Both sources are **ODbL**: `courses.js` stays under the ODbL (see `LICENSE`), and the credit "Course data © OpenStreetMap contributors" with yardage-hub and OpenGolfAPI must stay in Settings → About, `terms.html` and README. Arizona is shown by default, other states are searchable.
 
 ## Security
 

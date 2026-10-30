@@ -16,7 +16,7 @@ A website where a small group of friends tracks golf rounds, scores, handicaps a
 - **Range:** pick the clubs in your bag, log 5 range shots per club, and keep an average distance for each.
 - **Profile photos:** add a photo in Settings; it shows on scorecards, friends lists and leaderboards.
 - **Feedback:** a Feedback button at the top left of every page sends bug reports and ideas straight to the club admin.
-- **Courses:** about 12,700 US courses built in, with Arizona shown first.
+- **Courses:** about 17,500 US courses built in, with Arizona shown first.
 
 The site uses a frosted-glass design over a course photo, in a Day and a Night version. Add `?look=classic` to the address for the original design.
 
@@ -28,6 +28,7 @@ On iPhone, open the site in Safari and tap **Share → Add to Home Screen** to g
 |---|---|
 | `index.html` | The whole app in one file: pages, styling and code |
 | `config.js` | Firebase project settings and the admin account ID |
+| `courses.js` | The US course list: names, cities, pars, hole handicaps, tees, ratings, slopes and map locations |
 | `firestore.rules` | Database security rules (a copy of what's published in Firebase) |
 | `privacy.html`, `terms.html`, `legal.css` | The Privacy Policy and Terms of Use pages |
 | `fonts/` | Barlow Condensed and Public Sans, hosted with the site so no page loads Google Fonts |
@@ -55,5 +56,7 @@ There's no build step: the files in this repo are exactly what the site serves.
 ## License
 
 Copyright © 2026 Asher Baldwin. All rights reserved. This code is shared for viewing only and may not be copied, reused or hosted elsewhere without permission. See [LICENSE](LICENSE).
+
+The course list in `courses.js` is made available under the [Open Database License (ODbL) 1.0](https://opendatacommons.org/licenses/odbl/1-0/). Course data from [yardage-hub](https://lukeheide.com/sports/yardage-hub) and [OpenGolfAPI](https://opengolfapi.org), including OpenStreetMap data. Course data © OpenStreetMap contributors.
 
 The fonts in `fonts/` are © their authors and licensed under the SIL Open Font License 1.1 (see the OFL files in that folder).

@@ -9,3 +9,9 @@ without prior written permission from the copyright holder.
 
 Viewing this repository on GitHub does not grant any license or right to
 use its contents.
+
+Exceptions, which keep their own open licenses:
+- courses.js, the course list, is made available under the Open Database
+  License (ODbL) 1.0. Course data from yardage-hub and OpenGolfAPI,
+  © OpenStreetMap contributors.
+- The font files in fonts/ are licensed under the SIL Open Font License 1.1.
