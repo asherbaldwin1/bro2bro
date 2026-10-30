@@ -732,6 +732,10 @@ main:has(> #view .hgrid),main:has(.hgrid){padding-bottom:20px}
 select{-webkit-appearance:none;appearance:none;min-height:46px;line-height:1.25;padding-right:40px!important;
  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.6 6 1.6l3 3M3 7.4l3 3 3-3' fill='none' stroke='%237a847d' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")!important;
  background-repeat:no-repeat!important;background-position:right 14px center!important;background-size:13px 13px!important}
+/* Verified course tag */
+.vtag{display:inline-flex;align-items:center;gap:3px;margin-left:8px;padding:2px 8px 2px 6px;border-radius:999px;vertical-align:2px;background:rgba(15,61,46,.12);color:#0F3D2E;font:700 11.5px/1.3 "Public Sans",sans-serif;white-space:nowrap}
+.vtag svg{width:11px;height:11px}
+:root[data-theme="dark"] .vtag{background:rgba(217,183,126,.18);color:#E6C996}
 /* ---- "Glass" look: the main design (html.glass). ?look=classic in the address turns it off ----
    Frosted panels over a course photo, styled after iOS materials.
    Night (dark theme) is dark glass with white text; Day (light theme) is bright glass with dark text. */
@@ -1157,6 +1161,8 @@ function cdata(c){const u=doc('courseinfo/'+c.id)||{};
  let par=c.p;if(!par&&u.par&&u.pn){const a=nums(u.par,holesN(u.pn));if(a.some(Boolean))par=a}
  return{par,h:c.h,tees:c.tees.concat(ct),n:null}}
 const STD=['Red','White','Blue','Black','Gold'];
+// Shown to everyone on courses the admin verified in Admin → Courses (exact tees, ratings and pars).
+const VTAG='<span class="vtag" title="Tees, ratings and pars confirmed by the club"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>Verified</span>';
 // Tees to offer when starting a round. A course the admin verified in Admin → Courses shows exactly the tees
 // entered there, in that order. Every other course shows the five standard colors, with a rating and slope
 // only where the built-in data has one for that color.
@@ -1534,13 +1540,13 @@ function setup(){
  if(adding)return h+addForm()+'</div>';
  h+=`<label for="q"><b>Course</b></label><div class="row"><input id="q" type="search" style="flex:2;min-width:150px" placeholder="Name or city" value="${esc(q)}"><select id="st" style="flex:1;min-width:110px" aria-label="State"><option value="">All states</option>${STATES.map(s=>`<option ${s===st?'selected':''}>${s}</option>`).join('')}</select></div>`;
  if(pick&&course(pick)){const c=course(pick),d=cdata(c),n=d.par?d.par.length:(d.n||c.hc);
-  h+=`<p><b>${esc(c.n)}</b><br><span class="sub">${esc(c.t)}${c.t&&c.s?', ':''}${esc(c.s)}${n?' · '+n+' holes':''}${d.par&&d.par.every(Boolean)?' · par '+sum(d.par):''}</span></p>`;
+  h+=`<p><b>${esc(c.n)}</b>${d.ad?VTAG:''}<br><span class="sub">${esc(c.t)}${c.t&&c.s?', ':''}${esc(c.s)}${n?' · '+n+' holes':''}${d.par&&d.par.every(Boolean)?' · par '+sum(d.par):''}</span></p>`;
   if(!d.par)h+=`<p class="note">This course has no pars on file yet. You’ll set each hole’s par as you play, and it’s saved with your round.</p>`;
   if(!n)h+=`<p><b>Holes</b></p><div class="row">${[9,18].map(x=>`<button class="chip" aria-pressed="${holes===x}" data-holes="${x}">${x}</button>`).join('')}</div>`;
   h+=`<label for="tee"><b>Tees</b></label>${(()=>{const L=teeList(c),cur=pickTee(L);return `<div class="teepick"><span class="dot big" style="background:${teeColor(cur)}"></span><select id="tee">${L.map(t=>`<option value="${esc(t.n)}" ${t===cur?'selected':''}>${esc(t.n)}${t.y?' · '+sum(t.y).toLocaleString()+' yds':''}${t.r&&t.s?' · '+Number(t.r).toFixed(1)+' / '+t.s:''}</option>`).join('')}</select></div><p class="sub" style="margin-top:-2px">${cur.r?`Course rating ${Number(cur.r).toFixed(1)} and slope ${cur.s} count toward your handicap.`:'No rating on file for these tees yet. When you finish, you can add the rating and slope from the scorecard so the round counts toward handicap.'}</p>`})()}<button class="btn" id="start">Start ${sel.size||guests.length?'group':'solo'} round</button> <button class="btn alt" id="back">Change course</button>`;
  }else{
   const k=q.toLowerCase().trim();locate();
-  const row=c=>`<button class="course" data-c="${c.id}">${esc(c.n)}<br><small>${esc(c.t)}${c.t&&c.s?', ':''}${esc(c.s)}${c.mi!=null?' · '+(c.mi<10?c.mi.toFixed(1):Math.round(c.mi))+' mi':''} · ${c.p||cdata(c).par?'pars':'pars needed'} · ${cdata(c).tees.length?'rating on file':'rating needed'}</small></button>`;
+  const row=c=>`<button class="course" data-c="${c.id}">${esc(c.n)}${cdata(c).ad?VTAG:''}<br><small>${esc(c.t)}${c.t&&c.s?', ':''}${esc(c.s)}${c.mi!=null?' · '+(c.mi<10?c.mi.toFixed(1):Math.round(c.mi))+' mi':''} · ${c.p||cdata(c).par?'pars':'pars needed'} · ${cdata(c).ad?cdata(c).tees.length+' tees':cdata(c).tees.length?'rating on file':'rating needed'}</small></button>`;
   const near=!k&&geo.pos?nearby():null;
   if(near&&near.length){
    h+=`<p class="sub geohd">${GEOI}Courses within ${NEAR_MI} miles of you</p>`+near.slice(0,25).map(row).join('');
@@ -1549,6 +1555,7 @@ function setup(){
    if(!k)h+=geo.st==='asking'?`<p class="sub geohd">${GEOI}Finding courses near you…</p>`:near?`<p class="sub geohd">${GEOI}No courses within ${NEAR_MI} miles. Search above or pick a state.</p>`:geo.st==='denied'||geo.st==='error'?`<p class="sub geohd">${GEOI}${geo.st==='denied'?'Location is off for this site, so':'Couldn’t find your location, so'} here are ${st?esc(st):'all'} courses. <button class="linkbtn" id="geoask">Try again</button></p>`:'';
    let m=all().filter(c=>(!st||c.s===st)&&(!k||c.k.includes(k)));
    if(geo.pos)m=m.map(c=>({...c,mi:c.la!=null?miles(geo.pos,[c.la,c.lo]):null})).sort((a,b)=>(a.mi==null)-(b.mi==null)||a.mi-b.mi);
+   if(k){const v=c=>cdata(c).ad?0:1;m=m.map((c,i)=>[c,i]).sort((a,b)=>v(a[0])-v(b[0])||a[1]-b[1]).map(x=>x[0])}// verified courses first when searching
    h+=m.slice(0,25).map(row).join('')||'<p class="empty">No course matches. Try fewer letters, or add it yourself below.</p>';
    if(m.length>25)h+=`<p class="sub">Showing 25 of ${m.length.toLocaleString()}. Keep typing or pick a state to narrow it.</p>`;
   }
