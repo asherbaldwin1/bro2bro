@@ -1053,7 +1053,7 @@ const holesN=v=>{const x=num(v);return x>=1&&x<=27?Math.round(x):18};
 const ymd=v=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v)?v:'';
 const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const STATES=[...new Set(COURSES.map(c=>c.s))].filter(Boolean).sort();
-const colors={white:'#fff',blue:'#2f6fcf',black:'#111',red:'#d33',gold:'#e0b100',yellow:'#e9d11c',green:'#2f9e57',orange:'#e8821a',silver:'#bbb',purple:'#7b4fb0',brown:'#7a5230'};
+const colors={white:'#fff',blue:'#2f6fcf',black:'#111',red:'#d33',gold:'#e0b100',yellow:'#e9d11c',green:'#2f9e57',orange:'#e8821a',silver:'#bbb',purple:'#7b4fb0',brown:'#7a5230',copper:'#b87333',bronze:'#a97142',platinum:'#d9d9d6',teal:'#2a8c8c',navy:'#1f2f5c',maroon:'#7a1f2b',tan:'#d2b48c',pink:'#e48aa6',jade:'#3a9d7a',grey:'#9a9a9a',gray:'#9a9a9a'};
 
 /* ---------- shared data (db) ---------- */
 let meEmail='',meAvatar='',db=null,user=null,me=null,meName='',canWrite=true,owner=false,state='loading';
@@ -1157,7 +1157,18 @@ function cdata(c){const u=doc('courseinfo/'+c.id)||{};
  let par=c.p;if(!par&&u.par&&u.pn){const a=nums(u.par,holesN(u.pn));if(a.some(Boolean))par=a}
  return{par,h:c.h,tees:c.tees.concat(ct),n:null}}
 const STD=['Red','White','Blue','Black','Gold'];
-function teeList(c){const d=cdata(c),out=STD.map(n=>{const t=d.tees.find(t=>t.n.toLowerCase()===n.toLowerCase());return t?{...t,n}:{n,c:n,r:null,s:null,y:null}});d.tees.forEach(t=>{if(t.r&&!/green/i.test(t.n)&&!STD.some(n=>n.toLowerCase()===t.n.toLowerCase()))out.push(t)});return out}
+// Tees to offer when starting a round. A course the admin verified in Admin → Courses shows exactly the tees
+// entered there, in that order. Every other course shows the five standard colors, with a rating and slope
+// only where the built-in data has one for that color.
+function teeList(c){const d=cdata(c);
+ if(d.ad&&d.tees.length)return d.tees.map(t=>({...t}));
+ return STD.map(n=>{const t=d.tees.find(t=>t.n.toLowerCase()===n.toLowerCase());return t?{...t,n}:{n,c:n,r:null,s:null,y:null}})}
+const pickTee=L=>L.find(t=>t.n===teeSel)||L.find(t=>t.n==='White')||L[0];
+// Dot color: the tee's own color, else a color word in its name ("Blue/White"), else a neutral fill.
+// Two color words ("Blue/White") get a half-and-half dot.
+function teeColor(t){const k=String(t.c||t.n).toLowerCase();if(colors[k])return colors[k];const nm=String(t.n).toLowerCase();
+ const w=Object.keys(colors).map(x=>[nm.search(new RegExp('\\b'+x+'\\b')),x]).filter(([i])=>i>=0).sort((a,b)=>a[0]-b[0]).map(([,x])=>colors[x]);
+ return w.length>1?`linear-gradient(90deg,${w[0]} 50%,${w[1]} 50%)`:w[0]||'var(--fill2)'}
 const dot=c=>`<span class="dot" style="background:${colors[String(c).toLowerCase()]||'var(--card)'}"></span>`;
 const toPar=(sc,par)=>sum(sc.map((v,j)=>v!=null&&par[j]?v-par[j]:0));
 const fmtPar=v=>v===0?'E':(v>0?'+':'')+v;
@@ -1526,7 +1537,7 @@ function setup(){
   h+=`<p><b>${esc(c.n)}</b><br><span class="sub">${esc(c.t)}${c.t&&c.s?', ':''}${esc(c.s)}${n?' · '+n+' holes':''}${d.par&&d.par.every(Boolean)?' · par '+sum(d.par):''}</span></p>`;
   if(!d.par)h+=`<p class="note">This course has no pars on file yet. You’ll set each hole’s par as you play, and it’s saved with your round.</p>`;
   if(!n)h+=`<p><b>Holes</b></p><div class="row">${[9,18].map(x=>`<button class="chip" aria-pressed="${holes===x}" data-holes="${x}">${x}</button>`).join('')}</div>`;
-  h+=`<label for="tee"><b>Tees</b></label>${(()=>{const L=teeList(c),cur=L.find(t=>t.n===teeSel)||L.find(t=>t.n==='White');return `<div class="teepick"><span class="dot big" style="background:${colors[cur.n.toLowerCase()]||'var(--fill2)'}"></span><select id="tee">${L.map(t=>`<option value="${esc(t.n)}" ${t===cur?'selected':''}>${esc(t.n)}${t.y?' · '+sum(t.y).toLocaleString()+' yds':''}</option>`).join('')}</select></div><p class="sub" style="margin-top:-2px">${cur.r?`Rating ${cur.r} · Slope ${cur.s}, used for your handicap.`:'No rating on file for these tees yet. When you finish, you can add the rating and slope from the scorecard so the round counts toward handicap.'}</p>`})()}<button class="btn" id="start">Start ${sel.size||guests.length?'group':'solo'} round</button> <button class="btn alt" id="back">Change course</button>`;
+  h+=`<label for="tee"><b>Tees</b></label>${(()=>{const L=teeList(c),cur=pickTee(L);return `<div class="teepick"><span class="dot big" style="background:${teeColor(cur)}"></span><select id="tee">${L.map(t=>`<option value="${esc(t.n)}" ${t===cur?'selected':''}>${esc(t.n)}${t.y?' · '+sum(t.y).toLocaleString()+' yds':''}${t.r&&t.s?' · '+Number(t.r).toFixed(1)+' / '+t.s:''}</option>`).join('')}</select></div><p class="sub" style="margin-top:-2px">${cur.r?`Course rating ${Number(cur.r).toFixed(1)} and slope ${cur.s} count toward your handicap.`:'No rating on file for these tees yet. When you finish, you can add the rating and slope from the scorecard so the round counts toward handicap.'}</p>`})()}<button class="btn" id="start">Start ${sel.size||guests.length?'group':'solo'} round</button> <button class="btn alt" id="back">Change course</button>`;
  }else{
   const k=q.toLowerCase().trim();locate();
   const row=c=>`<button class="course" data-c="${c.id}">${esc(c.n)}<br><small>${esc(c.t)}${c.t&&c.s?', ':''}${esc(c.s)}${c.mi!=null?' · '+(c.mi<10?c.mi.toFixed(1):Math.round(c.mi))+' mi':''} · ${c.p||cdata(c).par?'pars':'pars needed'} · ${cdata(c).tees.length?'rating on file':'rating needed'}</small></button>`;
@@ -1736,7 +1747,7 @@ function msBox(uid,done){
 const gkey=()=>'g'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const nextO=r=>Math.max(0,...Object.values(r.pl).map(p=>p.o||0))+1;
 async function startRound(){
- const c=course(pick),d=cdata(c),t=teeList(c).find(x=>x.n===teeSel)||teeList(c).find(x=>x.n==='White'),n=d.par?d.par.length:(d.n||c.hc||holes),pl={};let o=1;
+ const c=course(pick),d=cdata(c),t=pickTee(teeList(c)),n=d.par?d.par.length:(d.n||c.hc||holes),pl={};let o=1;
  pl[me]={uid:me,o:o++};friends().filter(p=>sel.has(p.id)).forEach(p=>pl[p.id]={uid:p.id,o:o++});guests.forEach(g=>pl[gkey()]={name:g,o:o++});
  const par={};(d.par||[]).forEach((v,i)=>{if(v)par[i]=v});
  const body={status:'live',host:me,created:Date.now(),date:today(),cid:c.id,cn:c.n,tn:t?t.n:'',rating:t?t.r:null,slope:t?t.s:null,n,par,si:d.h&&d.h.length===n?d.h:null,yds:t&&t.y&&t.y.length===n?t.y:null,players:pl,scores:{}};
