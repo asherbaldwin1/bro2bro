@@ -54,7 +54,15 @@ Rules for sample data:
    - nothing is cut off or squashed
    - there are no console errors (`read_console_messages`)
 2. **Desktop:** `resize_window {width:1280,height:800}`. Screenshot the changed pages in light and dark. Two-column pages should pack cleanly with no big gaps.
-3. **Same sizes in both modes:** for layout changes, compare every element's size in light vs dark on each affected page. They must match.
-4. **Reset the size** when done: `resize_window {preset:"desktop"}`.
+3. **Every page at phone (375), tablet (820) and desktop (1280) width**, not just the one you changed. With sample data loaded, run a quick check on each page for:
+   - anything wider than the screen
+   - buttons, chips, page titles and card titles that wrap onto two lines
+   - text cut off inside its box
+   - the tee dot centered in its box
+
+   Ignore what's two lines on purpose: score buttons (number over label), list rows with a description under the title, and screen-reader-only labels (`.sr`).
+4. **Mac Safari draws form controls its own way.** This browser can't show that. Dropdowns are styled with `appearance:none` and a fixed height so they look the same everywhere; keep it that way, and never rely on the browser's built-in look for `select`, `input` or buttons.
+5. **Same sizes in both modes:** for layout changes, compare every element's size in light vs dark on each affected page. They must match.
+6. **Reset the size** when done: `resize_window {preset:"desktop"}`.
 
 Share a screenshot as proof, and say plainly what you couldn't check (for example Safari, real sign-in, or a live round).
