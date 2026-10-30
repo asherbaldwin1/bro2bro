@@ -736,6 +736,8 @@ select{-webkit-appearance:none;appearance:none;min-height:46px;line-height:1.25;
 .vtag{display:inline-flex;align-items:center;gap:3px;margin-left:8px;padding:2px 8px 2px 6px;border-radius:999px;vertical-align:2px;background:rgba(15,61,46,.12);color:#0F3D2E;font:700 11.5px/1.3 "Public Sans",sans-serif;white-space:nowrap}
 .vtag svg{width:11px;height:11px}
 :root[data-theme="dark"] .vtag{background:rgba(217,183,126,.18);color:#E6C996}
+.atag{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;vertical-align:2px;background:#B8925A;color:#fff;font:700 10.5px/1.4 "Public Sans",sans-serif;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+:root[data-theme="dark"] .atag{background:#D9B77E;color:#0B1411}
 /* ---- "Glass" look: the main design (html.glass). ?look=classic in the address turns it off ----
    Frosted panels over a course photo, styled after iOS materials.
    Night (dark theme) is dark glass with white text; Day (light theme) is bright glass with dark text. */
@@ -1119,6 +1121,11 @@ let OLD=null;try{const x=JSON.parse(localStorage.getItem('weekend-round-v2')||'n
 /* ---------- model ---------- */
 const players=()=>Object.keys(D).filter(k=>k.startsWith('players/')).map(k=>({id:k.slice(8),...doc(k)}));
 const pname=uid=>{const p=doc('players/'+uid);return (p&&p.name)||(prof[uid]&&prof[uid].name)||(real.players&&uid?'Former player':'Friend')};
+// Admin tag next to the club creator's name, shown to everyone. Admin IDs come from config.js.
+const ATAG='<span class="atag" title="Club admin and creator">Admin</span>';
+const isAdm=uid=>!!uid&&((window.B2B_CONFIG||{}).adminUids||[]).map(String).includes(String(uid));
+const pnt=uid=>esc(pname(uid))+(isAdm(uid)?ATAG:'');
+const knt=(r,k)=>{const u=r.pl[k].uid;return u?pnt(u):esc(kname(r,k))};
 const picOf=uid=>{const p=uid&&doc('players/'+uid),v=p&&p.pic;return typeof v==='string'&&v.startsWith('data:image/jpeg;base64,')?v:''};
 const face=(uid,nm,cls='')=>{const v=picOf(uid),n=nm||(uid?pname(uid):'?');return v?`<span class="fav${cls?' '+cls:''}"><img src="${esc(v)}" alt=""></span>`:`<span class="fav${cls?' '+cls:''}" style="--c:${(uid&&prof[uid]&&prof[uid].color)||'var(--green)'}">${esc((n[0]||'?').toUpperCase())}</span>`};
 const fid=(a,b)=>[a,b].sort().join('~');
@@ -1295,7 +1302,7 @@ function home(){
  h+=card('rounds','c-rounds','Rounds',done.length?`${done.length} round${done.length===1?'':'s'} saved`:'Your round history.','');
  {const nf=friends().length,ni=incoming().length;h+=card('people','c-people','Friends',nf?`${nf} friend${nf===1?'':'s'}`:'Add your buddies.',ni?`<b class="badge">${ni} request${ni===1?'':'s'}</b>`:'')}
  const lb=handicapBoard()[0];
- h+=card('leaders','c-leaders','Leaderboards',lb?'Leader: <b>'+esc(pname(lb.id))+'</b>':'See who’s on top.','');
+ h+=card('leaders','c-leaders','Leaderboards',lb?'Leader: <b>'+pnt(lb.id)+'</b>':'See who’s on top.','');
  {const b=bag(),n=b.clubs.filter(c=>b.dist[c]).length;h+=card('range','c-rounds','Range',b.clubs.length?`<b>${n}</b> of ${b.clubs.filter(c=>c!=='pt').length} measured`:'Club distances.','')}
 
  {const mine=done.filter(r=>r.pl[me]&&r.sc[me].some(v=>v!=null)).sort(byDate),n=Object.keys(milestones(me,mine)).length;h+=card('profile','c-rounds c-prof','My profile',n?`<b>${n}</b> of ${MS.length} milestones`:'Your stats and milestones.','')}
@@ -1316,12 +1323,12 @@ function board(title,sub,rows,fmt,extra){
  if(!rows.length)return box(`<div class="lbh"><b>${title}</b><span class="sub">${sub}</span></div><p class="empty">No one qualifies yet.</p>`);
  let pos=0,prev;
  return box(`<div class="lbh"><b>${title}</b><span class="sub">${sub}</span></div><ol class="lb">${rows.map((r,i)=>{if(r.v!==prev){pos=i+1;prev=r.v}const tie=rows.filter(x=>x.v===r.v).length>1;
-  return `<li class="${r.id===me?'me':''} ${pos===1?'first':''}"><span class="pos">${tie?'T':''}${pos}</span>${face(r.id,'','sm')}<span class="who"><b>${esc(pname(r.id))}</b>${r.id===me?' <span class="sub">(you)</span>':''}${extra?`<small>${extra(r)}</small>`:''}</span><span class="val num">${fmt(r)}</span></li>`}).join('')}</ol>`)}
+  return `<li class="${r.id===me?'me':''} ${pos===1?'first':''}"><span class="pos">${tie?'T':''}${pos}</span>${face(r.id,'','sm')}<span class="who"><b>${pnt(r.id)}</b>${r.id===me?' <span class="sub">(you)</span>':''}${extra?`<small>${extra(r)}</small>`:''}</span><span class="val num">${fmt(r)}</span></li>`}).join('')}</ol>`)}
 function leaders(){
  const ps=circle(),S=Object.fromEntries(ps.map(p=>[p.id,stats(p.id)]));
  let h=`<div class="row" style="margin-bottom:12px"><button class="chip" aria-pressed="${lbScope==='all'}" data-lb="all">All time</button><button class="chip" aria-pressed="${lbScope==='year'}" data-lb="year">${new Date().getFullYear()} season</button></div>`;
  const hb=handicapBoard();
- if(hb.length){const t=hb[0];h+=`<div class="lbhero"><span class="crown">${ICON.leaders}</span>${face(t.id,'','lg')}<span class="sub">Club leader · lowest handicap</span><b class="lbn">${esc(pname(t.id))}</b><span class="lbv num">${t.v}</span></div>`}
+ if(hb.length){const t=hb[0];h+=`<div class="lbhero"><span class="crown">${ICON.leaders}</span>${face(t.id,'','lg')}<span class="sub">Club leader · lowest handicap</span><b class="lbn">${pnt(t.id)}</b><span class="lbv num">${t.v}</span></div>`}
  h+=board('Handicap index','Lowest first · 3+ counted rounds',hb,r=>r.v);
  const asc=k=>ps.map(p=>({id:p.id,v:S[p.id][k]})).filter(x=>x.v!=null).sort((a,b)=>a.v-b.v);
  const desc=k=>ps.map(p=>({id:p.id,v:S[p.id][k]})).filter(x=>x.v).sort((a,b)=>b.v-a.v);
@@ -1482,7 +1489,7 @@ function adminView(){
  const p=admUid&&doc('players/'+admUid);
  if(admUid&&!p)admUid=null;
  if(admUid&&admTab==='players'){const uid=admUid,st=pstats(uid),self=uid===me,pic=picOf(uid);
-  let h=box(`${crumb('players','All players')}<div class="acct">${face(uid,'','xl')}<div class="grow"><b class="an">${esc(pname(uid))}${self?' <span class="sub">(you)</span>':''}</b><span class="sub">Code ${fcode(uid)}${p.joined?' · joined '+fmtDay(p.joined):''}</span></div></div><div class="slist"><div class="srow static"><span>Rounds saved</span><span class="sv">${st.rounds}${st.live?' · '+st.live+' unfinished':''}</span></div><div class="srow static"><span>Last round</span><span class="sv">${st.last?esc(st.last.cn)+' · '+st.last.date:'None yet'}</span></div><div class="srow static"><span>Handicap index</span><span class="sv">${st.ix==null?'Not yet':st.ix}</span></div><div class="srow static"><span>Friends</span><span class="sv">${st.friends}</span></div><div class="srow static"><span>Account ID</span><span class="sv uid">${esc(uid)}</span></div></div>`);
+  let h=box(`${crumb('players','All players')}<div class="acct">${face(uid,'','xl')}<div class="grow"><b class="an">${pnt(uid)}${self?' <span class="sub">(you)</span>':''}</b><span class="sub">Code ${fcode(uid)}${p.joined?' · joined '+fmtDay(p.joined):''}</span></div></div><div class="slist"><div class="srow static"><span>Rounds saved</span><span class="sv">${st.rounds}${st.live?' · '+st.live+' unfinished':''}</span></div><div class="srow static"><span>Last round</span><span class="sv">${st.last?esc(st.last.cn)+' · '+st.last.date:'None yet'}</span></div><div class="srow static"><span>Handicap index</span><span class="sv">${st.ix==null?'Not yet':st.ix}</span></div><div class="srow static"><span>Friends</span><span class="sv">${st.friends}</span></div><div class="srow static"><span>Account ID</span><span class="sv uid">${esc(uid)}</span></div></div>`);
   h+=box(`<label for="admn"><b>Display name</b></label><div class="row" style="flex-wrap:nowrap"><input id="admn" maxlength="24" value="${esc(pname(uid))}" style="flex:1;margin:0;min-width:0"><button class="btn" id="admsave">Save</button></div>${pic?`<div class="slist"><div class="srow photo"><span>Profile photo</span><button class="btn alt sm" id="admpic">Remove photo</button></div></div>`:''}`);
   {const em=doc('emails/'+uid);
    h+=box(`<b>Sign-in</b><div class="slist"><div class="srow static"><span>Email</span><span class="sv">${em?esc(em.email):'Not on file yet'}</span></div><div class="srow static"><span>Signs in with</span><span class="sv">${em?(em.pw?'Email and password':'Google or email link'):'Unknown'}</span></div></div>${em&&em.pw?`<button class="btn alt" id="admreset" style="width:100%;margin-top:12px">Send password reset email</button><p class="sub" style="margin-top:8px">Firebase emails them a link to choose a new password.</p>`:`<p class="sub" style="margin-top:10px">${em?'They don’t use a password, so there’s nothing to reset.':'Their email is saved the next time they open the site.'} Changing someone’s email or password directly needs Firebase’s paid plan.</p>`}`)}
@@ -1496,7 +1503,7 @@ function adminView(){
  if(admTab==='fb')return (admFb?'':tabs)+fbAdmin();
  if(admTab==='courses')return (ceId?'':tabs)+courseAdmin();
  const k=admQ.toLowerCase().trim(),ps=players().filter(p=>!k||pname(p.id).toLowerCase().includes(k)||fcode(p.id).toLowerCase().includes(k)).sort((a,b)=>(b.joined||0)-(a.joined||0));
- return tabs+box(`<div class="rhead"><div><b>Players</b><br><span class="sub">${players().length} in the club · newest first</span></div></div><input id="admq" type="search" placeholder="Search by name or friend code" value="${esc(admQ)}" style="margin-top:12px"><div class="admlist">${ps.map(p=>{const st=pstats(p.id);return `<button class="frow admrow" data-adm="${p.id}">${face(p.id)}<span class="fwho"><b>${esc(pname(p.id))}${p.id===me?' <span class="sub">(you)</span>':''}${isBlocked(p.id)?' <span class="pill">Blocked</span>':''}</b><small>${fcode(p.id)} · ${st.rounds} round${st.rounds===1?'':'s'} · ${st.friends} friend${st.friends===1?'':'s'}</small></span><span class="chev2"></span></button>`}).join('')}</div>${ps.length?'':'<p class="empty">No one matches.</p>'}`)+'<p class="sub">Only you can see this page. Tap a player to rename them, send a password reset, block them or remove them from the club.</p>';
+ return tabs+box(`<div class="rhead"><div><b>Players</b><br><span class="sub">${players().length} in the club · newest first</span></div></div><input id="admq" type="search" placeholder="Search by name or friend code" value="${esc(admQ)}" style="margin-top:12px"><div class="admlist">${ps.map(p=>{const st=pstats(p.id);return `<button class="frow admrow" data-adm="${p.id}">${face(p.id)}<span class="fwho"><b>${pnt(p.id)}${p.id===me?' <span class="sub">(you)</span>':''}${isBlocked(p.id)?' <span class="pill">Blocked</span>':''}</b><small>${fcode(p.id)} · ${st.rounds} round${st.rounds===1?'':'s'} · ${st.friends} friend${st.friends===1?'':'s'}</small></span><span class="chev2"></span></button>`}).join('')}</div>${ps.length?'':'<p class="empty">No one matches.</p>'}`)+'<p class="sub">Only you can see this page. Tap a player to rename them, send a password reset, block them or remove them from the club.</p>';
 }
 /* ---------- settings ---------- */
 function settings(){
@@ -1574,7 +1581,7 @@ function card(r,tap,compact){const cur=tap?hole[r.id]:-1;
     return `<td${j===cur?' class="cur"':''}>${tap?`<button class="cell ${c}" data-cell="${j}" aria-label="${esc(nm)}, hole ${j+1}: ${v==null?'no score':v}">${v==null?'':v}</button>`:`<span class="cell ${c}">${v==null?'':v}</span>`}</td>`}).join('')}<td class="t">${sum(idx.map(j=>s[j]))||''}</td></tr>`});
   h+='</tbody></table></div>'});
  if(compact)return h;
- h+=`<table class="tots">${r.keys.map(k=>{const s=r.sc[k],c=s.filter(v=>v!=null).length;return `<tr><td>${esc(kname(r,k))}${r.pl[k].uid===me?' <span class="sub">(you)</span>':''}${r.pl[k].uid?'':' <span class="sub">guest</span>'}</td><td class="r sub">${c===r.n?'':c?'thru '+c:''}</td><td class="r num big">${sum(s)||'–'}</td><td class="r ${toPar(s,r.par)>0?'over':''}">${c?fmtPar(toPar(s,r.par)):''}</td></tr>`}).join('')}</table>`;
+ h+=`<table class="tots">${r.keys.map(k=>{const s=r.sc[k],c=s.filter(v=>v!=null).length;return `<tr><td>${knt(r,k)}${r.pl[k].uid===me?' <span class="sub">(you)</span>':''}${r.pl[k].uid?'':' <span class="sub">guest</span>'}</td><td class="r sub">${c===r.n?'':c?'thru '+c:''}</td><td class="r num big">${sum(s)||'–'}</td><td class="r ${toPar(s,r.par)>0?'over':''}">${c?fmtPar(toPar(s,r.par)):''}</td></tr>`}).join('')}</table>`;
  return h+`<p class="legend sub"><span class="cell b">3</span> birdie <span class="cell e">2</span> eagle or better <span class="cell o">5</span> bogey <span class="cell d">6</span> double or worse</p>`;
 }
 const SHORT={Ace:'Ace',Alb:'Alb',Eagle:'Eagl',Birdie:'Brd',Par:'Par',Bogey:'Bog',Double:'Dbl',Triple:'Trp'};
@@ -1614,7 +1621,7 @@ function roundsView(){
  if(unf.length)h+=`<h2 class="sect">Saved</h2>`;
  if(!rs.length)return h+box('<p class="empty">No finished rounds yet. Save one from the Play page and it shows up here for the whole group.</p>');
  return h+rs.map(r=>{const pp=sum(r.par),full=r.par.every(Boolean),open=openRound===r.id,inc=r.keys.some(k=>r.sc[k].some(v=>v==null));
-  return box(`<div class="rhead"><div><b>${esc(r.cn)}</b>${inc?' <span class="pill">Incomplete</span>':''}<br><span class="sub">${r.date} · ${r.rating?esc(r.tn||'Tees')+' · '+r.rating+' / '+r.slope:'no rating yet'}</span></div>${canDel(r)?`<button class="iconbtn" data-del="${r.id}" aria-label="Delete this round">${TRASH}</button>`:''}</div>${delConf===r.id?delBox(r):`${r.rating||!canWrite?'':`<div style="margin:8px 0"><button class="btn alt" data-fix="${r.id}">Add rating and slope</button></div>`}${r.n!==18?`<p class="sub">Only 18-hole rounds count toward handicap.</p>`:''}${open?card(r,false):`<table>${r.keys.map(k=>{const sc=r.sc[k],f=sc.every(v=>v!=null),t=sum(sc);return `<tr><td>${esc(kname(r,k))}</td><td class="r num">${f?t:'incomplete'}</td><td class="r ${full&&t>pp?'over':''}">${f&&full?fmtPar(t-pp):''}</td></tr>`}).join('')}</table>`}<p><button class="btn alt" data-card="${r.id}">${open?'Hide scorecard':'Scorecard'}</button></p>`}`)}).join('');
+  return box(`<div class="rhead"><div><b>${esc(r.cn)}</b>${inc?' <span class="pill">Incomplete</span>':''}<br><span class="sub">${r.date} · ${r.rating?esc(r.tn||'Tees')+' · '+r.rating+' / '+r.slope:'no rating yet'}</span></div>${canDel(r)?`<button class="iconbtn" data-del="${r.id}" aria-label="Delete this round">${TRASH}</button>`:''}</div>${delConf===r.id?delBox(r):`${r.rating||!canWrite?'':`<div style="margin:8px 0"><button class="btn alt" data-fix="${r.id}">Add rating and slope</button></div>`}${r.n!==18?`<p class="sub">Only 18-hole rounds count toward handicap.</p>`:''}${open?card(r,false):`<table>${r.keys.map(k=>{const sc=r.sc[k],f=sc.every(v=>v!=null),t=sum(sc);return `<tr><td>${knt(r,k)}</td><td class="r num">${f?t:'incomplete'}</td><td class="r ${full&&t>pp?'over':''}">${f&&full?fmtPar(t-pp):''}</td></tr>`}).join('')}</table>`}<p><button class="btn alt" data-card="${r.id}">${open?'Hide scorecard':'Scorecard'}</button></p>`}`)}).join('');
 }
 let fq='',rmConf=null;
 /* ---------- admin: view as another player (read-only) ---------- */
@@ -1629,7 +1636,7 @@ function frAction(uid){const r=rel(uid);if(!canWrite)return '';
  if(r==='sent')return `<button class="btn alt sm" data-frcancel="${uid}">Requested</button>`;
  if(r==='received')return `<button class="btn sm" data-fraccept="${uid}">Accept</button>`;
  return `<button class="btn sm" data-fradd="${uid}">Add</button>`}
-function prow(uid,act,sub){const ix=index(uid);return `<div class="frow">${face(uid)}<span class="fwho"><b>${esc(pname(uid))}</b><small>${sub!=null?sub:(ix!=null?'Index '+ix:'No handicap yet')}</small></span>${act}</div>`}
+function prow(uid,act,sub){const ix=index(uid);return `<div class="frow">${face(uid)}<span class="fwho"><b>${pnt(uid)}</b><small>${sub!=null?sub:(ix!=null?'Index '+ix:'No handicap yet')}</small></span>${act}</div>`}
 function people(){
  let h=ro();
  if(me)h+=box(`<div class="fchead"><div><span class="sub">Your friend code</span><b class="fcode">${fcode(me)}</b></div><button class="btn alt sm" id="copycode">Copy</button></div><p class="sub" style="margin:8px 0 0">Friends can search for this code or your name to add you.</p>`);
@@ -1704,7 +1711,7 @@ function profileView(uid){
  done.forEach(r=>{crs[r.cn]=(crs[r.cn]||0)+1;r.sc[uid].forEach((v,j)=>{if(v==null)return;holes++;if(!r.par[j])return;const d=v-r.par[j];mix[d<0?0:d===0?1:d===1?2:3]++})});
  const fav=Object.entries(crs).sort((a,b)=>b[1]-a[1])[0],together=self?0:done.filter(r=>r.pl[me]).length,fr=pstats(uid).friends,last=done[done.length-1];
  const r=rel(uid),tag=self?'You':r==='friend'?'Friends ✓':r==='sent'?'Requested':r==='received'?'Wants to be friends':'';
- let h=box(`${PB}<div class="phero">${face(uid,'','pro')}<div class="pid"><b class="pname">${esc(pname(uid))}</b><p class="psince">${since?'Member since '+new Date(since).toLocaleDateString(undefined,{month:'long',year:'numeric'}):'Club member'}</p><div class="ptags"><span class="ptag code">${fcode(uid)}</span>${tag?`<span class="ptag">${tag}</span>`:''}</div></div></div>`);
+ let h=box(`${PB}<div class="phero">${face(uid,'','pro')}<div class="pid"><b class="pname">${pnt(uid)}</b><p class="psince">${since?'Member since '+new Date(since).toLocaleDateString(undefined,{month:'long',year:'numeric'}):'Club member'}</p><div class="ptags"><span class="ptag code">${fcode(uid)}</span>${tag?`<span class="ptag">${tag}</span>`:''}</div></div></div>`);
  const tile=(l,v,s,cls)=>`<div class="pstat${cls?' '+cls:''}"><span class="pl2">${l}</span><span class="pv num">${v}</span><span class="ps">${s}</span></div>`;
  h+=`<div class="pgrid">`+tile('Handicap',ix==null?'–':ix,ix==null?(cn?`${3-cn} more counted round${3-cn===1?'':'s'}`:'After 3 counted rounds'):`From ${Math.min(cn,20)} round${cn===1?'':'s'}`,'hi')
   +tile('Rounds',S.played,done.length?`${holes} holes played`:'None saved yet')
