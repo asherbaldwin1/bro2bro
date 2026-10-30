@@ -114,11 +114,12 @@ service cloud.firestore {
     // Players' in-round pars and ratings are saved on their own round instead.
     match /courseinfo/{id} {
       function shapeOk() {
-        return request.resource.data.keys().hasOnly(['par', 'pn', 'tees', 'added', 'h', 'ad'])
+        return request.resource.data.keys().hasOnly(['par', 'pn', 'tees', 'added', 'h', 'ad', 'gone'])
           && (!('par' in request.resource.data) || (request.resource.data.par is map && request.resource.data.par.size() <= 27))
           && (!('h' in request.resource.data) || (request.resource.data.h is map && request.resource.data.h.size() <= 27))
           && (!('pn' in request.resource.data) || request.resource.data.pn is int)
           && (!('ad' in request.resource.data) || request.resource.data.ad is int)
+          && (!('gone' in request.resource.data) || request.resource.data.gone is int)
           && (!('tees' in request.resource.data) || (request.resource.data.tees is map && request.resource.data.tees.size() <= 20));
       }
       allow read: if active();

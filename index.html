@@ -1159,6 +1159,8 @@ const index=uid=>ixOf(diffs(uid));
 const added=()=>Object.keys(D).filter(k=>k.startsWith('courseinfo/')).map(k=>[k.slice(11),doc(k)]).filter(([,d])=>d&&d.added).map(([id,d])=>({id,n:d.added.n,t:d.added.t||'',s:d.added.s||'',p:null,h:null,hc:d.added.hc||18,tees:[],k:(d.added.n+' '+(d.added.t||'')+' '+(d.added.s||'')).toLowerCase()}));
 const all=()=>added().concat(COURSES);
 const course=id=>all().find(c=>c.id===id);
+// Built-in courses the admin removed from the list (courseinfo {gone}). Old rounds still find them.
+const gone=id=>!!(doc('courseinfo/'+id)||{}).gone;
 function cdata(c){const u=doc('courseinfo/'+c.id)||{};
  if(u.ad){// Verified by the admin in Admin → Courses: these replace the built-in details
   const n=holesN(u.pn||c.hc||18),a=nums(u.par,n),hh=nums(u.h,n);
@@ -1434,9 +1436,9 @@ function fbAdmin(){
 let admUid=null,admConf=false,admQ='',admBlk=false;
 /* ---------- admin: course editor ---------- */
 // ceId: the course being edited ('new' for a new one); ce: its draft {n,t,s,holes,par[],h[],tees:[{k,n,r,s}]}
-let ceQ='',ceId=null,ce=null,ceDel=false;
+let ceQ='',ceId=null,ce=null,ceDel=false,ceGone=false;
 const ceKey=()=>Math.random().toString(36).slice(2,8);
-function ceOpen(id){const c=id==='new'?null:course(id);ceDel=false;err='';
+function ceOpen(id){const c=id==='new'?null:course(id);ceDel=false;ceGone=false;err='';
  if(!c){ce={n:'',t:'',s:st||'AZ',holes:18,par:[],h:[],tees:[{k:ceKey(),n:'White',r:'',s:''}],isNew:true,added:true};ceId='new';render();return}
  const d=cdata(c),n=d.par?d.par.length:(d.n||c.hc||18);
  ce={n:c.n,t:c.t,s:c.s,holes:n>=18?18:9,par:(d.par||[]).slice(),h:(d.h||[]).slice(),tees:d.tees.map(t=>({k:ceKey(),n:t.n,r:t.r==null?'':t.r,s:t.s==null?'':t.s})),added:!!(doc('courseinfo/'+id)||{}).added};
@@ -1454,10 +1456,11 @@ function courseAdmin(){
   h+=box(`<b>Pars and hole handicaps</b><p class="sub" style="margin-top:4px">Hcp is the hole’s handicap from the scorecard, 1 for the hardest. Leave it blank if you don’t know it.</p>${nine(0)}${ce.holes===18?nine(9):''}<p class="sub" id="ce-tot" style="margin:8px 0 0">${ceTot()}</p>`);
   h+=box(`<b>Tees</b><p class="sub" style="margin-top:4px">Rating and slope are printed on the scorecard for each set of tees. They’re used for handicaps.</p>${ce.tees.map(t=>`<div class="cetee"><input id="ce-tn-${t.k}" maxlength="20" placeholder="Tee name" aria-label="Tee name" value="${esc(t.n)}"><input id="ce-tr-${t.k}" inputmode="decimal" maxlength="5" placeholder="Rating" aria-label="Course rating" value="${esc(t.r)}"><input id="ce-ts-${t.k}" inputmode="numeric" maxlength="3" placeholder="Slope" aria-label="Slope" value="${esc(t.s)}"><button class="iconbtn sm" data-cetx="${t.k}" aria-label="Remove tee">×</button></div>`).join('')}<button class="btn alt sm" id="ce-addtee" style="margin-top:10px">Add tees</button>`);
   h+=box(`${err?`<p class="over" style="margin:0 0 10px">${esc(err)}</p>`:''}<button class="btn" id="ce-save" style="width:100%">Save for everyone</button><p class="sub" style="margin:8px 0 0">Saving marks the course as verified. New rounds use these pars, handicaps and ratings; rounds already played keep theirs.</p>${ceId==='new'?'':ceDel?`<div class="delc" style="margin:14px 0 0"><b>${ce.added?'Delete this course?':'Undo your edits?'}</b><p class="sub">${ce.added?'It disappears from the course list. Rounds already played keep their scores.':'The course goes back to the details it came with.'}</p><div class="row"><button class="btn danger" id="ce-delyes">${ce.added?'Delete course':'Undo edits'}</button><button class="btn alt" id="ce-delno">Cancel</button></div></div>`:ce.added||(ci&&ci.ad)?`<button class="btn alt" id="ce-del" style="width:100%;margin-top:12px">${ce.added?'Delete course':'Undo my edits'}</button>`:''}`);
+  if(ceId!=='new'&&!ce.added)h+=box(ci&&ci.gone?`<b>Removed from the course list</b><p class="sub" style="margin-top:4px">Players can’t pick it. Rounds already played keep their scores.</p><button class="btn alt" id="ce-back" style="width:100%">Put it back</button>`:ceGone?`<div class="delc" style="margin:0"><b>Remove this course?</b><p class="sub">Players won’t see it when picking a course. Rounds already played keep their scores${ci&&ci.ad?', and the details you saved for it are cleared':''}. You can put it back here.</p><div class="row"><button class="btn danger" id="ce-goneyes">Remove course</button><button class="btn alt" id="ce-goneno">Cancel</button></div></div>`:`<button class="btn alt" id="ce-gone" style="width:100%">Remove from course list</button>`);
   return h}
- const k=ceQ.toLowerCase().trim(),edited=Object.keys(D).filter(x=>x.startsWith('courseinfo/')&&(doc(x).ad||doc(x).added)).map(x=>course(x.slice(11))).filter(Boolean);
+ const k=ceQ.toLowerCase().trim(),edited=Object.keys(D).filter(x=>x.startsWith('courseinfo/')&&(doc(x).ad||doc(x).added||doc(x).gone)).map(x=>course(x.slice(11))).filter(Boolean);
  const list=k?all().filter(c=>c.k.includes(k)).slice(0,25):edited;
- const row=c=>{const u=doc('courseinfo/'+c.id)||{};return `<button class="frow admrow" data-ce="${c.id}"><span class="fwho"><b>${esc(c.n)}${u.ad?' <span class="pill">Verified</span>':''}</b><small>${esc(c.t)}${c.t&&c.s?', ':''}${esc(c.s)} · ${cdata(c).par?'pars':'no pars'} · ${cdata(c).tees.some(t=>t.r)?'rating':'no rating'}</small></span><span class="chev2"></span></button>`};
+ const row=c=>{const u=doc('courseinfo/'+c.id)||{};return `<button class="frow admrow" data-ce="${c.id}"><span class="fwho"><b>${esc(c.n)}${u.ad?' <span class="pill">Verified</span>':''}${u.gone?' <span class="pill">Removed</span>':''}</b><small>${esc(c.t)}${c.t&&c.s?', ':''}${esc(c.s)} · ${cdata(c).par?'pars':'no pars'} · ${cdata(c).tees.some(t=>t.r)?'rating':'no rating'}</small></span><span class="chev2"></span></button>`};
  return box(`<div class="rhead"><div><b>Courses</b><br><span class="sub">${COURSES.length.toLocaleString()} built in · only you can change them</span></div><button class="btn alt sm" id="ce-new" style="white-space:nowrap;flex:none">Add course</button></div><input id="ceq" type="search" placeholder="Search by name or city" value="${esc(ceQ)}" autocomplete="off" style="margin-top:12px">${k?'':`<p class="sub" style="margin:12px 0 0">${edited.length?'Courses you’ve added or verified':'Search to find a course, then set its pars, hole handicaps and tees.'}</p>`}<div class="admlist">${list.map(row).join('')}</div>${k&&!list.length?'<p class="empty">No course matches.</p>':''}`)+'<p class="sub">Players can tap pars and enter ratings during their own rounds, but only your edits here change a course for everyone.</p>';
 }
 function ceTot(){const p=ce.par.slice(0,ce.holes).map(Number),out=p.slice(0,9).reduce((a,b)=>a+(b||0),0),inn=p.slice(9).reduce((a,b)=>a+(b||0),0);return ce.holes===18?`Out ${out||'–'} · In ${inn||'–'} · Par ${out+inn||'–'}`:`Par ${out||'–'}`}
@@ -1535,7 +1538,7 @@ function locate(again){
   e=>{geo.st=e&&e.code===1?'denied':'error';if(tab==='play')render()},{enableHighAccuracy:false,timeout:12000,maximumAge:10*60e3})}
 let nearCache=null;
 function nearby(){const key=geo.at+'|'+added().length;if(nearCache&&nearCache.key===key)return nearCache.list;
- const list=all().filter(c=>c.la!=null).map(c=>({...c,mi:miles(geo.pos,[c.la,c.lo])})).filter(c=>c.mi<=NEAR_MI).sort((a,b)=>a.mi-b.mi);
+ const list=all().filter(c=>c.la!=null&&!gone(c.id)).map(c=>({...c,mi:miles(geo.pos,[c.la,c.lo])})).filter(c=>c.mi<=NEAR_MI).sort((a,b)=>a.mi-b.mi);
  nearCache={key,list};return list}
 function setup(){
  let h=ro()+importBox();
@@ -1560,7 +1563,7 @@ function setup(){
    if(near.length>25)h+=`<p class="sub">Showing the closest 25 of ${near.length}. Search above for the rest.</p>`;
   }else{
    if(!k)h+=geo.st==='asking'?`<p class="sub geohd">${GEOI}Finding courses near you…</p>`:near?`<p class="sub geohd">${GEOI}No courses within ${NEAR_MI} miles. Search above or pick a state.</p>`:geo.st==='denied'||geo.st==='error'?`<p class="sub geohd">${GEOI}${geo.st==='denied'?'Location is off for this site, so':'Couldn’t find your location, so'} here are ${st?esc(st):'all'} courses. <button class="linkbtn" id="geoask">Try again</button></p>`:'';
-   let m=all().filter(c=>(!st||c.s===st)&&(!k||c.k.includes(k)));
+   let m=all().filter(c=>!gone(c.id)&&(!st||c.s===st)&&(!k||c.k.includes(k)));
    if(geo.pos)m=m.map(c=>({...c,mi:c.la!=null?miles(geo.pos,[c.la,c.lo]):null})).sort((a,b)=>(a.mi==null)-(b.mi==null)||a.mi-b.mi);
    if(k){const v=c=>cdata(c).ad?0:1;m=m.map((c,i)=>[c,i]).sort((a,b)=>v(a[0])-v(b[0])||a[1]-b[1]).map(x=>x[0])}// verified courses first when searching
    h+=m.slice(0,25).map(row).join('')||'<p class="empty">No course matches. Try fewer letters, or add it yourself below.</p>';
@@ -1910,6 +1913,9 @@ function bind(){
  click('ce-save',ceSave);
  click('ce-del',()=>{ceRead();ceDel=true;render()});click('ce-delno',()=>{ceDel=false;render()});
  click('ce-delyes',async()=>{const id=ceId,n=ce.n;$('ce-delyes').disabled=true;try{await db.doc('courseinfo/'+id).delete()}catch(e){fail(e);return}delete D['courseinfo/'+id];say(ce.added?n+' was deleted.':n+' is back to its original details.');ceId=null;ce=null;ceDel=false;render()});
+ click('ce-gone',()=>{ceRead();ceGone=true;render()});click('ce-goneno',()=>{ceGone=false;render()});
+ click('ce-goneyes',async()=>{const id=ceId,n=ce.n,body={gone:Date.now()};$('ce-goneyes').disabled=true;try{await db.doc('courseinfo/'+id).set(body)}catch(e){fail(e);return}D['courseinfo/'+id]=body;say(n+' was removed from the course list.');ceId=null;ce=null;ceGone=false;render()});
+ click('ce-back',async()=>{const id=ceId,n=ce.n;$('ce-back').disabled=true;try{await db.doc('courseinfo/'+id).delete()}catch(e){fail(e);return}delete D['courseinfo/'+id];say(n+' is back in the course list.');ceId=null;ce=null;render()});
  on('[data-crumb]',b=>b.onclick=()=>{const f=CRUMB[b.dataset.crumb];if(f){f();window.scrollTo(0,0)}});
  const fqi=$('fq');if(fqi)fqi.oninput=()=>{fq=fqi.value;render()};
  on('[data-fradd]',b=>b.onclick=()=>{b.disabled=true;frAdd(b.dataset.fradd)});
