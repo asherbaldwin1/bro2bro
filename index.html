@@ -70,7 +70,7 @@ table.sc{table-layout:fixed;font-size:14px;font-variant-numeric:tabular-nums}
 table.sc th,table.sc td{padding:3px 0;text-align:center;border-top:1px solid var(--line)}
 table.sc th:first-child{text-align:left;width:62px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
 table.sc thead th{background:var(--band);color:var(--bandink);font-size:12px;font-weight:600;border-top:0}
-table.sc thead th:first-child{color:var(--bandink);padding-left:6px}
+table.sc thead th:first-child{color:var(--bandink)}
 .box{border-top:3px solid var(--green)}
 table.sc tr.par td{color:var(--mute)}
 table.sc td.t{font-weight:700;width:30px}
@@ -179,8 +179,14 @@ table.sc thead th.cur{background:var(--green);color:#fff}
 .teepick{position:relative}
 .teepick select{padding-left:42px}
 .dot.big{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;margin:0;border:1.5px solid rgba(20,35,26,.25);pointer-events:none;z-index:1}
-table.sc th:first-child{padding-left:10px;width:70px}
-table.sc td:last-child{padding-right:6px}
+table.sc th:first-child{padding-left:14px;width:78px}
+table.sc td:last-child,table.sc th:last-child{padding-right:12px}
+table.sc th,table.sc td{padding-top:6px;padding-bottom:6px}
+table.sc thead th{padding-top:9px;padding-bottom:7px}
+table.sc td.t,table.sc thead th:last-child{width:44px}
+.cardwrap{margin:0 0 12px}
+.rinfo{margin-bottom:14px}
+@media (max-width:480px){table.sc th:first-child{width:62px;padding-left:12px}table.sc td.t,table.sc thead th:last-child{width:38px}table.sc td:last-child,table.sc th:last-child{padding-right:10px}}
 .cardwrap table.sc tr:first-child th,.cardwrap table.sc tr:first-child td{border-top:0}
 
 /* ---- home + simple nav ---- */
@@ -355,9 +361,10 @@ body.has-bar .toast{bottom:calc(92px + env(safe-area-inset-bottom,0px))}
  .pk .lg{display:none}.pk .sh{display:inline}
  .pkrow{gap:4px}.pk b{font-size:18px}
  table.sc{font-size:12.5px}
- table.sc th:first-child{width:52px;padding-left:6px}
+ table.sc th:first-child{width:58px;padding-left:10px}
  .cell{width:19px;height:19px}
- table.sc td.t{width:26px}
+ table.sc td.t,table.sc thead th:last-child{width:34px}
+ table.sc td:last-child,table.sc th:last-child{padding-right:8px}
  .mast h1{font-size:34px}.mast .in>svg{width:58px;height:58px}
  .hti{font-size:22px}
  .hbtn{padding:0 12px;font-size:14px}
@@ -629,6 +636,7 @@ a.srow{text-decoration:none}
 .cegrid{width:100%;border-collapse:collapse;table-layout:fixed;margin-top:12px}
 .cegrid th{font:600 12px "Public Sans",sans-serif;color:var(--mute);padding:4px 0;text-align:center}.cegrid tr>th:first-child{width:38px;text-align:left}
 .cegrid td{padding:2px}.cegrid input{width:100%;margin:0;padding:8px 0;text-align:center;font-size:16px;border-radius:8px}
+.rtop{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin:-4px 0 10px}.rtop .iconbtn{margin:0 auto 0 -8px}.rtop .btn{margin:0;white-space:nowrap}
 .ceteeb+.ceteeb{margin-top:14px;padding-top:6px;border-top:1px solid var(--line)}
 .ygrid{margin-top:6px}.ygrid tr>th:first-child{width:30px}.ygrid td{padding:2px .5px}.ygrid input{font-size:16px;letter-spacing:-.05em}
 .cetee{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr) 34px;gap:6px;align-items:center;margin-top:8px}.cetee input{margin:0;min-width:0;padding-left:10px;padding-right:8px}
@@ -1628,7 +1636,7 @@ function scorecard(r){
  if(ask&&ask.k==='cur')return rateForm(r);
  let i=hole[r.id];if(i==null){i=r.par.findIndex((p,j)=>!r.keys.every(k=>r.sc[k][j]!=null));if(i<0)i=r.n-1;hole[r.id]=i}
  const host=r.host===me,solo=r.keys.length===1;
- let h=`<div class="box"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><div><b>${esc(r.cn)}</b><br><span class="sub">${edit===r.id?'editing a saved round':`${r.tn?esc(r.tn)+' tees':'tees to add later'} · ${solo?'solo round':r.keys.length+' players · live for everyone'}`}</span></div><div class="row" style="flex-wrap:nowrap;gap:4px"><button class="iconbtn" id="rmenu" aria-label="Round options" style="margin:0">${DOTS}</button><button class="btn alt" id="close">Close</button></div></div>`;
+ let h=`<div class="box"><div class="rtop">${r.host===me||owner?`<button class="iconbtn" id="rnddrop" aria-label="${edit===r.id?'Delete round':'Discard round'}">${TRASH}</button>`:edit===r.id?'':`<button class="iconbtn" id="rnddrop" aria-label="Leave round">${TRASH}</button>`}<button class="btn" id="rndsave">Save</button><button class="btn alt" id="close">Close</button></div><div class="rinfo"><b>${esc(r.cn)}</b><br><span class="sub">${edit===r.id?'editing a saved round':`${r.tn?esc(r.tn)+' tees':'tees to add later'} · ${solo?'solo round':r.keys.length+' players · live for everyone'}`}</span></div>`;
  h+=card(r,true,true)+'<div class="entry">';
  {const done=j=>r.par[j]&&r.keys.every(k=>r.sc[k][j]!=null),pk=r.par[i];
   h+=`<div class="strip">${r.par.map((_,j)=>`<button class="${done(j)?'done':''}" ${j===i?'aria-current="true"':''} data-h="${j}" aria-label="Hole ${j+1}">${j+1}</button>`).join('')}</div><div class="hole"><div class="hl"><span class="lbl">Hole</span><span class="num">${i+1}</span></div><div class="facts"><span>Par <b>${pk||'?'}</b></span>${r.yds?`<span><b>${r.yds[i]}</b> yds</span>`:''}${r.si?`<span>Index <b>${r.si[i]}</b></span>`:''}</div></div>`+yards(pk,r.yds&&+r.yds[i]);
@@ -1644,17 +1652,14 @@ function scorecard(r){
 const holeDone=(r,j)=>!!r.par[j]&&r.keys.every(k=>r.sc[k][j]!=null);
 const allDone=r=>r.par.every((_,j)=>holeDone(r,j));
 const gap=r=>r.par.findIndex((_,j)=>!holeDone(r,j));
-const DOTS='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.9" fill="currentColor"/><circle cx="12" cy="12" r="1.9" fill="currentColor"/><circle cx="19" cy="12" r="1.9" fill="currentColor"/></svg>';
-// Round options popup (⋯ next to Close): conf is 'menu', 'drop' or 'leave'
+// Round popups from the trash and Save buttons next to Close: conf is 'inc' (save with holes unscored), 'drop' or 'leave'
 function confPaint(){const k=$('popr');if(!k)return;const r=tab==='play'&&curId&&R(curId),a=r&&(r.status==='live'||edit===r.id)&&r.pl[me]?conf:null;
- const del=a&&(r.host===me||owner),ed=a&&edit===r.id;
- const h=!a?'':`<div class="pop" id="confbg"><div class="popc" role="alertdialog" aria-modal="true" aria-labelledby="conft">${a==='menu'?`<b class="popt" id="conft">Round options</b><p class="popn">${esc(r.cn)}</p><p class="sub">${allDone(r)?'Every hole is scored.':'Holes without a score stay blank. An incomplete round won’t count toward handicap.'}</p><button class="btn" id="confsave">${ed?'Save changes':allDone(r)?'Save round':'Save as incomplete'}</button>${del?`<button class="btn danger" id="confdrop">${ed?'Delete round':'Discard round'}</button>`:ed?'':'<button class="btn danger" id="confleave">Leave round</button>'}<button class="btn alt" id="confno">Keep playing</button>`:`<b class="popt" id="conft">${a==='drop'?(ed?'Delete this round?':'Discard this round?'):'Leave this round?'}</b><p class="sub">${a==='drop'?'All scores from this round will be deleted for everyone. This can’t be undone.':'Your scores so far stay with the group, and you can rejoin from Live now.'}</p><button class="btn danger" id="confyes">${a==='drop'?(ed?'Yes, delete':'Yes, discard'):'Yes, leave'}</button><button class="btn alt" id="confno">Keep playing</button>`}</div></div>`;
+ const ed=a&&edit===r.id;
+ const h=!a?'':`<div class="pop" id="confbg"><div class="popc" role="alertdialog" aria-modal="true" aria-labelledby="conft">${a==='inc'?`<b class="popt" id="conft">Save as incomplete?</b><p class="popn">${esc(r.cn)}</p><p class="sub">Holes without a score stay blank. An incomplete round won’t count toward handicap.</p><button class="btn" id="confsave">Save as incomplete</button><button class="btn alt" id="confno">Keep playing</button>`:`<b class="popt" id="conft">${a==='drop'?(ed?'Delete this round?':'Discard this round?'):'Leave this round?'}</b><p class="sub">${a==='drop'?'All scores from this round will be deleted for everyone. This can’t be undone.':'Your scores so far stay with the group, and you can rejoin from Live now.'}</p><button class="btn danger" id="confyes">${a==='drop'?(ed?'Yes, delete':'Yes, discard'):'Yes, leave'}</button><button class="btn alt" id="confno">Keep playing</button>`}</div></div>`;
  if(k.dataset.h===h)return;k.dataset.h=h;k.innerHTML=h;if(!a)return;
  const c=id=>$(id),close=()=>{conf=null;render()};
  c('confno').onclick=close;c('confbg').onclick=e=>{if(e.target.id==='confbg')close()};
  if(c('confsave'))c('confsave').onclick=()=>{conf=null;saveRound(r)};
- if(c('confdrop'))c('confdrop').onclick=()=>{conf='drop';render()};
- if(c('confleave'))c('confleave').onclick=()=>{conf='leave';render()};
  if(c('confyes'))c('confyes').onclick=async()=>{const x=conf;c('confyes').disabled=true;conf=null;
   if(x==='drop'){clearTimeout(tmr['rounds/'+r.id]);delete pend['rounds/'+r.id];try{await db.doc('rounds/'+r.id).delete()}catch(e){fail(e);render();return}delete D['rounds/'+r.id];setCur(null);say(ed?'Round deleted.':'Round discarded.')}
   else{patch('rounds/'+r.id,{players:{[me]:null}});setCur(null);render()}}}
@@ -1931,7 +1936,8 @@ function bind(){
  on('[data-addf]',b=>b.onclick=()=>{patch('rounds/'+r.id,{players:{[b.dataset.addf]:{uid:b.dataset.addf,o:nextO(r)}}})});
  click('addg2',()=>{const i=$('gn2'),n=i.value.trim();if(!n)return;i.value='';patch('rounds/'+r.id,{players:{[gkey()]:{name:n,o:nextO(r)}}})});
  click('finish',()=>saveRound(r));
- click('rmenu',()=>{conf='menu';render()});
+ click('rnddrop',()=>{conf=r.host===me||owner?'drop':'leave';render()});
+ click('rndsave',()=>{if(edit===r.id||allDone(r))saveRound(r);else{conf='inc';render()}});
  // rating
  click('rsave',()=>{const x=ask.k==='cur'?r:R(ask.id),ra=parseFloat($('rr').value),sl=parseInt($('rs').value,10),nm=$('rn').value.trim()||'Standard';
   if(!(ra>=55&&ra<=85)){err='Course rating is usually between 55 and 85.';render();return}
