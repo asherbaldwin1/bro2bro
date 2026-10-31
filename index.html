@@ -346,6 +346,8 @@ input,select,textarea{font-size:16px}
 .hbtn.nx{justify-self:end;background:var(--green);color:#fff;box-shadow:0 4px 12px rgba(23,138,72,.3)}
 :root[data-theme="dark"] .hbtn.nx{background:#1f9d55}
 .hbtn svg{width:20px;height:20px}
+/* the chevron is drawn with ~7px of empty space on its outer side, so pull it outward to keep the label visually centered */
+.hbtn[data-nav="-1"] svg{margin-left:-6px}.hbtn.nx svg{margin-right:-6px}
 .hbtn:active{transform:scale(.95)}
 .hbtn[disabled]{opacity:0;pointer-events:none}
 .hbl{display:flex;flex-direction:column;align-items:center;line-height:1.05}
