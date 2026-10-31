@@ -159,7 +159,13 @@ table.sc thead th{border-top:0}
 .hole .hl{display:flex;align-items:baseline;gap:10px}
 .hole .lbl{font:700 30px "Barlow Condensed","Arial Narrow",sans-serif;color:var(--mute);letter-spacing:.02em}
 .hole .num{font-size:76px;line-height:.9}
-.facts{flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.facts{flex-wrap:wrap;gap:6px;margin:-6px 0 14px}
+.hole{flex-wrap:nowrap}
+.ptile{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:76px;padding:8px 12px 6px;border-radius:14px;background:#0F3D2E;color:#F7F3EA}
+.ptile span{font:700 13px "Public Sans",sans-serif;letter-spacing:.14em;text-transform:uppercase;opacity:.85}
+.ptile b{font:700 52px/1 "Barlow Condensed","Arial Narrow",sans-serif}
+.ptile.none{background:var(--fill);color:var(--mute)}
+:root[data-theme="dark"] .ptile:not(.none){background:#D9B77E;color:#0B1411}
 .plw{border-top:1px solid var(--line);padding:4px 0 12px}
 .plw .pl{border-top:0;padding:8px 0}
 .pick-now{font-size:40px}
@@ -369,6 +375,7 @@ body.has-bar .toast{bottom:calc(92px + env(safe-area-inset-bottom,0px))}
  .hti{font-size:22px}
  .hbtn{padding:0 12px;font-size:14px}
  .hole .num{font-size:66px}.hole .lbl{font-size:26px}
+ .ptile{min-width:68px}.ptile b{font-size:46px}
 }
 
 .rhead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
@@ -790,6 +797,8 @@ html.glass .box>b:first-child,html.glass .box .rhead b{font-size:17px;letter-spa
 /* top bar and bottom bar: thin iOS material with a hairline */
 html.glass .navbar,html.glass .holebar{background:var(--g-bar)!important;-webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);border:0!important;box-shadow:inset 0 -.5px 0 var(--g-edge)!important}
 html.glass .holebar{box-shadow:inset 0 .5px 0 var(--g-edge)!important}
+html.glass .ptile:not(.none){background:var(--g-acc);color:var(--g-btnink)}
+html.glass .ptile.none{background:var(--g-inner);color:var(--g-mute)}
 html.glass #nav .back{color:var(--g-ink)}
 html.glass #nav .ttl{color:var(--g-ink)}
 
@@ -1647,7 +1656,7 @@ function scorecard(r){
  let h=`<div class="box sbox"><div class="rtop"><div class="rinfo"><b>${esc(r.cn)}</b><span class="sub">${edit===r.id?'editing a saved round':`${r.tn?esc(r.tn)+' tees':'tees to add later'} · ${solo?'solo round':r.keys.length+' players · live for everyone'}`}</span></div><div class="rbtns"><button class="btn" id="rndsave" aria-label="Save round" title="Save round">${CHECK}</button><button class="btn alt" id="close" aria-label="Close" title="Close">${XMARK}</button>${drop?`<button class="btn alt rdel" id="rnddrop" aria-label="${lbl}" title="${lbl}">${TRASH}</button>`:''}</div></div>`;
  h+=`<button class="sctog" id="sctog" aria-expanded="${scOpen}" aria-controls="scfold"><b>Scorecard</b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="scfold${scOpen?' open':''}" id="scfold"><div>${card(r,true,true)}`;
  {const done=j=>r.par[j]&&r.keys.every(k=>r.sc[k][j]!=null),pk=r.par[i];
-  h+=`<div class="strip">${r.par.map((_,j)=>`<button class="${done(j)?'done':''}" ${j===i?'aria-current="true"':''} data-h="${j}" aria-label="Hole ${j+1}">${j+1}</button>`).join('')}</div></div></div></div><div class="box entrybox"><div class="entry"><div class="hole"><div class="hl"><span class="lbl">Hole</span><span class="num">${i+1}</span></div><div class="facts"><span>Par <b>${pk||'?'}</b></span>${r.yds?`<span><b>${r.yds[i]}</b> yds</span>`:''}${r.si?`<span>Index <b>${r.si[i]}</b></span>`:''}</div></div>`+yards(pk,r.yds&&+r.yds[i]);
+  h+=`<div class="strip">${r.par.map((_,j)=>`<button class="${done(j)?'done':''}" ${j===i?'aria-current="true"':''} data-h="${j}" aria-label="Hole ${j+1}">${j+1}</button>`).join('')}</div></div></div></div><div class="box entrybox"><div class="entry"><div class="hole"><div class="hl"><span class="lbl">Hole</span><span class="num">${i+1}</span></div><div class="ptile${pk?'':' none'}" aria-label="Par ${pk||'not set'}"><span>Par</span><b>${pk||'?'}</b></div></div>${r.yds||r.si?`<div class="facts">${r.yds?`<span><b>${r.yds[i]}</b> yds</span>`:''}${r.si?`<span>Index <b>${r.si[i]}</b></span>`:''}</div>`:''}`+yards(pk,r.yds&&+r.yds[i]);
   if(!pk)h+=`<p class="note">Set the par for this hole to start scoring.</p><div class="row">${[3,4,5,6].map(x=>`<button class="chip" data-par="${x}">Par ${x}</button>`).join('')}</div>`;
   r.keys.forEach(k=>{const sc=r.sc[k],cnt=sc.filter((v,j)=>v!=null&&r.par[j]).length,v=sc[i],nm=kname(r,k);
    h+=`<div class="plw"><div class="pl"><div class="plwho">${face(r.pl[k].uid,nm)}<div><b>${knt(r,k)}</b>${r.pl[k].uid===me?' <span class="sub">(you)</span>':''}<br><span class="tot">${cnt?fmtPar(toPar(sc,r.par))+' thru '+cnt:'not started'}</span></div></div><span class="num pick-now">${v==null?'–':v}</span></div>${pk?picker(k,nm,v,pk):''}</div>`});
