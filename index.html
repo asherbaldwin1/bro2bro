@@ -1037,7 +1037,7 @@ html.glass[data-theme="light"] .amenu .atx small{color:rgba(20,32,26,.6)}
 <main>
 <div id="note" role="status" aria-live="polite"></div><div id="view"></div>
 </main>
-<div id="fbk"></div><div id="popk"></div><div id="popa"></div>
+<div id="fbk"></div><div id="popk"></div><div id="popa"></div><div id="popr"></div>
 <script src="courses.js?v=2"></script>
 <script>
 const LOW=[0,0,0,1,1,1,2,2,2,3,3,3,4,4,4,5,5,6,6,7,8],ADJ={3:-2,4:-1,6:-1};
@@ -1086,7 +1086,7 @@ function afterData(){
  if(user&&ids.size)user.profiles([...ids]).then(ps=>{const ch=Object.keys(ps).some(k=>!prof[k]||prof[k].name!==ps[k].name);prof=ps;if(ch)render()});
  if(curId&&real.rounds){const r=R(curId);
   if(!r||!r.pl[me]){setCur(null)}
-  else if(r.status==='done'){setCur(null);tab='rounds';openRound=r.id;ask=null}}
+  else if(r.status==='done'&&edit!==r.id){setCur(null);tab='rounds';openRound=r.id;ask=null}}
 }
 (async()=>{
  if(!window.claude){state='nodb';render();return}
@@ -1109,7 +1109,8 @@ function afterData(){
 
 /* ---------- per-viewer UI state ---------- */
 let curId=null;try{curId=localStorage.getItem('weekend-round-cur')}catch(e){}
-const setCur=id=>{curId=id;try{id?localStorage.setItem('weekend-round-cur',id):localStorage.removeItem('weekend-round-cur')}catch(e){}};
+let edit=null; // id of a saved round reopened to fix its scores
+const setCur=id=>{curId=id;if(id!==edit)edit=null;try{id?localStorage.setItem('weekend-round-cur',id):localStorage.removeItem('weekend-round-cur')}catch(e){}};
 let conf=null,tab=(()=>{try{const h=location.hash.slice(1);return ['play','rounds','people','leaders','range','settings','admin'].includes(h)?h:'home'}catch(e){return 'home'}})(),mode='hole',q='',st=(()=>{try{return localStorage.getItem('ww-state')||'AZ'}catch(e){return 'AZ'}})(),pick=null,teeSel=(()=>{try{return localStorage.getItem('ww-tee')||'White'}catch(e){return 'White'}})(),holes=18,sel=new Set(),guests=[],ask=null,adding=false,err='',af={n:'',c:'',s:'AZ'},openRound=null,editName=false,scope='mine',impSel=null;
 const hole={};
 let OLD=null;try{const x=JSON.parse(localStorage.getItem('weekend-round-v2')||'null');if(x&&x.rounds&&x.rounds.length&&!localStorage.getItem('weekend-round-imported'))OLD=x}catch(e){}
@@ -1190,7 +1191,7 @@ function render(){
  const keep={};document.querySelectorAll('#view input[id]:not([type=file]),#view textarea[id]').forEach(i=>keep[i.id]=i.value);
  const navH=tab==='home'?'':`<div class="navl"><button class="back" data-go="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Home</button>${fbBtn()}</div><span class="ttl">${PAGES[tab]}</span>${toolsHTML()}`;
  if(navH!==lastNav){lastNav=navH;$('nav').innerHTML=navH;$('navbar').hidden=tab==='home';document.querySelector('.mast').classList.toggle('home',tab==='home');$('nav').querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));fitTtl()}
- paintTheme();rmPaint();delPaint();
+ paintTheme();rmPaint();delPaint();confPaint();
  const noteH=note?`<p class="toast">${esc(note)}</p>`:'';if(noteH!==lastNote){lastNote=noteH;$('note').innerHTML=noteH}
  const html=main();if(html===lastView)return;lastView=html;
  const v=$('view');v.innerHTML=html;
@@ -1274,7 +1275,7 @@ function mainView(){
  if(state==='nodb')return box('<p><b>Sign in to keep score with friends.</b></p><p class="sub">Reload the page to sign in. Rounds are saved online, so everyone in your group sees the same live scorecard.</p>');
  if(real.players&&canWrite&&!doc('players/'+me))return nameForm(true);
  if(tab==='home')return home();
- if(tab==='play'){const r=curId&&R(curId);return r&&r.status==='live'&&r.pl[me]?scorecard(r):setup()}
+ if(tab==='play'){const r=curId&&R(curId);return r&&(r.status==='live'||edit===r.id)&&r.pl[me]?scorecard(r):setup()}
  return tab==='rounds'?roundsView():tab==='leaders'?leaders():tab==='settings'?settings():tab==='range'?rangeView():tab==='admin'?adminView():tab==='profile'?profileView(me):profUid?profileView(profUid):people();
 }
 function nameForm(first){return box(`<label for="myn"><b>${first?'What should your friends call you?':'Your name'}</b></label><p class="sub">This name shows on every scorecard you’re on.</p><input id="myn" maxlength="24" value="${esc(first?meName:pname(me))}">${err?`<p class="over">${esc(err)}</p>`:''}<button class="btn" id="mysave">Save</button>${first?'':' <button class="btn alt" id="mycancel">Cancel</button>'}`)}
@@ -1592,27 +1593,45 @@ function card(r,tap,compact){const cur=tap?hole[r.id]:-1;
 }
 const SHORT={Ace:'Ace',Alb:'Alb',Eagle:'Eagl',Birdie:'Brd',Par:'Par',Bogey:'Bog',Double:'Dbl',Triple:'Trp'};
 const LBL={'-3':'Alb','-2':'Eagle','-1':'Birdie','0':'Par','1':'Bogey','2':'Double','3':'Triple'};
-function picker(k,nm,v,par){const max=Math.max(par+3,v||0),b=[];for(let x=1;x<=max;x++){const d=x-par,l=x===1?'Ace':LBL[d]||(d<-3?'':'+'+d);b.push(`<button class="pk${v===x?' on':''}${d<0?' u':d>0?' o':' e'}" data-set="${esc(k)}" data-v="${x}" aria-pressed="${v===x}" aria-label="${esc(nm)}: ${x}${l?' ('+l+')':''}"><b>${x}</b><small><span class="lg">${l}</span><span class="sh">${SHORT[l]??l}</span></small></button>`)}
+function picker(k,nm,v,par){const max=Math.max(par,v||0),b=[];for(let x=1;x<=max;x++){const d=x-par,l=x===1?'Ace':LBL[d]||(d<-3?'':'+'+d);b.push(`<button class="pk${v===x?' on':''}${d<0?' u':d>0?' o':' e'}" data-set="${esc(k)}" data-v="${x}" aria-pressed="${v===x}" aria-label="${esc(nm)}: ${x}${l?' ('+l+')':''}"><b>${x}</b><small><span class="lg">${l}</span><span class="sh">${SHORT[l]??l}</span></small></button>`)}
  b.push(`<button class="pk more" data-set="${esc(k)}" data-v="${max+1}" aria-label="${esc(nm)}: ${max+1}"><b>+</b><small><span class="lg">More</span><span class="sh">More</span></small></button>`);
  return `<div class="pkrow" style="grid-template-columns:repeat(${b.length},1fr)">${b.join('')}</div>`}
 function scorecard(r){
  if(ask&&ask.k==='cur')return rateForm(r);
  let i=hole[r.id];if(i==null){i=r.par.findIndex((p,j)=>!r.keys.every(k=>r.sc[k][j]!=null));if(i<0)i=r.n-1;hole[r.id]=i}
  const host=r.host===me,solo=r.keys.length===1;
- let h=`<div class="box"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><div><b>${esc(r.cn)}</b><br><span class="sub">${r.tn?esc(r.tn)+' tees':'tees to add later'} · ${solo?'solo round':r.keys.length+' players · live for everyone'}</span></div><button class="btn alt" id="close">Close</button></div>`;
+ let h=`<div class="box"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><div><b>${esc(r.cn)}</b><br><span class="sub">${edit===r.id?'editing a saved round':`${r.tn?esc(r.tn)+' tees':'tees to add later'} · ${solo?'solo round':r.keys.length+' players · live for everyone'}`}</span></div><div class="row" style="flex-wrap:nowrap;gap:4px"><button class="iconbtn" id="rmenu" aria-label="Round options" style="margin:0">${DOTS}</button><button class="btn alt" id="close">Close</button></div></div>`;
  h+=card(r,true,true)+'<div class="entry">';
  {const done=j=>r.par[j]&&r.keys.every(k=>r.sc[k][j]!=null),pk=r.par[i];
   h+=`<div class="strip">${r.par.map((_,j)=>`<button class="${done(j)?'done':''}" ${j===i?'aria-current="true"':''} data-h="${j}" aria-label="Hole ${j+1}">${j+1}</button>`).join('')}</div><div class="hole"><div class="hl"><span class="lbl">Hole</span><span class="num">${i+1}</span></div><div class="facts"><span>Par <b>${pk||'?'}</b></span>${r.yds?`<span><b>${r.yds[i]}</b> yds</span>`:''}${r.si?`<span>Index <b>${r.si[i]}</b></span>`:''}</div></div>`;
   if(!pk)h+=`<p class="note">Set the par for this hole to start scoring.</p><div class="row">${[3,4,5,6].map(x=>`<button class="chip" data-par="${x}">Par ${x}</button>`).join('')}</div>`;
   r.keys.forEach(k=>{const sc=r.sc[k],cnt=sc.filter((v,j)=>v!=null&&r.par[j]).length,v=sc[i],nm=kname(r,k);
    h+=`<div class="plw"><div class="pl"><div class="plwho">${face(r.pl[k].uid,nm)}<div><b>${knt(r,k)}</b>${r.pl[k].uid===me?' <span class="sub">(you)</span>':''}<br><span class="tot">${cnt?fmtPar(toPar(sc,r.par))+' thru '+cnt:'not started'}</span></div></div><span class="num pick-now">${v==null?'–':v}</span></div>${pk?picker(k,nm,v,pk):''}</div>`});
-  h+=`<p class="swipehint sub">Swipe left or right to change holes.</p><div class="holenav"><div class="hbin"><button class="hbtn" data-nav="-1" ${i?'':'disabled'} aria-label="Previous hole"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>${i?'Hole '+i:''}</button><span class="hbl"><b>Hole ${i+1}</b><small>of ${r.n}</small></span><button class="hbtn nx" data-nav="1" ${i<r.n-1?'':'disabled'} aria-label="Next hole">${i<r.n-1?'Hole '+(i+2):''}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div></div>`;
+  h+=`<p class="swipehint sub">Swipe left or right to change holes.</p><div class="holenav"><div class="hbin"><button class="hbtn" data-nav="-1" ${i?'':'disabled'} aria-label="Previous hole"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>${i?'Hole '+i:''}</button><span class="hbl"><b>Hole ${i+1}</b><small>of ${r.n}</small></span>${i===r.n-1&&allDone(r)?`<button class="hbtn nx" id="finish">${edit===r.id?'Save changes':'Save round'}</button>`:`<button class="hbtn nx" data-nav="${i<r.n-1?1:gap(r)-i}" aria-label="Next hole">Hole ${i<r.n-1?i+2:gap(r)+1}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`}</div></div></div>`;
  }
  const fr=friends().filter(p=>!r.pl[p.id]);
  h+=`<details class="addp"><summary>Add a player to this round</summary>${fr.length?`<div class="row" style="margin-top:8px">${fr.map(p=>`<button class="chip" data-addf="${p.id}">+ ${esc(pname(p.id))}</button>`).join('')}</div>`:''}<div class="row" style="margin-top:8px"><input id="gn2" placeholder="Guest without the app" maxlength="24" style="flex:1;margin:0;min-width:150px"><button class="btn alt" id="addg2">Add guest</button></div><p class="sub">Friends can also tap Join on their own Play tab.</p></details>`;
- if(conf)return h+`<div class="note" style="margin-top:12px"><b>${conf==='drop'?'Discard this round for everyone?':'Leave this round?'}</b><p style="margin:4px 0 10px">${conf==='drop'?'All scores from this round will be deleted. This can’t be undone.':'Your scores so far stay with the group, and you can rejoin from Live now.'}</p><div class="row"><button class="btn danger" id="confyes">${conf==='drop'?'Yes, discard':'Yes, leave'}</button><button class="btn alt" id="confno">Keep playing</button></div></div></div>`;
- return h+`</div><div class="holebar"><div class="hbin endbar"><button class="btn" id="finish">Save round</button>${host?'<button class="btn danger" id="drop">Discard round</button>':'<button class="btn danger" id="leave">Leave round</button>'}</div></div>`;
+ return h+'</div>';
 }
+const holeDone=(r,j)=>!!r.par[j]&&r.keys.every(k=>r.sc[k][j]!=null);
+const allDone=r=>r.par.every((_,j)=>holeDone(r,j));
+const gap=r=>r.par.findIndex((_,j)=>!holeDone(r,j));
+const DOTS='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.9" fill="currentColor"/><circle cx="12" cy="12" r="1.9" fill="currentColor"/><circle cx="19" cy="12" r="1.9" fill="currentColor"/></svg>';
+// Round options popup (⋯ next to Close): conf is 'menu', 'drop' or 'leave'
+function confPaint(){const k=$('popr');if(!k)return;const r=tab==='play'&&curId&&R(curId),a=r&&(r.status==='live'||edit===r.id)&&r.pl[me]?conf:null;
+ const del=a&&(r.host===me||owner),ed=a&&edit===r.id;
+ const h=!a?'':`<div class="pop" id="confbg"><div class="popc" role="alertdialog" aria-modal="true" aria-labelledby="conft">${a==='menu'?`<b class="popt" id="conft">Round options</b><p class="popn">${esc(r.cn)}</p><p class="sub">${allDone(r)?'Every hole is scored.':'Holes without a score stay blank. An incomplete round won’t count toward handicap.'}</p><button class="btn" id="confsave">${ed?'Save changes':allDone(r)?'Save round':'Save as incomplete'}</button>${del?`<button class="btn danger" id="confdrop">${ed?'Delete round':'Discard round'}</button>`:ed?'':'<button class="btn danger" id="confleave">Leave round</button>'}<button class="btn alt" id="confno">Keep playing</button>`:`<b class="popt" id="conft">${a==='drop'?(ed?'Delete this round?':'Discard this round?'):'Leave this round?'}</b><p class="sub">${a==='drop'?'All scores from this round will be deleted for everyone. This can’t be undone.':'Your scores so far stay with the group, and you can rejoin from Live now.'}</p><button class="btn danger" id="confyes">${a==='drop'?(ed?'Yes, delete':'Yes, discard'):'Yes, leave'}</button><button class="btn alt" id="confno">Keep playing</button>`}</div></div>`;
+ if(k.dataset.h===h)return;k.dataset.h=h;k.innerHTML=h;if(!a)return;
+ const c=id=>$(id),close=()=>{conf=null;render()};
+ c('confno').onclick=close;c('confbg').onclick=e=>{if(e.target.id==='confbg')close()};
+ if(c('confsave'))c('confsave').onclick=()=>{conf=null;saveRound(r)};
+ if(c('confdrop'))c('confdrop').onclick=()=>{conf='drop';render()};
+ if(c('confleave'))c('confleave').onclick=()=>{conf='leave';render()};
+ if(c('confyes'))c('confyes').onclick=async()=>{const x=conf;c('confyes').disabled=true;conf=null;
+  if(x==='drop'){clearTimeout(tmr['rounds/'+r.id]);delete pend['rounds/'+r.id];try{await db.doc('rounds/'+r.id).delete()}catch(e){fail(e);render();return}delete D['rounds/'+r.id];setCur(null);say(ed?'Round deleted.':'Round discarded.')}
+  else{patch('rounds/'+r.id,{players:{[me]:null}});setCur(null);render()}}}
+function saveRound(r){if(edit===r.id){setCur(null);openRound=r.id;go('rounds');say('Changes saved.');return}
+ if(!r.rating){ask={k:'cur'};err='';render()}else finishRound(r)}
 let delConf=null;
 const TRASH='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9.5 7V4.8h5V7M6.5 7l1 12.2h9L17.5 7M10.3 10.5v5.5M13.7 10.5v5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const canDel=r=>canWrite&&(r.host===me||owner);
@@ -1627,7 +1646,7 @@ function roundsView(){
  if(unf.length)h+=`<h2 class="sect">Saved</h2>`;
  if(!rs.length)return h+box('<p class="empty">No finished rounds yet. Save one from the Play page and it shows up here for the whole group.</p>');
  return h+rs.map(r=>{const pp=sum(r.par),full=r.par.every(Boolean),open=openRound===r.id,inc=r.keys.some(k=>r.sc[k].some(v=>v==null));
-  return box(`<div class="rhead"><div><b>${esc(r.cn)}</b>${inc?' <span class="pill">Incomplete</span>':''}<br><span class="sub">${r.date} · ${r.rating?esc(r.tn||'Tees')+' · '+r.rating+' / '+r.slope:'no rating yet'}</span></div>${canDel(r)?`<button class="iconbtn" data-del="${r.id}" aria-label="Delete this round">${TRASH}</button>`:''}</div>${delConf===r.id?delBox(r):`${r.rating||!canWrite?'':`<div style="margin:8px 0"><button class="btn alt" data-fix="${r.id}">Add rating and slope</button></div>`}${r.n!==18?`<p class="sub">Only 18-hole rounds count toward handicap.</p>`:''}${open?card(r,false):`<table>${r.keys.map(k=>{const sc=r.sc[k],f=sc.every(v=>v!=null),t=sum(sc);return `<tr><td>${knt(r,k)}</td><td class="r num">${f?t:'incomplete'}</td><td class="r ${full&&t>pp?'over':''}">${f&&full?fmtPar(t-pp):''}</td></tr>`}).join('')}</table>`}<p><button class="btn alt" data-card="${r.id}">${open?'Hide scorecard':'Scorecard'}</button></p>`}`)}).join('');
+  return box(`<div class="rhead"><div><b>${esc(r.cn)}</b>${inc?' <span class="pill">Incomplete</span>':''}<br><span class="sub">${r.date} · ${r.rating?esc(r.tn||'Tees')+' · '+r.rating+' / '+r.slope:'no rating yet'}</span></div>${canDel(r)?`<button class="iconbtn" data-del="${r.id}" aria-label="Delete this round">${TRASH}</button>`:''}</div>${delConf===r.id?delBox(r):`${r.rating||!canWrite?'':`<div style="margin:8px 0"><button class="btn alt" data-fix="${r.id}">Add rating and slope</button></div>`}${r.n!==18?`<p class="sub">Only 18-hole rounds count toward handicap.</p>`:''}${open?card(r,false):`<table>${r.keys.map(k=>{const sc=r.sc[k],f=sc.every(v=>v!=null),t=sum(sc);return `<tr><td>${knt(r,k)}</td><td class="r num">${f?t:'incomplete'}</td><td class="r ${full&&t>pp?'over':''}">${f&&full?fmtPar(t-pp):''}</td></tr>`}).join('')}</table>`}<div class="row"><button class="btn alt" data-card="${r.id}">${open?'Hide scorecard':'Scorecard'}</button>${canWrite&&r.pl[me]?`<button class="btn${inc?'':' alt'}" data-edit="${r.id}">${inc?'Finish scores':'Edit scores'}</button>`:''}</div>`}`)}).join('');
 }
 let fq='',rmConf=null;
 /* ---------- admin: view as another player (read-only) ---------- */
@@ -1882,11 +1901,8 @@ function bind(){
  on('[data-m]',b=>b.onclick=()=>{const k=b.dataset.m,c=R(r.id).sc[k][hole[r.id]];if(c==null)return;setScore(k,c<=1?null:c-1)});
  on('[data-addf]',b=>b.onclick=()=>{patch('rounds/'+r.id,{players:{[b.dataset.addf]:{uid:b.dataset.addf,o:nextO(r)}}})});
  click('addg2',()=>{const i=$('gn2'),n=i.value.trim();if(!n)return;i.value='';patch('rounds/'+r.id,{players:{[gkey()]:{name:n,o:nextO(r)}}})});
- click('finish',()=>{if(!r.rating){ask={k:'cur'};err='';render()}else finishRound(r)});
- click('drop',()=>{conf='drop';render()});
- click('leave',()=>{conf='leave';render()});
- click('confno',()=>{conf=null;render()});
- click('confyes',async()=>{const c=conf;conf=null;if(c==='drop'){const b=$('confyes');if(b)b.disabled=true;clearTimeout(tmr['rounds/'+r.id]);delete pend['rounds/'+r.id];try{await db.doc('rounds/'+r.id).delete()}catch(e){fail(e);return}delete D['rounds/'+r.id];setCur(null);say('Round discarded.')}else{patch('rounds/'+r.id,{players:{[me]:null}});setCur(null);render()}});
+ click('finish',()=>saveRound(r));
+ click('rmenu',()=>{conf='menu';render()});
  // rating
  click('rsave',()=>{const x=ask.k==='cur'?r:R(ask.id),ra=parseFloat($('rr').value),sl=parseInt($('rs').value,10),nm=$('rn').value.trim()||'Standard';
   if(!(ra>=55&&ra<=85)){err='Course rating is usually between 55 and 85.';render();return}
@@ -1901,6 +1917,7 @@ function bind(){
  on('[data-delno]',b=>b.onclick=()=>{delConf=null;render()});
  on('[data-delyes]',b=>b.onclick=async()=>{const id=b.dataset.delyes;b.disabled=true;clearTimeout(tmr['rounds/'+id]);delete pend['rounds/'+id];try{await db.doc('rounds/'+id).delete()}catch(e){fail(e);return}delete D['rounds/'+id];if(curId===id)setCur(null);if(openRound===id)openRound=null;delConf=null;say('Round deleted.')});
  on('[data-resume]',b=>b.onclick=()=>{setCur(b.dataset.resume);go('play')});
+ on('[data-edit]',b=>b.onclick=()=>{const id=b.dataset.edit;setCur(id);edit=id;delete hole[id];mode='hole';go('play')});
  on('[data-leave2]',b=>b.onclick=()=>{patch('rounds/'+b.dataset.leave2,{players:{[me]:null}});if(curId===b.dataset.leave2)setCur(null);say('You left that round.')});
  on('[data-fix]',b=>b.onclick=()=>{ask={k:'round',id:b.dataset.fix};err='';render()});
  on('[data-prof]',b=>b.onclick=()=>openProf(b.dataset.prof));
