@@ -167,6 +167,7 @@ table.sc thead th{border-top:0}
 .ptile.none{background:var(--fill);color:var(--mute)}
 :root[data-theme="dark"] .ptile:not(.none){background:#D9B77E;color:#0B1411}
 .plw{border-top:1px solid var(--line);padding:4px 0 12px}
+.parset{margin:0 0 20px}
 .plw .pl{border-top:0;padding:8px 0}
 .pick-now{font-size:40px}
 .pkrow{display:grid;gap:5px}
@@ -1657,7 +1658,7 @@ function scorecard(r){
  h+=`<button class="sctog" id="sctog" aria-expanded="${scOpen}" aria-controls="scfold"><b>Scorecard</b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="scfold${scOpen?' open':''}" id="scfold"><div>${card(r,true,true)}`;
  {const done=j=>r.par[j]&&r.keys.every(k=>r.sc[k][j]!=null),pk=r.par[i];
   h+=`<div class="strip">${r.par.map((_,j)=>`<button class="${done(j)?'done':''}" ${j===i?'aria-current="true"':''} data-h="${j}" aria-label="Hole ${j+1}">${j+1}</button>`).join('')}</div></div></div></div><div class="box entrybox"><div class="entry"><div class="hole"><div class="hl"><span class="lbl">Hole</span><span class="num">${i+1}</span></div><div class="ptile${pk?'':' none'}" aria-label="Par ${pk||'not set'}"><span>Par</span><b>${pk||'?'}</b></div></div>${r.yds||r.si?`<div class="facts">${r.yds?`<span><b>${r.yds[i]}</b> yds</span>`:''}${r.si?`<span>Index <b>${r.si[i]}</b></span>`:''}</div>`:''}`+yards(pk,r.yds&&+r.yds[i]);
-  if(!pk)h+=`<p class="note">Set the par for this hole to start scoring.</p><div class="row">${[3,4,5,6].map(x=>`<button class="chip" data-par="${x}">Par ${x}</button>`).join('')}</div>`;
+  if(!pk)h+=`<p class="note">Set the par for this hole to start scoring.</p><div class="row parset">${[3,4,5,6].map(x=>`<button class="chip" data-par="${x}">Par ${x}</button>`).join('')}</div>`;
   r.keys.forEach(k=>{const sc=r.sc[k],cnt=sc.filter((v,j)=>v!=null&&r.par[j]).length,v=sc[i],nm=kname(r,k);
    h+=`<div class="plw"><div class="pl"><div class="plwho">${face(r.pl[k].uid,nm)}<div><b>${knt(r,k)}</b>${r.pl[k].uid===me?' <span class="sub">(you)</span>':''}<br><span class="tot">${cnt?fmtPar(toPar(sc,r.par))+' thru '+cnt:'not started'}</span></div></div><span class="num pick-now">${v==null?'–':v}</span></div>${pk?picker(k,nm,v,pk):''}</div>`});
   h+=`<p class="swipehint sub">Swipe left or right to change holes.</p><div class="holenav"><div class="hbin"><button class="hbtn" data-nav="-1" ${i?'':'disabled'} aria-label="Previous hole"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>${i?'Hole '+i:''}</button><span class="hbl"><b>Hole ${i+1}</b><small>of ${r.n}</small></span>${i===r.n-1&&allDone(r)?`<button class="hbtn nx" id="finish">${edit===r.id?'Save changes':'Save round'}</button>`:`<button class="hbtn nx" data-nav="${i<r.n-1?1:gap(r)-i}" aria-label="Next hole">Hole ${i<r.n-1?i+2:gap(r)+1}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`}</div></div></div>`;
