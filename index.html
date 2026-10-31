@@ -767,7 +767,7 @@ select{-webkit-appearance:none;appearance:none;min-height:46px;line-height:1.25;
 :root[data-theme="dark"] .atag{background:#D9B77E;color:#0B1411}
 /* Your yards: the signed-in player's own Range averages on the hole, one line that swipes sideways */
 .yrds{display:flex;align-items:center;gap:10px;margin:0 0 10px;min-width:0}
-.ylab{flex:none;font:700 13px "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--metal);white-space:nowrap}
+.ylab{flex:none;font:700 13px/1.15 "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--metal);white-space:nowrap}
 .yscroll{display:flex;gap:6px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .yscroll::-webkit-scrollbar{display:none}
 .yc{flex:none;display:flex;flex-direction:column;align-items:center;min-width:46px;padding:5px 8px 4px;border-radius:10px;background:var(--fill);line-height:1.1;white-space:nowrap}
@@ -1397,7 +1397,7 @@ const CLUB=Object.fromEntries(CLUBS.map(([k,n,sh])=>[k,{n,sh}])),MAXBAG=14,SHOTS
 // The signed-in player's own Range averages for the hole screen (bags are private, so a friend's never load). On a par 3 with a known yardage, the closest club is highlighted
 function yards(par,yds){const b=bag(),ks=b.clubs.filter(k=>k!=='pt'&&b.dist[k]&&Math.round(+b.dist[k].avg)>0);if(!ks.length)return'';
  const av=k=>Math.round(+b.dist[k].avg),best=par===3&&yds>0?ks.reduce((a,k)=>Math.abs(av(k)-yds)<Math.abs(av(a)-yds)?k:a):null;
- return `<div class="yrds" role="group" aria-label="Your Range distances"><span class="ylab">Your yards</span><div class="yscroll">${ks.map(k=>`<span class="yc${k===best?' on':''}" aria-label="${CLUB[k].n}: ${av(k)} yards${k===best?', closest to this hole':''}"><small>${CLUB[k].sh}</small><b class="num">${av(k)}</b></span>`).join('')}</div></div>`}
+ return `<div class="yrds" role="group" aria-label="Your Range distances"><span class="ylab">Your<br>yards</span><div class="yscroll">${ks.map(k=>`<span class="yc${k===best?' on':''}" aria-label="${CLUB[k].n}: ${av(k)} yards${k===best?', closest to this hole':''}"><small>${CLUB[k].sh}</small><b class="num">${av(k)}</b></span>`).join('')}</div></div>`}
 const bag=()=>{const d=me&&doc('bags/'+me)||{};return{clubs:(d.clubs||[]).filter(k=>CLUB[k]).sort((a,b)=>CLUBS.findIndex(c=>c[0]===a)-CLUBS.findIndex(c=>c[0]===b)),dist:d.dist||{}}};
 let bagEdit=false,bagSel=null,rClub=null,rMode=null,rReset=false;/* rMode: null (choosing), 'merge' or 'fresh' */
 const MAXSHOTS=100;/* merged averages keep the most recent 100 shots */
