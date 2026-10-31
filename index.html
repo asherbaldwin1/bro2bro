@@ -805,11 +805,6 @@ html.glass .row:has(>.chip[data-lb]),html.glass .row:has(>.chip[data-scope]),htm
 html.glass .row:has(>.chip[data-lb])>.chip,html.glass .row:has(>.chip[data-scope])>.chip,html.glass .row:has(>.chip[data-admtab])>.chip,html.glass .row:has(>.chip[data-fba])>.chip{flex:1;margin:0;background:none!important;box-shadow:none;min-height:36px;padding:6px 10px;font-size:14.5px}
 html.glass .row:has(>.chip[data-lb])>.chip[aria-pressed=true],html.glass .row:has(>.chip[data-scope])>.chip[aria-pressed=true],html.glass .row:has(>.chip[data-admtab])>.chip[aria-pressed=true],html.glass .row:has(>.chip[data-fba])>.chip[aria-pressed=true]{background:var(--g-btn)!important;color:var(--g-btnink)!important;box-shadow:0 2px 8px rgba(0,0,0,.18)}
 html.glass .box .row:has(>.chip[data-fba]){background:var(--g-inner);box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
-html.glass .row:has(>.chip[data-lb],>.chip[data-scope],>.chip[data-admtab],>.chip[data-fba]){position:relative}
-html.glass .row:has(>.segpill)>.chip{position:relative;z-index:1}
-@property --segc{syntax:'<color>';inherits:false;initial-value:transparent}
-html.glass .segpill{position:absolute;z-index:0;border-radius:999px;background:var(--g-btn);box-shadow:0 2px 8px rgba(0,0,0,.18);pointer-events:none}
-
 
 /* grouped lists and tiles inside cards */
 html.glass .slist{background:var(--g-inner)!important;border-radius:16px}
@@ -1199,41 +1194,16 @@ function render(){
  paintTheme();rmPaint();delPaint();confPaint();
  const noteH=note?`<p class="toast">${esc(note)}</p>`:'';if(noteH!==lastNote){lastNote=noteH;$('note').innerHTML=noteH}
  const html=main();if(html===lastView)return;lastView=html;
- const v=$('view'),seg=segRead();v.innerHTML=html;
+ const v=$('view');v.innerHTML=html;
  // On a computer, card pages flow into two columns; Play stays one column
  const two=state==='ok'&&COLS.includes(tab)&&!(tab==='rounds'&&ask);
  v.classList.toggle('cols',two);v.classList.toggle('narrow',!two&&tab!=='home');
  if(two&&wide())pack(v);
  for(const k in keep){const i=$(k);if(i&&(i.tagName==='INPUT'||i.tagName==='TEXTAREA')&&k!=='q')i.value=keep[k]}
  if(fid){const i=$(fid);if(i){i.focus();try{ss&&i.setSelectionRange(ss[0],ss[1])}catch(e){}}}
- bind();segSlide(seg);
+ bind();
 }
 let lastView=null,lastNav=null,lastNote=null;
-// Glass look: in a switch row, the highlight slides to the new choice, stretching across both on the way like a drop of liquid.
-// The row on screen is kept (not redrawn) so it doesn't flash, and only its labels and handlers are updated.
-const SEGK=['lb','scope','admtab','fba'];
-function segRead(){const m={};if(!document.documentElement.classList.contains('glass'))return m;
- document.querySelectorAll('#view .chip[aria-pressed=true]').forEach(c=>{const k=SEGK.find(k=>k in c.dataset);if(!k)return;
-  const row=c.parentElement,r=row.getBoundingClientRect(),p=row.querySelector('.segpill'),b=(p||c).getBoundingClientRect();
-  if(p)row.querySelectorAll('*').forEach(x=>{x.getAnimations().forEach(a=>a.cancel());x.style.removeProperty('color')});const u=[...row.children].find(x=>x.classList.contains('chip')&&x!==c);
-  m[k]={l:b.left-r.left,w:b.width,v:c.dataset[k],row,P:getComputedStyle(c).color,U:u?getComputedStyle(u).color:''}});return m}
-function segSlide(old){if(calm())return;
- document.querySelectorAll('#view .chip[aria-pressed=true]').forEach(n=>{const k=SEGK.find(k=>k in n.dataset),o=k&&old[k];if(!o||o.v===n.dataset[k])return;
-  const nr=n.parentElement,row=o.row,chips=e=>[...e.children].filter(x=>x.classList.contains('chip')),nc=chips(nr),oc=chips(row);if(nc.length!==oc.length)return;
-  oc.forEach((x,i)=>{const y=nc[i];x.setAttribute('aria-pressed',y.getAttribute('aria-pressed'));x.dataset[k]=y.dataset[k];x.onclick=y.onclick;if(x.textContent!==y.textContent)x.textContent=y.textContent});
-  row.setAttribute('style',nr.getAttribute('style')||'');nr.replaceWith(row);
-  const c=oc[nc.indexOf(n)],r=row.getBoundingClientRect(),b=c.getBoundingClientRect(),l=b.left-r.left,w=b.width,a=Math.min(o.l,l),z=Math.max(o.l+o.w,l+w);
-  const p=document.createElement('i');p.className='segpill';p.style.top=b.top-r.top+'px';p.style.height=b.height+'px';row.prepend(p);
-  c.style.setProperty('background','none','important');c.style.setProperty('box-shadow','none','important');
-  // labels take the highlight's text color while it covers them
-  const E={duration:460,easing:'cubic-bezier(.3,.7,.2,1)'},P=o.P,U=o.U;
-  // (the glass styles set label colors as !important, which beats animations, so the label reads a color variable that is animated instead)
-  const tint=(x,f)=>{x.style.setProperty('color','var(--segc)','important');x.animate(f.map(([v,t])=>t==null?{'--segc':v}:{'--segc':v,offset:t}),E).onfinish=()=>x.style.removeProperty('color')};
-  if(U)oc.forEach(x=>{const q=x.getBoundingClientRect(),xl=q.left-r.left;if(x===c)tint(x,[[U],[U,.05],[P,.3],[P]]);
-   else if(Math.abs(xl-o.l)<1)tint(x,[[P],[P,.65],[U,.92],[U]]);
-   else if(xl>=a&&xl+q.width<=z)tint(x,[[U],[U,.2],[P,.45],[U,.75],[U]])});
-  const an=p.animate([{left:o.l+'px',width:o.w+'px',transform:'none'},{left:a+'px',width:(z-a)+'px',transform:'scaleY(.82)',offset:.45},{left:l+'px',width:w+'px',transform:'none'}],E);
-  an.onfinish=an.oncancel=()=>{p.remove();['background','box-shadow'].forEach(n=>c.style.removeProperty(n))}})}
 const COLS=['rounds','people','leaders','settings','admin'];
 const wide=()=>matchMedia('(min-width:960px)').matches;
 // Stacks each run of cards into two columns, each card going to the shorter column, so there are no gaps under short cards
