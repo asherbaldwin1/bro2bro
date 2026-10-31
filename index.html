@@ -171,6 +171,9 @@ table.sc thead th{border-top:0}
 .parset{margin:0 0 20px}
 .plw .pl{border-top:0;padding:6px 0 4px}
 .plw .fav.sm{width:26px;height:26px;font-size:14px}
+.tmhd{display:flex;align-items:baseline;justify-content:space-between;margin:14px 0 2px}
+.tmrow{gap:12px}.tmrow .plnm{flex:1;font-weight:600}.tmseg{margin:0;flex:0 0 auto}.tmseg button{white-space:nowrap;padding:8px 14px;min-height:40px}
+.tmwho{display:block;color:var(--mute);font-size:13px;overflow:hidden;text-overflow:ellipsis}
 .plw .plwho{gap:8px}.plnm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .plw .tot{flex:none;margin-left:10px;font-size:14px}
 .pkrow{display:grid;gap:5px}
@@ -844,9 +847,9 @@ html.glass .acctbtn{box-shadow:0 0 0 .5px var(--g-edge),0 2px 8px rgba(0,0,0,.2)
 /* chips, and chip rows used as switches become one iOS segmented control */
 html.glass .chip{background:var(--g-chip)!important;color:var(--g-ink)!important;box-shadow:inset 0 0 0 .5px var(--g-edge)}
 html.glass .chip[aria-pressed=true]{background:var(--g-btn)!important;color:var(--g-btnink)!important;box-shadow:none}
-html.glass .row:has(>.chip[data-lb]),html.glass .row:has(>.chip[data-scope]),html.glass .row:has(>.chip[data-admtab]),html.glass .row:has(>.chip[data-fba]){display:flex;flex-wrap:nowrap;gap:2px;padding:3px;border-radius:999px;background:var(--g-glass);-webkit-backdrop-filter:blur(24px) saturate(170%);backdrop-filter:blur(24px) saturate(170%);box-shadow:inset 0 0 0 .5px var(--g-edge)}
-html.glass .row:has(>.chip[data-lb])>.chip,html.glass .row:has(>.chip[data-scope])>.chip,html.glass .row:has(>.chip[data-admtab])>.chip,html.glass .row:has(>.chip[data-fba])>.chip{flex:1;margin:0;background:none!important;box-shadow:none;min-height:36px;padding:6px 10px;font-size:14.5px}
-html.glass .row:has(>.chip[data-lb])>.chip[aria-pressed=true],html.glass .row:has(>.chip[data-scope])>.chip[aria-pressed=true],html.glass .row:has(>.chip[data-admtab])>.chip[aria-pressed=true],html.glass .row:has(>.chip[data-fba])>.chip[aria-pressed=true]{background:var(--g-btn)!important;color:var(--g-btnink)!important;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+html.glass .row:has(>.chip[data-lb]),html.glass .row:has(>.chip[data-fmt]),html.glass .row:has(>.chip[data-scope]),html.glass .row:has(>.chip[data-admtab]),html.glass .row:has(>.chip[data-fba]){display:flex;flex-wrap:nowrap;gap:2px;padding:3px;border-radius:999px;background:var(--g-glass);-webkit-backdrop-filter:blur(24px) saturate(170%);backdrop-filter:blur(24px) saturate(170%);box-shadow:inset 0 0 0 .5px var(--g-edge)}
+html.glass .row:has(>.chip[data-lb])>.chip,html.glass .row:has(>.chip[data-fmt])>.chip,html.glass .row:has(>.chip[data-scope])>.chip,html.glass .row:has(>.chip[data-admtab])>.chip,html.glass .row:has(>.chip[data-fba])>.chip{flex:1;margin:0;background:none!important;box-shadow:none;min-height:36px;padding:6px 10px;font-size:14.5px}
+html.glass .row:has(>.chip[data-lb])>.chip[aria-pressed=true],html.glass .row:has(>.chip[data-fmt])>.chip[aria-pressed=true],html.glass .row:has(>.chip[data-scope])>.chip[aria-pressed=true],html.glass .row:has(>.chip[data-admtab])>.chip[aria-pressed=true],html.glass .row:has(>.chip[data-fba])>.chip[aria-pressed=true]{background:var(--g-btn)!important;color:var(--g-btnink)!important;box-shadow:0 2px 8px rgba(0,0,0,.18)}
 html.glass .box .row:has(>.chip[data-fba]){background:var(--g-inner);box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
 
 /* grouped lists and tiles inside cards */
@@ -1209,7 +1212,7 @@ let curId=null;try{curId=localStorage.getItem('weekend-round-cur')}catch(e){}
 let edit=null; // id of a saved round reopened to fix its scores
 let scOpen=false; // round scorecard rolled open (starts closed so the hole has the focus)
 const setCur=id=>{curId=id;if(id!==edit)edit=null;try{id?localStorage.setItem('weekend-round-cur',id):localStorage.removeItem('weekend-round-cur')}catch(e){}};
-let conf=null,tab=(()=>{try{const h=location.hash.slice(1);return ['play','rounds','people','leaders','range','settings','admin'].includes(h)?h:'home'}catch(e){return 'home'}})(),mode='hole',q='',st=(()=>{try{return localStorage.getItem('ww-state')||'AZ'}catch(e){return 'AZ'}})(),pick=null,teeSel=(()=>{try{return localStorage.getItem('ww-tee')||'White'}catch(e){return 'White'}})(),holes=18,sel=new Set(),guests=[],ask=null,adding=false,err='',af={n:'',c:'',s:'AZ'},openRound=null,editName=false,scope='mine',impSel=null;
+let conf=null,tab=(()=>{try{const h=location.hash.slice(1);return ['play','rounds','people','leaders','range','settings','admin'].includes(h)?h:'home'}catch(e){return 'home'}})(),mode='hole',q='',st=(()=>{try{return localStorage.getItem('ww-state')||'AZ'}catch(e){return 'AZ'}})(),pick=null,teeSel=(()=>{try{return localStorage.getItem('ww-tee')||'White'}catch(e){return 'White'}})(),holes=18,sel=new Set(),guests=[],fmt='stroke',teamOf={},ask=null,adding=false,err='',af={n:'',c:'',s:'AZ'},openRound=null,editName=false,scope='mine',impSel=null;
 const hole={};
 let OLD=null;try{const x=JSON.parse(localStorage.getItem('weekend-round-v2')||'null');if(x&&x.rounds&&x.rounds.length&&!localStorage.getItem('weekend-round-imported'))OLD=x}catch(e){}
 
@@ -1241,12 +1244,21 @@ function R(id){const d=doc('rounds/'+id);if(!d)return null;const n=holesN(d.n);
  const ps=Object.entries(d.players||{}).filter(([k,v])=>v).sort((a,b)=>(a[1].o||0)-(b[1].o||0));
  const keys=ps.map(x=>x[0]),sc={};keys.forEach(k=>sc[k]=nums(d.scores&&d.scores[k],n));
  const list=a=>Array.isArray(a)?a.map(num):null;
- return{...d,id,n,date:ymd(d.date),rating:num(d.rating),slope:num(d.slope),yds:list(d.yds),si:list(d.si),par:nums(d.par,n),keys,pl:Object.fromEntries(ps),sc}}
+ // Scramble: each player has a team (t: 1 or 2) and each team has one score (scores.T1, scores.T2). Every member's sc points at their team's.
+ const scr=d.fmt==='scr',teams=scr?[1,2].map(t=>({k:'T'+t,n:'Team '+t,m:keys.filter(k=>(ps.find(x=>x[0]===k)[1].t===2?2:1)===t)})).filter(x=>x.m.length):null;
+ if(scr)teams.forEach(x=>{sc[x.k]=nums(d.scores&&d.scores[x.k],n);x.m.forEach(k=>sc[k]=sc[x.k])});
+ return{...d,id,n,date:ymd(d.date),rating:num(d.rating),slope:num(d.slope),yds:list(d.yds),si:list(d.si),par:nums(d.par,n),keys,pl:Object.fromEntries(ps),sc,scr,teams}}
+// the score rows in a round: one per golfer, or one per team in a scramble
+const units=r=>r.scr?r.teams.map(x=>x.k):r.keys;
+const tmNames=(r,x)=>{const a=x.m.map(k=>short(kname(r,k)));return a.length<3?a.join(' & '):a.slice(0,-1).join(', ')+' & '+a[a.length-1]};
+const uname=(r,k)=>{const x=r.scr&&r.teams.find(y=>y.k===k);return x?x.n:kname(r,k)};
+const uhtml=(r,k)=>{const x=r.scr&&r.teams.find(y=>y.k===k);return x?`${esc(x.n)} <span class="sub">${esc(tmNames(r,x))}</span>`:knt(r,k)};
+const uface=(r,k,cls)=>{const x=r.scr&&r.teams.find(y=>y.k===k);return x?`<span class="fav${cls?' '+cls:''}" style="--c:var(--${x.k==='T1'?'green':'ink'})" aria-hidden="true">${x.k.slice(1)}</span>`:face(r.pl[k].uid,kname(r,k),cls)};
 const rounds=()=>Object.keys(D).filter(k=>k.startsWith('rounds/')).map(k=>R(k.slice(7))).filter(Boolean);
 const kname=(r,k)=>{const p=r.pl[k];return p.uid?pname(p.uid):(p.name||'Guest')};
 const short=s=>{const w=String(s).split(' ')[0];return w.length>8?w.slice(0,7)+'…':w};
 const thru=r=>Math.max(0,...r.keys.map(k=>r.sc[k].filter(v=>v!=null).length));
-const counts=r=>r.status==='done'&&r.n===18&&r.par.every(Boolean)&&r.rating&&r.slope;
+const counts=r=>!r.scr&&r.status==='done'&&r.n===18&&r.par.every(Boolean)&&r.rating&&r.slope;
 const byDate=(a,b)=>a.date<b.date?-1:a.date>b.date?1:(a.created||0)-(b.created||0);
 function diffs(uid){return rounds().filter(r=>counts(r)&&r.pl[uid]&&r.sc[uid].every(v=>v!=null)).sort(byDate).map(r=>({d:r.date,v:Math.round(113/r.slope*(sum(r.sc[uid])-r.rating)*10)/10}))}
 function ixOf(d){d=d.slice(-20);if(d.length<3)return null;const k=LOW[d.length],a=d.map(x=>x.v).sort((x,y)=>x-y).slice(0,k);return Math.round((sum(a)/k+(ADJ[d.length]||0))*10)/10}
@@ -1410,14 +1422,14 @@ function home(){
  h+=card('leaders','c-leaders','Leaderboards',lb?'Leader: <b>'+pnt(lb.id)+'</b>':'See who’s on top.','');
  {const b=bag(),n=b.clubs.filter(c=>b.dist[c]).length;h+=card('range','c-rounds','Range',b.clubs.length?`<b>${n}</b> of ${b.clubs.filter(c=>c!=='pt').length} measured`:'Club distances.','')}
 
- {const mine=done.filter(r=>r.pl[me]&&r.sc[me].some(v=>v!=null)).sort(byDate),n=Object.keys(milestones(me,mine)).length;h+=card('profile','c-rounds c-prof','My profile',n?`<b>${n}</b> of ${MS.length} milestones`:'Your stats and milestones.','')}
+ {const mine=done.filter(r=>!r.scr&&r.pl[me]&&r.sc[me].some(v=>v!=null)).sort(byDate),n=Object.keys(milestones(me,mine)).length;h+=card('profile','c-rounds c-prof','My profile',n?`<b>${n}</b> of ${MS.length} milestones`:'Your stats and milestones.','')}
  return h+'</div>';
 }
 /* ---------- leaderboards ---------- */
 let lbScope='all';
 function stats(uid,sc=lbScope){
  const yr=String(new Date().getFullYear());
- const rs=rounds().filter(r=>r.status==='done'&&r.pl[uid]&&(sc==='all'||String(r.date||'').startsWith(yr)));
+ const rs=rounds().filter(r=>r.status==='done'&&!r.scr&&r.pl[uid]&&(sc==='all'||String(r.date||'').startsWith(yr)));
  let played=0,birdies=0,pars=0,holes=0,best=null,full=[];
  rs.forEach(r=>{const sc=r.sc[uid];if(!sc.some(v=>v!=null))return;played++;
   sc.forEach((v,j)=>{if(v==null||!r.par[j])return;holes++;if(v<r.par[j])birdies++;if(v<=r.par[j])pars++});
@@ -1657,20 +1669,32 @@ let nearCache=null;
 function nearby(){const key=geo.at+'|'+added().length;if(nearCache&&nearCache.key===key)return nearCache.list;
  const list=all().filter(c=>c.la!=null&&!gone(c.id)).map(c=>({...c,mi:miles(geo.pos,[c.la,c.lo])})).filter(c=>c.mi<=NEAR_MI).sort((a,b)=>a.mi-b.mi);
  nearCache={key,list};return list}
+// Who's in the round being set up, in order: [key, name]. Guests are keyed by name until the round starts.
+const roster=()=>[[me,pname(me)+' (you)'],...friends().filter(p=>sel.has(p.id)).map(p=>[p.id,pname(p.id)]),...guests.map(g=>['g:'+g,g])];
+const isScr=()=>fmt==='scr'&&roster().length>1;
+// a golfer's team: the one picked, or first half on Team 1 and the rest on Team 2
+const teamFor=(k,i,n)=>teamOf[k]||(i<Math.ceil(n/2)?1:2);
+const teamsOk=()=>{const L=roster(),t=L.map(([k],i)=>teamFor(k,i,L.length));return t.includes(1)&&t.includes(2)};
+function fmtBox(){const L=roster();if(L.length<2)return '';
+ let h=`<div class="box"><b>Format</b><div class="row" style="margin-top:8px"><button class="chip" aria-pressed="${fmt!=='scr'}" data-fmt="stroke">Stroke play</button><button class="chip" aria-pressed="${fmt==='scr'}" data-fmt="scr">Scramble</button></div>`;
+ if(fmt!=='scr')return h+'<p class="sub" style="margin:8px 0 0">Everyone plays their own ball and keeps their own score.</p></div>';
+ const t=L.map(([k],i)=>teamFor(k,i,L.length)),n1=t.filter(x=>x===1).length;
+ h+=`<p class="sub" style="margin:8px 0 0">Each team picks its best shot and keeps one score. Scrambles don’t count toward handicap or the leaderboards.</p><div class="tmhd"><b>Teams</b><span class="sub">${n1} v ${L.length-n1}</span></div>`;
+ return h+L.map(([k,nm],i)=>`<div class="pl tmrow"><span class="plnm">${esc(nm)}</span><div class="seg tmseg" role="radiogroup" aria-label="${esc(nm)}’s team">${[1,2].map(x=>`<button role="radio" data-tm="${esc(k)}" data-t="${x}" aria-checked="${t[i]===x}" aria-selected="${t[i]===x}">Team ${x}</button>`).join('')}</div></div>`).join('')+'</div>'}
 function setup(){
  let h=ro()+importBox();
  const live=rounds().filter(r=>r.status==='live'&&Date.now()-(r.created||0)<18*36e5&&touchesCircle(r));
- if(live.length)h+=box(`<b>Live now</b>${live.map(r=>{const mine=!!r.pl[me];return `<div class="pl"><div><b>${esc(r.cn)}</b><br><span class="tot">${esc(r.keys.map(k=>kname(r,k)).join(', '))} · thru ${thru(r)}</span></div>${mine?`<button class="btn" data-open="${r.id}">Open</button>`:canWrite&&r.keys.length<4?`<button class="btn alt" data-join="${r.id}">Join</button>`:`<button class="btn alt" data-peek="${r.id}">View</button>`}</div>`}).join('')}`);
+ if(live.length)h+=box(`<b>Live now</b>${live.map(r=>{const mine=!!r.pl[me];return `<div class="pl"><div><b>${esc(r.cn)}</b><br><span class="tot">${esc(r.keys.map(k=>kname(r,k)).join(', '))} · thru ${thru(r)}</span></div>${mine?`<button class="btn" data-open="${r.id}">Open</button>`:canWrite&&!r.scr&&r.keys.length<4?`<button class="btn alt" data-join="${r.id}">Join</button>`:`<button class="btn alt" data-peek="${r.id}">View</button>`}</div>`}).join('')}`);
  if(!canWrite)return h||box('<p class="empty">No rounds in progress.</p>');
  const fr=friends();
- h+=`<div class="box"><b>Who’s playing</b><p class="sub">Just you for a solo round. Friends you add see this round on their own phone and can enter scores too.</p><div class="row"><span class="chip" aria-pressed="true">${esc(pname(me))} (you)</span>${fr.map(p=>`<button class="chip" aria-pressed="${sel.has(p.id)}" data-sel="${p.id}">${esc(pname(p.id))}</button>`).join('')}${guests.map((g,i)=>`<button class="chip" aria-pressed="true" data-ung="${i}" aria-label="Remove ${esc(g)}">${esc(g)} ×</button>`).join('')}</div>${fr.length?'':'<p class="sub" style="margin-top:8px">Add friends to play with them. <button class="linkbtn" data-go="people">Find friends</button></p>'}<div class="row" style="margin-top:8px"><input id="gn" placeholder="Guest without the app" maxlength="24" style="flex:1;margin:0;min-width:150px"><button class="btn alt" id="addg">Add guest</button></div></div><div class="box">`;
+ h+=`<div class="box"><b>Who’s playing</b><p class="sub">Just you for a solo round. Friends you add see this round on their own phone and can enter scores too.</p><div class="row"><span class="chip" aria-pressed="true">${esc(pname(me))} (you)</span>${fr.map(p=>`<button class="chip" aria-pressed="${sel.has(p.id)}" data-sel="${p.id}">${esc(pname(p.id))}</button>`).join('')}${guests.map((g,i)=>`<button class="chip" aria-pressed="true" data-ung="${i}" aria-label="Remove ${esc(g)}">${esc(g)} ×</button>`).join('')}</div>${fr.length?'':'<p class="sub" style="margin-top:8px">Add friends to play with them. <button class="linkbtn" data-go="people">Find friends</button></p>'}<div class="row" style="margin-top:8px"><input id="gn" placeholder="Guest without the app" maxlength="24" style="flex:1;margin:0;min-width:150px"><button class="btn alt" id="addg">Add guest</button></div></div>`+fmtBox()+`<div class="box">`;
  if(adding)return h+addForm()+'</div>';
  h+=`<label for="q"><b>Course</b></label><div class="row"><input id="q" type="search" style="flex:2;min-width:150px" placeholder="Name or city" value="${esc(q)}"><select id="st" style="flex:1;min-width:110px" aria-label="State"><option value="">All states</option>${STATES.map(s=>`<option ${s===st?'selected':''}>${s}</option>`).join('')}</select></div>`;
  if(pick&&course(pick)){const c=course(pick),d=cdata(c),n=d.par?d.par.length:(d.n||c.hc);
   h+=`<p><b>${esc(c.n)}</b>${d.ok?VTAG:''}<br><span class="sub">${esc(c.t)}${c.t&&c.s?', ':''}${esc(c.s)}${n?' · '+n+' holes':''}${d.par&&d.par.every(Boolean)?' · par '+sum(d.par):''}</span></p>`;
   if(!d.par)h+=`<p class="note">This course has no pars on file yet. You’ll set each hole’s par as you play, and it’s saved with your round.</p>`;
   if(!n)h+=`<p><b>Holes</b></p><div class="row">${[9,18].map(x=>`<button class="chip" aria-pressed="${holes===x}" data-holes="${x}">${x}</button>`).join('')}</div>`;
-  h+=`<label for="tee"><b>Tees</b></label>${(()=>{const L=teeList(c),cur=pickTee(L);return `<div class="teepick"><span class="dot big" style="background:${teeColor(cur)}"></span><select id="tee">${L.map(t=>`<option value="${esc(t.n)}" ${t===cur?'selected':''}>${esc(t.n)}${t.y?' · '+sum(t.y).toLocaleString()+' yds':''}${t.r&&t.s?' · '+Number(t.r).toFixed(1)+' / '+t.s:''}</option>`).join('')}</select></div><p class="sub" style="margin-top:-2px">${cur.r?`Course rating ${Number(cur.r).toFixed(1)} and slope ${cur.s} count toward your handicap.`:'No rating on file for these tees yet. When you finish, you can add the rating and slope from the scorecard so the round counts toward handicap.'}</p>`})()}<button class="btn" id="start">Start ${sel.size||guests.length?'group':'solo'} round</button> <button class="btn alt" id="back">Change course</button>`;
+  h+=`<label for="tee"><b>Tees</b></label>${(()=>{const L=teeList(c),cur=pickTee(L);return `<div class="teepick"><span class="dot big" style="background:${teeColor(cur)}"></span><select id="tee">${L.map(t=>`<option value="${esc(t.n)}" ${t===cur?'selected':''}>${esc(t.n)}${t.y?' · '+sum(t.y).toLocaleString()+' yds':''}${t.r&&t.s?' · '+Number(t.r).toFixed(1)+' / '+t.s:''}</option>`).join('')}</select></div><p class="sub" style="margin-top:-2px">${cur.r?`Course rating ${Number(cur.r).toFixed(1)} and slope ${cur.s} count toward your handicap.`:'No rating on file for these tees yet. When you finish, you can add the rating and slope from the scorecard so the round counts toward handicap.'}</p>`})()}${(()=>{const sc=isScr(),bad=sc&&!teamsOk();return `${bad?'<p class="over">Put at least one golfer on each team.</p>':''}<button class="btn" id="start"${bad?' disabled':''}>Start ${sc?'scramble':sel.size||guests.length?'group round':'solo round'}</button>`})()} <button class="btn alt" id="back">Change course</button>`;
  }else{
   const k=q.toLowerCase().trim();locate();
   const row=c=>`<button class="course" data-c="${c.id}">${esc(c.n)}${cdata(c).ok?VTAG:''}<br><small>${esc(c.t)}${c.t&&c.s?', ':''}${esc(c.s)}${c.mi!=null?' · '+(c.mi<10?c.mi.toFixed(1):Math.round(c.mi))+' mi':''} · ${c.p||cdata(c).par?'pars':'pars needed'} · ${cdata(c).ad?cdata(c).tees.length+' tees':cdata(c).tees.length?'rating on file':'rating needed'}</small></button>`;
@@ -1696,12 +1720,12 @@ function card(r,tap,compact){const cur=tap?hole[r.id]:-1;
  const parts=r.n>9?[[0,9,'Out'],[9,r.n,'In']]:[[0,r.n,'Tot']];let h='';
  parts.forEach(([a,b,lab])=>{const idx=Array.from({length:b-a},(_,x)=>x+a);
   h+=`<div class="cardwrap"><table class="sc"><thead><tr><th scope="col">Hole</th>${idx.map(j=>`<th scope="col"${j===cur?' class="cur"':''}>${j+1}</th>`).join('')}<th scope="col">${lab}</th></tr></thead><tbody><tr class="par"><th scope="row">Par</th>${idx.map(j=>`<td${j===cur?' class="cur"':''}>${r.par[j]||'–'}</td>`).join('')}<td>${sum(idx.map(j=>r.par[j]))||''}</td></tr>`;
-  r.keys.forEach(k=>{const s=r.sc[k],nm=kname(r,k);
-   h+=`<tr><th scope="row" title="${esc(nm)}">${esc(short(nm))}</th>${idx.map(j=>{const v=s[j],p=r.par[j],d=v==null||!p?null:v-p,c=d==null?'':d<=-2?'e':d===-1?'b':d===1?'o':d>=2?'d':'';
+  units(r).forEach(k=>{const s=r.sc[k],nm=uname(r,k);
+   h+=`<tr><th scope="row" title="${esc(nm)}">${esc(r.scr?nm:short(nm))}</th>${idx.map(j=>{const v=s[j],p=r.par[j],d=v==null||!p?null:v-p,c=d==null?'':d<=-2?'e':d===-1?'b':d===1?'o':d>=2?'d':'';
     return `<td${j===cur?' class="cur"':''}>${tap?`<button class="cell ${c}" data-cell="${j}" aria-label="${esc(nm)}, hole ${j+1}: ${v==null?'no score':v}">${v==null?'':v}</button>`:`<span class="cell ${c}">${v==null?'':v}</span>`}</td>`}).join('')}<td class="t">${sum(idx.map(j=>s[j]))||''}</td></tr>`});
   h+='</tbody></table></div>'});
  if(compact)return h;
- h+=`<table class="tots">${r.keys.map(k=>{const s=r.sc[k],c=s.filter(v=>v!=null).length;return `<tr><td>${knt(r,k)}${r.pl[k].uid===me?' <span class="sub">(you)</span>':''}${r.pl[k].uid?'':' <span class="sub">guest</span>'}</td><td class="r sub">${c===r.n?'':c?'thru '+c:''}</td><td class="r num big">${sum(s)||'–'}</td><td class="r ${toPar(s,r.par)>0?'over':''}">${c?fmtPar(toPar(s,r.par)):''}</td></tr>`}).join('')}</table>`;
+ h+=`<table class="tots">${units(r).map(k=>{const s=r.sc[k],c=s.filter(v=>v!=null).length;return `<tr><td>${r.scr?uhtml(r,k):`${knt(r,k)}${r.pl[k].uid===me?' <span class="sub">(you)</span>':''}${r.pl[k].uid?'':' <span class="sub">guest</span>'}`}</td><td class="r sub">${c===r.n?'':c?'thru '+c:''}</td><td class="r num big">${sum(s)||'–'}</td><td class="r ${toPar(s,r.par)>0?'over':''}">${c?fmtPar(toPar(s,r.par)):''}</td></tr>`}).join('')}</table>`;
  return h+`<p class="legend sub"><span class="cell b">3</span> birdie <span class="cell e">2</span> eagle or better <span class="cell o">5</span> bogey <span class="cell d">6</span> double or worse</p>`;
 }
 const SHORT={Ace:'Ace',Alb:'Alb',Eagle:'Eagl',Birdie:'Brd',Par:'Par',Bogey:'Bog',Double:'Dbl',Triple:'Trp'};
@@ -1714,17 +1738,17 @@ function scorecard(r){
  let i=hole[r.id];if(i==null){i=r.par.findIndex((p,j)=>!r.keys.every(k=>r.sc[k][j]!=null));if(i<0)i=r.n-1;hole[r.id]=i}
  const host=r.host===me,solo=r.keys.length===1;
  const lbl=edit===r.id?'Delete round':r.host===me||owner?'Discard round':'Leave round',drop=r.host===me||owner||edit!==r.id;
- let h=`<div class="box sbox"><div class="rtop"><button class="rinfo" id="sctog" aria-expanded="${scOpen}" aria-controls="scfold"><b>${esc(r.cn)}</b><span class="sub"><span class="scl">Scorecard<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span> · ${edit===r.id?'editing a saved round':`${r.tn?esc(r.tn)+' tees':'tees to add later'} · ${solo?'solo round':r.keys.length+' players · live for everyone'}`}</span></button><div class="rbtns"><button class="btn" id="rndsave" aria-label="Save round" title="Save round">${CHECK}</button><button class="btn alt" id="close" aria-label="Close" title="Close">${XMARK}</button>${drop?`<button class="btn alt rdel" id="rnddrop" aria-label="${lbl}" title="${lbl}">${TRASH}</button>`:''}</div></div>`;
+ let h=`<div class="box sbox"><div class="rtop"><button class="rinfo" id="sctog" aria-expanded="${scOpen}" aria-controls="scfold"><b>${esc(r.cn)}</b><span class="sub"><span class="scl">Scorecard<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span> · ${edit===r.id?'editing a saved round':`${r.tn?esc(r.tn)+' tees':'tees to add later'} · ${r.scr?'scramble · '+r.teams.map(x=>x.m.length).join(' v '):solo?'solo round':r.keys.length+' players · live for everyone'}`}</span></button><div class="rbtns"><button class="btn" id="rndsave" aria-label="Save round" title="Save round">${CHECK}</button><button class="btn alt" id="close" aria-label="Close" title="Close">${XMARK}</button>${drop?`<button class="btn alt rdel" id="rnddrop" aria-label="${lbl}" title="${lbl}">${TRASH}</button>`:''}</div></div>`;
  h+=`<div class="scfold${scOpen?' open':''}" id="scfold"><div>${card(r,true,true)}`;
  {const done=j=>r.par[j]&&r.keys.every(k=>r.sc[k][j]!=null),pk=r.par[i];
   h+=`<div class="strip">${r.par.map((_,j)=>`<button class="${done(j)?'done':''}" ${j===i?'aria-current="true"':''} data-h="${j}" aria-label="Hole ${j+1}">${j+1}</button>`).join('')}</div></div></div></div><div class="box entrybox"><div class="entry"><div class="hole"><div class="hleft"><div class="hl"><span class="lbl">Hole</span><span class="num">${i+1}</span></div>${r.yds||r.si?`<div class="facts">${r.yds?`<span><b>${r.yds[i]}</b> yds</span>`:''}${r.si?`<span>Index <b>${r.si[i]}</b></span>`:''}</div>`:''}</div><div class="ptile${pk?'':' none'}" aria-label="Par ${pk||'not set'}"><span>Par</span><b>${pk||'?'}</b></div></div>`+yards(pk,r.yds&&+r.yds[i]);
   if(!pk)h+=`<p class="note">Set the par for this hole to start scoring.</p><div class="row parset">${[3,4,5,6].map(x=>`<button class="chip" data-par="${x}">Par ${x}</button>`).join('')}</div>`;
-  r.keys.forEach(k=>{const sc=r.sc[k],cnt=sc.filter((v,j)=>v!=null&&r.par[j]).length,v=sc[i],nm=kname(r,k);
-   h+=`<div class="plw"><div class="pl"><div class="plwho">${face(r.pl[k].uid,nm,'sm')}<div class="plnm"><b>${knt(r,k)}</b>${r.pl[k].uid===me?' <span class="sub">(you)</span>':''}</div></div><span class="tot">${cnt?fmtPar(toPar(sc,r.par))+' thru '+cnt:'not started'}</span></div>${pk?picker(k,nm,v,pk):''}</div>`});
+  units(r).forEach(k=>{const sc=r.sc[k],cnt=sc.filter((v,j)=>v!=null&&r.par[j]).length,v=sc[i],nm=uname(r,k),mine=r.scr?r.teams.find(x=>x.k===k).m.includes(me):r.pl[k].uid===me;
+   h+=`<div class="plw"><div class="pl"><div class="plwho">${uface(r,k,'sm')}<div class="plnm"><b>${r.scr?esc(nm):knt(r,k)}</b>${mine?' <span class="sub">(you)</span>':''}${r.scr?`<small class="tmwho">${esc(tmNames(r,r.teams.find(x=>x.k===k)))}</small>`:''}</div></div><span class="tot">${cnt?fmtPar(toPar(sc,r.par))+' thru '+cnt:'not started'}</span></div>${pk?picker(k,nm,v,pk):''}</div>`});
   h+=`${i?'':'<p class="swipehint sub">Swipe left or right to change holes.</p>'}<div class="holenav"><div class="hbin"><button class="hbtn" data-nav="-1" ${i?'':'disabled'} aria-label="Previous hole"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>${i?'Hole '+i:''}</button><span class="hbl"><b>Hole ${i+1}</b><small>of ${r.n}</small></span>${i===r.n-1&&allDone(r)?`<button class="hbtn nx" id="finish">${edit===r.id?'Save changes':'Save round'}</button>`:`<button class="hbtn nx" data-nav="${i<r.n-1?1:gap(r)-i}" aria-label="Next hole">Hole ${i<r.n-1?i+2:gap(r)+1}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`}</div></div></div>`;
  }
  const fr=friends().filter(p=>!r.pl[p.id]);
- if(r.keys.length<4)h+=`<details class="addp"><summary>Add a player to this round</summary>${fr.length?`<div class="row" style="margin-top:8px">${fr.map(p=>`<button class="chip" data-addf="${p.id}">+ ${esc(pname(p.id))}</button>`).join('')}</div>`:''}<div class="row" style="margin-top:8px"><input id="gn2" placeholder="Guest without the app" maxlength="24" style="flex:1;margin:0;min-width:150px"><button class="btn alt" id="addg2">Add guest</button></div><p class="sub">Friends can also tap Join on their own Play tab.</p></details>`;
+ if(!r.scr&&r.keys.length<4)h+=`<details class="addp"><summary>Add a player to this round</summary>${fr.length?`<div class="row" style="margin-top:8px">${fr.map(p=>`<button class="chip" data-addf="${p.id}">+ ${esc(pname(p.id))}</button>`).join('')}</div>`:''}<div class="row" style="margin-top:8px"><input id="gn2" placeholder="Guest without the app" maxlength="24" style="flex:1;margin:0;min-width:150px"><button class="btn alt" id="addg2">Add guest</button></div><p class="sub">Friends can also tap Join on their own Play tab.</p></details>`;
  return h+'</div>';
 }
 const holeDone=(r,j)=>!!r.par[j]&&r.keys.every(k=>r.sc[k][j]!=null);
@@ -1753,17 +1777,18 @@ function rcChrome(c){const R=document.documentElement,m=document.querySelector('
  else if(rcChrome.s){R.style.backgroundColor=rcChrome.s[0];if(m&&rcChrome.s[1]!=null)m.content=rcChrome.s[1];rcChrome.s=null}}
 const RCLOGO='<svg viewBox="0 0 100 100" aria-hidden="true"><rect x="2" y="2" width="96" height="96" rx="24" fill="#F7F3EA"/><text x="50" y="62.5" text-anchor="middle" textLength="64" lengthAdjust="spacingAndGlyphs" font-family="Barlow Condensed,Arial Narrow,sans-serif" font-weight="700" font-size="42" fill="#0F3D2E">B<tspan fill="#B8925A">2</tspan>B</text><circle cx="50" cy="77" r="2.6" fill="#B8925A"/></svg>';
 function recapHTML(r){
- const ps=r.keys.map(k=>{const s=r.sc[k],m=[0,0,0,0,0];s.forEach((v,j)=>{const d=v-r.par[j];m[d<=-2?0:d===-1?1:d===0?2:d===1?3:4]++});
-  return{k,nm:kname(r,k),t:sum(s),p:toPar(s,r.par),out:sum(s.slice(0,9)),in:sum(s.slice(9)),m}}).sort((a,b)=>a.t-b.t);
+ const ps=units(r).map(k=>{const s=r.sc[k],m=[0,0,0,0,0];s.forEach((v,j)=>{const d=v-r.par[j];m[d<=-2?0:d===-1?1:d===0?2:d===1?3:4]++});
+  return{k,nm:uname(r,k),t:sum(s),p:toPar(s,r.par),out:sum(s.slice(0,9)),in:sum(s.slice(9)),m}}).sort((a,b)=>a.t-b.t);
  ps.forEach(x=>x.rk=1+ps.filter(y=>y.t<x.t).length);
  const top=ps[0],solo=ps.length===1,pp=sum(r.par),cn=String(r.cn||'');
  const split=x=>r.n>9?`Out ${x.out} · In ${x.in}`:'';
  const mix=x=>[['Eagle',x.m[0]],['Birdie',x.m[1]],['Par',x.m[2]]].filter(z=>z[1]).map(([l,n])=>n+' '+l.toLowerCase()+(n===1?'':'s')).slice(0,1).join('');
- const lbl=solo?'Final score':ps[1].t===top.t?'Tied for low':'Low round';
- let h=`<div class="rc" id="rccard"><div class="rck">Round recap</div><b class="rcn">${esc(cn)}</b><div class="rcm">${fmtDate(r.date)} · ${r.tn?esc(r.tn)+' tees · ':''}${r.n} holes · par ${pp}</div>`;
- h+=`<div class="rchero">${face(r.pl[top.k].uid,top.nm)}<div class="rchw"><span class="rchl">${lbl}</span><b class="rchn">${esc(top.nm)}</b>${split(top)?`<small>${split(top)}</small>`:''}</div><div class="rchs"><b>${top.t}</b><span>${fmtPar(top.p)}</span></div></div>`;
+ const lbl=solo?'Final score':ps[1].t===top.t?(r.scr?'Tied':'Tied for low'):r.scr?'Winning team':'Low round';
+ const mem=x=>r.scr?tmNames(r,r.teams.find(y=>y.k===x.k)):'';
+ let h=`<div class="rc" id="rccard"><div class="rck">${r.scr?'Scramble':'Round'} recap</div><b class="rcn">${esc(cn)}</b><div class="rcm">${fmtDate(r.date)} · ${r.tn?esc(r.tn)+' tees · ':''}${r.n} holes · par ${pp}</div>`;
+ h+=`<div class="rchero">${uface(r,top.k)}<div class="rchw"><span class="rchl">${lbl}</span><b class="rchn">${esc(top.nm)}</b>${mem(top)||split(top)?`<small>${esc(mem(top))||split(top)}</small>`:''}</div><div class="rchs"><b>${top.t}</b><span>${fmtPar(top.p)}</span></div></div>`;
  if(solo)h+=`<div class="rcmix">${[['Eagle+',0],['Birdie',1],['Par',2],['Bogey',3],['Double+',4]].map(([l,i])=>`<div><b>${top.m[i]}</b><small>${l}</small></div>`).join('')}</div>`;
- else h+=`<div class="rclist">${ps.map(x=>{const sub=[r.n>9?x.out+'–'+x.in:'',mix(x)].filter(Boolean).join(' · ');return `<div class="rcrow"><span class="rcrk">${x.rk}</span>${face(r.pl[x.k].uid,x.nm)}<span class="rcw"><b>${esc(x.nm)}</b>${sub?`<small>${sub}</small>`:''}</span><span class="rct">${x.t}</span><span class="rcp">${fmtPar(x.p)}</span></div>`}).join('')}</div>`;
+ else h+=`<div class="rclist">${ps.map(x=>{const sub=r.scr?esc(mem(x)):[r.n>9?x.out+'–'+x.in:'',mix(x)].filter(Boolean).join(' · ');return `<div class="rcrow"><span class="rcrk">${x.rk}</span>${r.scr?'':uface(r,x.k)}<span class="rcw"><b>${esc(x.nm)}</b>${sub?`<small>${sub}</small>`:''}</span><span class="rct">${x.t}</span><span class="rcp">${fmtPar(x.p)}</span></div>`}).join('')}</div>`;
  return h+`<div class="rcf">${RCLOGO}<div><b>Bro 2 Bro <span>Golf Club</span></b><small>Made by Bros, for Bros.</small></div></div></div>`}
 function recapPaint(){const k=$('poprc');if(!k)return;const r=recap&&state==='ok'&&R(recap),a=r&&allDone(r)?r:null;
  const sc=rcScheme||(theme==='light'?'day':'night');
@@ -1788,8 +1813,8 @@ function roundsView(){
  if(unf.length)h+=`<h2 class="sect">Unfinished</h2>`+unf.map(r=>box(`<div class="rhead"><div><b>${esc(r.cn)}</b><br><span class="sub">${fmtDate(r.date)} · ${thru(r)?'thru '+thru(r):'no scores yet'} · ${esc(r.keys.map(k=>kname(r,k)).join(', '))}</span></div>${canDel(r)?`<button class="iconbtn" data-del="${r.id}" aria-label="Delete this round">${TRASH}</button>`:''}</div>${delConf===r.id?delBox(r):`<div class="row" style="margin-top:12px"><button class="btn" data-resume="${r.id}">Resume</button>${canDel(r)?'':`<button class="btn alt" data-leave2="${r.id}">Leave round</button>`}</div>`}`)).join('');
  if(unf.length)h+=`<h2 class="sect">Saved</h2>`;
  if(!rs.length)return h+box('<p class="empty">No finished rounds yet. Save one from the Play page and it shows up here for the whole group.</p>');
- return h+rs.map(r=>{const pp=sum(r.par),full=r.par.every(Boolean),open=openRound===r.id,inc=r.keys.some(k=>r.sc[k].some(v=>v==null));
-  return box(`<div class="rhead"><div><b>${esc(r.cn)}</b>${inc?' <span class="pill">Incomplete</span>':''}<br><span class="sub">${fmtDate(r.date)} · ${r.rating?esc(r.tn||'Tees')+' · '+r.rating+' / '+r.slope:'no rating yet'}</span></div>${canDel(r)?`<button class="iconbtn" data-del="${r.id}" aria-label="Delete this round">${TRASH}</button>`:''}</div>${delConf===r.id?delBox(r):`${r.rating||!canWrite?'':`<div style="margin:8px 0"><button class="btn alt" data-fix="${r.id}">Add rating and slope</button></div>`}${r.n!==18?`<p class="sub">Only 18-hole rounds count toward handicap.</p>`:''}${open?card(r,false):`<table>${r.keys.map(k=>{const sc=r.sc[k],f=sc.every(v=>v!=null),t=sum(sc);return `<tr><td>${knt(r,k)}</td><td class="r num">${f?t:'incomplete'}</td><td class="r ${full&&t>pp?'over':''}">${f&&full?fmtPar(t-pp):''}</td></tr>`}).join('')}</table>`}<div class="row rbtns3"><button class="btn alt" data-card="${r.id}">${open?'Hide scorecard':'Scorecard'}</button>${allDone(r)?`<button class="btn alt" data-recap="${r.id}">Recap</button>`:''}${canWrite&&r.pl[me]?`<button class="btn${inc?'':' alt'}" data-edit="${r.id}">${inc?'Finish scores':'Edit scores'}</button>`:''}</div>`}`)}).join('');
+ return h+rs.map(r=>{const pp=sum(r.par),full=r.par.every(Boolean),open=openRound===r.id,inc=units(r).some(k=>r.sc[k].some(v=>v==null));
+  return box(`<div class="rhead"><div><b>${esc(r.cn)}</b>${r.scr?' <span class="pill">Scramble</span>':''}${inc?' <span class="pill">Incomplete</span>':''}<br><span class="sub">${fmtDate(r.date)} · ${r.rating?esc(r.tn||'Tees')+' · '+r.rating+' / '+r.slope:'no rating yet'}</span></div>${canDel(r)?`<button class="iconbtn" data-del="${r.id}" aria-label="Delete this round">${TRASH}</button>`:''}</div>${delConf===r.id?delBox(r):`${r.rating||!canWrite?'':`<div style="margin:8px 0"><button class="btn alt" data-fix="${r.id}">Add rating and slope</button></div>`}${r.n!==18?`<p class="sub">Only 18-hole rounds count toward handicap.</p>`:''}${open?card(r,false):`<table>${units(r).map(k=>{const sc=r.sc[k],f=sc.every(v=>v!=null),t=sum(sc);return `<tr><td>${uhtml(r,k)}</td><td class="r num">${f?t:'incomplete'}</td><td class="r ${full&&t>pp?'over':''}">${f&&full?fmtPar(t-pp):''}</td></tr>`}).join('')}</table>`}<div class="row rbtns3"><button class="btn alt" data-card="${r.id}">${open?'Hide scorecard':'Scorecard'}</button>${allDone(r)?`<button class="btn alt" data-recap="${r.id}">Recap</button>`:''}${canWrite&&r.pl[me]?`<button class="btn${inc?'':' alt'}" data-edit="${r.id}">${inc?'Finish scores':'Edit scores'}</button>`:''}</div>`}`)}).join('');
 }
 let fq='',rmConf=null;
 /* ---------- admin: view as another player (read-only) ---------- */
@@ -1872,7 +1897,7 @@ const PBACK=crumb('friends','All friends');
 function profileView(uid){
  const PB=tab==='profile'?'':PBACK,p=doc('players/'+uid);if(!p)return PB+box('<p class="empty">This player isn’t in the club anymore.</p>');
  const self=uid===me,S=stats(uid,'all'),ix=index(uid),cn=diffs(uid).length;
- const done=rounds().filter(r=>r.status==='done'&&r.pl[uid]&&r.sc[uid].some(v=>v!=null)).sort(byDate);
+ const done=rounds().filter(r=>r.status==='done'&&!r.scr&&r.pl[uid]&&r.sc[uid].some(v=>v!=null)).sort(byDate);
  const first=done[0],since=p.joined||(first&&first.date&&new Date(first.date+'T12:00').getTime());
  // scoring mix across every scored hole with a known par
  const mix=[0,0,0,0];let holes=0;const crs={};
@@ -1930,14 +1955,15 @@ const gkey=()=>'g'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)
 const nextO=r=>Math.max(0,...Object.values(r.pl).map(p=>p.o||0))+1;
 async function startRound(){
  const c=course(pick),d=cdata(c),t=pickTee(teeList(c)),n=d.par?d.par.length:(d.n||c.hc||holes),pl={};let o=1;
- pl[me]={uid:me,o:o++};friends().filter(p=>sel.has(p.id)).forEach(p=>pl[p.id]={uid:p.id,o:o++});guests.forEach(g=>pl[gkey()]={name:g,o:o++});
+ const sc=isScr(),L=roster(),tm=k=>sc?{t:teamFor(k,L.findIndex(x=>x[0]===k),L.length)}:{};
+ pl[me]={uid:me,o:o++,...tm(me)};friends().filter(p=>sel.has(p.id)).forEach(p=>pl[p.id]={uid:p.id,o:o++,...tm(p.id)});guests.forEach(g=>pl[gkey()]={name:g,o:o++,...tm('g:'+g)});
  const par={};(d.par||[]).forEach((v,i)=>{if(v)par[i]=v});
- const body={status:'live',host:me,created:Date.now(),date:today(),cid:c.id,cn:c.n,tn:t?t.n:'',rating:t?t.r:null,slope:t?t.s:null,n,par,si:d.h&&d.h.length===n?d.h:null,yds:t&&t.y&&t.y.length===n?t.y:null,players:pl,scores:{}};
+ const body={status:'live',host:me,created:Date.now(),date:today(),cid:c.id,cn:c.n,tn:t?t.n:'',rating:t?t.r:null,slope:t?t.s:null,n,par,si:d.h&&d.h.length===n?d.h:null,yds:t&&t.y&&t.y.length===n?t.y:null,players:pl,scores:{},...(sc?{fmt:'scr'}:{})};
  const ref=db.collection('rounds').doc();
  $('start').disabled=true;
  try{await ref.set(body)}catch(e){fail(e);render();return}
  if(!D['rounds/'+ref.id])D['rounds/'+ref.id]=body;
- setCur(ref.id);hole[ref.id]=0;mode='hole';sel.clear();guests=[];pick=null;q='';render();
+ setCur(ref.id);hole[ref.id]=0;mode='hole';sel.clear();guests=[];fmt='stroke';teamOf={};pick=null;q='';render();
 }
 function finishRound(r){patch('rounds/'+r.id,{status:'done',finished:Date.now()});setCur(null);ask=null;err='';openRound=r.id;if(allDone(r))recap=r.id;go('rounds')}
 async function importOld(){
@@ -2028,6 +2054,8 @@ function bind(){
  click('asave',()=>{const n=$('an').value.trim();if(!n){af={n:'',c:$('ac').value,s:$('as').value};err='Enter the course name.';render();return}
   const id='x'+Date.now().toString(36);patch('courseinfo/'+id,{added:{n,t:$('ac').value.trim(),s:$('as').value,hc:holes}});af={n:'',c:'',s:'AZ'};pick=id;adding=false;err='';render()});
  click('start',startRound);
+ on('[data-fmt]',b=>b.onclick=()=>{fmt=b.dataset.fmt;render()});
+ on('[data-tm]',b=>b.onclick=()=>{teamOf[b.dataset.tm]=+b.dataset.t;render()});
  // in-round
  click('close',()=>{conf=null;setCur(null);render()});
  on('[data-mode]',b=>b.onclick=()=>{mode=b.dataset.mode;render()});
