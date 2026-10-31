@@ -638,8 +638,11 @@ a.srow{text-decoration:none}
 .cegrid td{padding:2px}.cegrid input{width:100%;margin:0;padding:8px 0;text-align:center;font-size:16px;border-radius:8px}
 .rtop{display:flex;align-items:center;gap:10px;margin:0 0 14px}.rtop .rinfo{flex:1;min-width:0;margin:0}.rtop .rinfo b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rtop .rinfo .sub{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rbtns{display:flex;gap:6px;flex:none}.rbtns .btn{margin:0;width:42px;min-height:40px!important;height:40px;padding:0;display:grid;place-items:center}.rbtns svg{width:20px;height:20px}.rbtns .rdel,html.glass .rbtns .rdel{color:#9A2E3A!important}:root[data-theme="dark"] .rbtns .rdel,html.glass:root[data-theme="dark"] .rbtns .rdel{color:#E58A92!important}
+.sctog{display:flex;align-items:center;gap:10px;width:100%;min-height:46px;margin:0;padding:0 14px;border:0;border-radius:14px;background:var(--fill);color:var(--ink);font:inherit;cursor:pointer;text-align:left}.sctog b{flex:1}.sctog svg{flex:none;width:20px;height:20px;color:var(--mute);transition:transform .25s ease}.sctog[aria-expanded=true] svg{transform:rotate(180deg)}
+.scfold{display:grid;grid-template-rows:0fr;transition:grid-template-rows .28s ease}.scfold.open{grid-template-rows:1fr}.scfold>div{overflow:hidden;min-height:0}.scfold .cardwrap:first-child{margin-top:10px}
+html.glass .sctog{background:var(--g-inner);color:var(--g-ink)}html.glass .sctog svg{color:var(--g-mute)}
 .entrybox .entry{margin-top:0;padding-top:0;border-top:0}.entrybox .strip{margin-top:0}
-.box.sbox .cardwrap{margin-bottom:0}.box.sbox .strip{margin-bottom:0}
+.box.sbox .cardwrap{margin-bottom:0}.box.sbox .cardwrap+.cardwrap{margin-top:10px}.box.sbox .strip{margin-bottom:0}
 .ceteeb+.ceteeb{margin-top:14px;padding-top:6px;border-top:1px solid var(--line)}
 .ygrid{margin-top:6px}.ygrid tr>th:first-child{width:30px}.ygrid td{padding:2px .5px}.ygrid input{font-size:16px;letter-spacing:-.05em}
 .cetee{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr) 34px;gap:6px;align-items:center;margin-top:8px}.cetee input{margin:0;min-width:0;padding-left:10px;padding-right:8px}
@@ -1134,6 +1137,7 @@ function afterData(){
 /* ---------- per-viewer UI state ---------- */
 let curId=null;try{curId=localStorage.getItem('weekend-round-cur')}catch(e){}
 let edit=null; // id of a saved round reopened to fix its scores
+let scOpen=false; // round scorecard rolled open (starts closed so the hole has the focus)
 const setCur=id=>{curId=id;if(id!==edit)edit=null;try{id?localStorage.setItem('weekend-round-cur',id):localStorage.removeItem('weekend-round-cur')}catch(e){}};
 let conf=null,tab=(()=>{try{const h=location.hash.slice(1);return ['play','rounds','people','leaders','range','settings','admin'].includes(h)?h:'home'}catch(e){return 'home'}})(),mode='hole',q='',st=(()=>{try{return localStorage.getItem('ww-state')||'AZ'}catch(e){return 'AZ'}})(),pick=null,teeSel=(()=>{try{return localStorage.getItem('ww-tee')||'White'}catch(e){return 'White'}})(),holes=18,sel=new Set(),guests=[],ask=null,adding=false,err='',af={n:'',c:'',s:'AZ'},openRound=null,editName=false,scope='mine',impSel=null;
 const hole={};
@@ -1641,9 +1645,9 @@ function scorecard(r){
  const host=r.host===me,solo=r.keys.length===1;
  const lbl=edit===r.id?'Delete round':r.host===me||owner?'Discard round':'Leave round',drop=r.host===me||owner||edit!==r.id;
  let h=`<div class="box sbox"><div class="rtop"><div class="rinfo"><b>${esc(r.cn)}</b><span class="sub">${edit===r.id?'editing a saved round':`${r.tn?esc(r.tn)+' tees':'tees to add later'} · ${solo?'solo round':r.keys.length+' players · live for everyone'}`}</span></div><div class="rbtns"><button class="btn" id="rndsave" aria-label="Save round" title="Save round">${CHECK}</button><button class="btn alt" id="close" aria-label="Close" title="Close">${XMARK}</button>${drop?`<button class="btn alt rdel" id="rnddrop" aria-label="${lbl}" title="${lbl}">${TRASH}</button>`:''}</div></div>`;
- h+=card(r,true,true);
+ h+=`<button class="sctog" id="sctog" aria-expanded="${scOpen}" aria-controls="scfold"><b>Scorecard</b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="scfold${scOpen?' open':''}" id="scfold"><div>${card(r,true,true)}`;
  {const done=j=>r.par[j]&&r.keys.every(k=>r.sc[k][j]!=null),pk=r.par[i];
-  h+=`<div class="strip">${r.par.map((_,j)=>`<button class="${done(j)?'done':''}" ${j===i?'aria-current="true"':''} data-h="${j}" aria-label="Hole ${j+1}">${j+1}</button>`).join('')}</div></div><div class="box entrybox"><div class="entry"><div class="hole"><div class="hl"><span class="lbl">Hole</span><span class="num">${i+1}</span></div><div class="facts"><span>Par <b>${pk||'?'}</b></span>${r.yds?`<span><b>${r.yds[i]}</b> yds</span>`:''}${r.si?`<span>Index <b>${r.si[i]}</b></span>`:''}</div></div>`+yards(pk,r.yds&&+r.yds[i]);
+  h+=`<div class="strip">${r.par.map((_,j)=>`<button class="${done(j)?'done':''}" ${j===i?'aria-current="true"':''} data-h="${j}" aria-label="Hole ${j+1}">${j+1}</button>`).join('')}</div></div></div></div><div class="box entrybox"><div class="entry"><div class="hole"><div class="hl"><span class="lbl">Hole</span><span class="num">${i+1}</span></div><div class="facts"><span>Par <b>${pk||'?'}</b></span>${r.yds?`<span><b>${r.yds[i]}</b> yds</span>`:''}${r.si?`<span>Index <b>${r.si[i]}</b></span>`:''}</div></div>`+yards(pk,r.yds&&+r.yds[i]);
   if(!pk)h+=`<p class="note">Set the par for this hole to start scoring.</p><div class="row">${[3,4,5,6].map(x=>`<button class="chip" data-par="${x}">Par ${x}</button>`).join('')}</div>`;
   r.keys.forEach(k=>{const sc=r.sc[k],cnt=sc.filter((v,j)=>v!=null&&r.par[j]).length,v=sc[i],nm=kname(r,k);
    h+=`<div class="plw"><div class="pl"><div class="plwho">${face(r.pl[k].uid,nm)}<div><b>${knt(r,k)}</b>${r.pl[k].uid===me?' <span class="sub">(you)</span>':''}<br><span class="tot">${cnt?fmtPar(toPar(sc,r.par))+' thru '+cnt:'not started'}</span></div></div><span class="num pick-now">${v==null?'–':v}</span></div>${pk?picker(k,nm,v,pk):''}</div>`});
@@ -1943,6 +1947,7 @@ function bind(){
  click('addg2',()=>{const i=$('gn2'),n=i.value.trim();if(!n)return;i.value='';patch('rounds/'+r.id,{players:{[gkey()]:{name:n,o:nextO(r)}}})});
  click('finish',()=>saveRound(r));
  click('rnddrop',()=>{conf=r.host===me||owner?'drop':'leave';render()});
+ click('sctog',()=>{scOpen=!scOpen;$('scfold').classList.toggle('open',scOpen);$('sctog').setAttribute('aria-expanded',scOpen);lastView=null});
  click('rndsave',()=>{if(edit===r.id||allDone(r))saveRound(r);else{conf='inc';render()}});
  // rating
  click('rsave',()=>{const x=ask.k==='cur'?r:R(ask.id),ra=parseFloat($('rr').value),sl=parseInt($('rs').value,10),nm=$('rn').value.trim()||'Standard';
