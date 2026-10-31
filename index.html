@@ -155,23 +155,26 @@ table.sc thead th{border-top:0}
 .hcp{font-size:42px;color:var(--green)}
 .addp summary{color:var(--green)}
 .legend{color:var(--mute)}
-.hole{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:6px 0 16px}
+.hole{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:0 0 10px}
 .hole .hl{display:flex;align-items:baseline;gap:10px}
 .hole .lbl{font:700 30px "Barlow Condensed","Arial Narrow",sans-serif;color:var(--mute);letter-spacing:.02em}
-.hole .num{font-size:76px;line-height:.9}
-.facts{flex-wrap:wrap;gap:6px;margin:-6px 0 14px}
+.hole .num{font-size:58px;line-height:.9}
+.hleft{min-width:0}
+.facts{flex-wrap:wrap;gap:6px;margin:6px 0 0}
 .hole{flex-wrap:nowrap}
-.ptile{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:76px;padding:8px 12px 6px;border-radius:14px;background:#0F3D2E;color:#F7F3EA}
-.ptile span{font:700 13px "Public Sans",sans-serif;letter-spacing:.14em;text-transform:uppercase;opacity:.85}
-.ptile b{font:700 52px/1 "Barlow Condensed","Arial Narrow",sans-serif}
+.ptile{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:68px;padding:6px 10px 4px;border-radius:14px;background:#0F3D2E;color:#F7F3EA}
+.ptile span{font:700 12px "Public Sans",sans-serif;letter-spacing:.14em;text-transform:uppercase;opacity:.85}
+.ptile b{font:700 42px/1 "Barlow Condensed","Arial Narrow",sans-serif}
 .ptile.none{background:var(--fill);color:var(--mute)}
 :root[data-theme="dark"] .ptile:not(.none){background:#D9B77E;color:#0B1411}
-.plw{border-top:1px solid var(--line);padding:4px 0 12px}
+.plw{border-top:1px solid var(--line);padding:0 0 10px}
 .parset{margin:0 0 20px}
-.plw .pl{border-top:0;padding:8px 0}
-.pick-now{font-size:40px}
+.plw .pl{border-top:0;padding:6px 0 4px}
+.plw .fav.sm{width:26px;height:26px;font-size:14px}
+.plw .plwho{gap:8px}.plnm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.plw .tot{flex:none;margin-left:10px;font-size:14px}
 .pkrow{display:grid;gap:5px}
-.pk{border:0;background:var(--fill);border-radius:12px;padding:8px 0 6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0;transition:background .12s,transform .1s}
+.pk{border:0;background:var(--fill);border-radius:12px;padding:5px 0 3px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0;transition:background .12s,transform .1s}
 .pk b{font:700 20px "Barlow Condensed","Arial Narrow",sans-serif;line-height:1.1}
 .pk small{font-size:10px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .pk.e{background:rgba(23,138,72,.1)}
@@ -375,8 +378,8 @@ body.has-bar .toast{bottom:calc(92px + env(safe-area-inset-bottom,0px))}
  .mast h1{font-size:34px}.mast .in>svg{width:58px;height:58px}
  .hti{font-size:22px}
  .hbtn{padding:0 12px;font-size:14px}
- .hole .num{font-size:66px}.hole .lbl{font-size:26px}
- .ptile{min-width:68px}.ptile b{font-size:46px}
+ .hole .num{font-size:52px}.hole .lbl{font-size:22px}
+ .ptile{min-width:62px}.ptile b{font-size:38px}
 }
 
 .rhead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
@@ -451,7 +454,7 @@ ol.lb li{grid-template-columns:36px 30px 1fr auto}
 .mast .in>svg.logo{width:78px;height:78px;filter:drop-shadow(0 10px 22px rgba(15,101,53,.28)) drop-shadow(0 2px 4px rgba(15,101,53,.18))}
 .mast::before{opacity:.55}
 @media (max-width:374px){.mast .in>svg.logo{width:68px;height:68px}}
-.holenav{margin-top:16px}
+.holenav{margin-top:12px}
 .holenav .hbin{max-width:none}
 .holebar .endbar{grid-template-columns:1fr 1fr}
 .holebar .endbar .btn{min-height:50px;width:100%;font-size:16px}
@@ -644,11 +647,13 @@ a.srow{text-decoration:none}
 .cegrid{width:100%;border-collapse:collapse;table-layout:fixed;margin-top:12px}
 .cegrid th{font:600 12px "Public Sans",sans-serif;color:var(--mute);padding:4px 0;text-align:center}.cegrid tr>th:first-child{width:38px;text-align:left}
 .cegrid td{padding:2px}.cegrid input{width:100%;margin:0;padding:8px 0;text-align:center;font-size:16px;border-radius:8px}
-.rtop{display:flex;align-items:center;gap:10px;margin:0 0 14px}.rtop .rinfo{flex:1;min-width:0;margin:0}.rtop .rinfo b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rtop .rinfo .sub{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rtop{display:flex;align-items:center;gap:10px;margin:0}.rtop .rinfo{flex:1;min-width:0;margin:0}.rtop .rinfo b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rtop .rinfo .sub{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rbtns{display:flex;gap:6px;flex:none}.rbtns .btn{margin:0;width:42px;min-height:40px!important;height:40px;padding:0;display:grid;place-items:center}.rbtns svg{width:20px;height:20px}.rbtns .rdel,html.glass .rbtns .rdel{color:#9A2E3A!important}:root[data-theme="dark"] .rbtns .rdel,html.glass:root[data-theme="dark"] .rbtns .rdel{color:#E58A92!important}
-.sctog{display:flex;align-items:center;gap:10px;width:100%;min-height:46px;margin:0;padding:0 14px;border:0;border-radius:14px;background:var(--fill);color:var(--ink);font:inherit;cursor:pointer;text-align:left}.sctog b{flex:1}.sctog svg{flex:none;width:20px;height:20px;color:var(--mute);transition:transform .25s ease}.sctog[aria-expanded=true] svg{transform:rotate(180deg)}
+button.rinfo{border:0;background:none;padding:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.scl{display:inline-flex;align-items:center;gap:2px;font-weight:700;color:var(--green)}.scl svg{width:16px;height:16px;transition:transform .25s ease}#sctog[aria-expanded=true] .scl svg{transform:rotate(180deg)}
 .scfold{display:grid;grid-template-rows:0fr;transition:grid-template-rows .28s ease}.scfold.open{grid-template-rows:1fr}.scfold>div{overflow:hidden;min-height:0}.scfold .cardwrap:first-child{margin-top:10px}
-html.glass .sctog{background:var(--g-inner);color:var(--g-ink)}html.glass .sctog svg{color:var(--g-mute)}
+html.glass .scl{color:var(--g-acc)}
+.box.sbox,.box.entrybox,html.glass .box.sbox,html.glass .box.entrybox{padding-top:12px;padding-bottom:12px}
 .entrybox .entry{margin-top:0;padding-top:0;border-top:0}.entrybox .strip{margin-top:0}
 .box.sbox .cardwrap{margin-bottom:0}.box.sbox .cardwrap+.cardwrap{margin-top:10px}.box.sbox .strip{margin-bottom:0}
 .ceteeb+.ceteeb{margin-top:14px;padding-top:6px;border-top:1px solid var(--line)}
@@ -761,7 +766,7 @@ select{-webkit-appearance:none;appearance:none;min-height:46px;line-height:1.25;
 .atag{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;vertical-align:2px;background:#B8925A;color:#fff;font:700 10.5px/1.4 "Public Sans",sans-serif;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
 :root[data-theme="dark"] .atag{background:#D9B77E;color:#0B1411}
 /* Your yards: the signed-in player's own Range averages on the hole, one line that swipes sideways */
-.yrds{display:flex;align-items:center;gap:10px;margin:0 0 12px;min-width:0}
+.yrds{display:flex;align-items:center;gap:10px;margin:0 0 10px;min-width:0}
 .ylab{flex:none;font:700 13px "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--metal);white-space:nowrap}
 .yscroll{display:flex;gap:6px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .yscroll::-webkit-scrollbar{display:none}
@@ -1600,7 +1605,7 @@ function nearby(){const key=geo.at+'|'+added().length;if(nearCache&&nearCache.ke
 function setup(){
  let h=ro()+importBox();
  const live=rounds().filter(r=>r.status==='live'&&Date.now()-(r.created||0)<18*36e5&&touchesCircle(r));
- if(live.length)h+=box(`<b>Live now</b>${live.map(r=>{const mine=!!r.pl[me];return `<div class="pl"><div><b>${esc(r.cn)}</b><br><span class="tot">${esc(r.keys.map(k=>kname(r,k)).join(', '))} · thru ${thru(r)}</span></div>${mine?`<button class="btn" data-open="${r.id}">Open</button>`:canWrite?`<button class="btn alt" data-join="${r.id}">Join</button>`:`<button class="btn alt" data-peek="${r.id}">View</button>`}</div>`}).join('')}`);
+ if(live.length)h+=box(`<b>Live now</b>${live.map(r=>{const mine=!!r.pl[me];return `<div class="pl"><div><b>${esc(r.cn)}</b><br><span class="tot">${esc(r.keys.map(k=>kname(r,k)).join(', '))} · thru ${thru(r)}</span></div>${mine?`<button class="btn" data-open="${r.id}">Open</button>`:canWrite&&r.keys.length<4?`<button class="btn alt" data-join="${r.id}">Join</button>`:`<button class="btn alt" data-peek="${r.id}">View</button>`}</div>`}).join('')}`);
  if(!canWrite)return h||box('<p class="empty">No rounds in progress.</p>');
  const fr=friends();
  h+=`<div class="box"><b>Who’s playing</b><p class="sub">Just you for a solo round. Friends you add see this round on their own phone and can enter scores too.</p><div class="row"><span class="chip" aria-pressed="true">${esc(pname(me))} (you)</span>${fr.map(p=>`<button class="chip" aria-pressed="${sel.has(p.id)}" data-sel="${p.id}">${esc(pname(p.id))}</button>`).join('')}${guests.map((g,i)=>`<button class="chip" aria-pressed="true" data-ung="${i}" aria-label="Remove ${esc(g)}">${esc(g)} ×</button>`).join('')}</div>${fr.length?'':'<p class="sub" style="margin-top:8px">Add friends to play with them. <button class="linkbtn" data-go="people">Find friends</button></p>'}<div class="row" style="margin-top:8px"><input id="gn" placeholder="Guest without the app" maxlength="24" style="flex:1;margin:0;min-width:150px"><button class="btn alt" id="addg">Add guest</button></div></div><div class="box">`;
@@ -1654,17 +1659,17 @@ function scorecard(r){
  let i=hole[r.id];if(i==null){i=r.par.findIndex((p,j)=>!r.keys.every(k=>r.sc[k][j]!=null));if(i<0)i=r.n-1;hole[r.id]=i}
  const host=r.host===me,solo=r.keys.length===1;
  const lbl=edit===r.id?'Delete round':r.host===me||owner?'Discard round':'Leave round',drop=r.host===me||owner||edit!==r.id;
- let h=`<div class="box sbox"><div class="rtop"><div class="rinfo"><b>${esc(r.cn)}</b><span class="sub">${edit===r.id?'editing a saved round':`${r.tn?esc(r.tn)+' tees':'tees to add later'} · ${solo?'solo round':r.keys.length+' players · live for everyone'}`}</span></div><div class="rbtns"><button class="btn" id="rndsave" aria-label="Save round" title="Save round">${CHECK}</button><button class="btn alt" id="close" aria-label="Close" title="Close">${XMARK}</button>${drop?`<button class="btn alt rdel" id="rnddrop" aria-label="${lbl}" title="${lbl}">${TRASH}</button>`:''}</div></div>`;
- h+=`<button class="sctog" id="sctog" aria-expanded="${scOpen}" aria-controls="scfold"><b>Scorecard</b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="scfold${scOpen?' open':''}" id="scfold"><div>${card(r,true,true)}`;
+ let h=`<div class="box sbox"><div class="rtop"><button class="rinfo" id="sctog" aria-expanded="${scOpen}" aria-controls="scfold"><b>${esc(r.cn)}</b><span class="sub"><span class="scl">Scorecard<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span> · ${edit===r.id?'editing a saved round':`${r.tn?esc(r.tn)+' tees':'tees to add later'} · ${solo?'solo round':r.keys.length+' players · live for everyone'}`}</span></button><div class="rbtns"><button class="btn" id="rndsave" aria-label="Save round" title="Save round">${CHECK}</button><button class="btn alt" id="close" aria-label="Close" title="Close">${XMARK}</button>${drop?`<button class="btn alt rdel" id="rnddrop" aria-label="${lbl}" title="${lbl}">${TRASH}</button>`:''}</div></div>`;
+ h+=`<div class="scfold${scOpen?' open':''}" id="scfold"><div>${card(r,true,true)}`;
  {const done=j=>r.par[j]&&r.keys.every(k=>r.sc[k][j]!=null),pk=r.par[i];
-  h+=`<div class="strip">${r.par.map((_,j)=>`<button class="${done(j)?'done':''}" ${j===i?'aria-current="true"':''} data-h="${j}" aria-label="Hole ${j+1}">${j+1}</button>`).join('')}</div></div></div></div><div class="box entrybox"><div class="entry"><div class="hole"><div class="hl"><span class="lbl">Hole</span><span class="num">${i+1}</span></div><div class="ptile${pk?'':' none'}" aria-label="Par ${pk||'not set'}"><span>Par</span><b>${pk||'?'}</b></div></div>${r.yds||r.si?`<div class="facts">${r.yds?`<span><b>${r.yds[i]}</b> yds</span>`:''}${r.si?`<span>Index <b>${r.si[i]}</b></span>`:''}</div>`:''}`+yards(pk,r.yds&&+r.yds[i]);
+  h+=`<div class="strip">${r.par.map((_,j)=>`<button class="${done(j)?'done':''}" ${j===i?'aria-current="true"':''} data-h="${j}" aria-label="Hole ${j+1}">${j+1}</button>`).join('')}</div></div></div></div><div class="box entrybox"><div class="entry"><div class="hole"><div class="hleft"><div class="hl"><span class="lbl">Hole</span><span class="num">${i+1}</span></div>${r.yds||r.si?`<div class="facts">${r.yds?`<span><b>${r.yds[i]}</b> yds</span>`:''}${r.si?`<span>Index <b>${r.si[i]}</b></span>`:''}</div>`:''}</div><div class="ptile${pk?'':' none'}" aria-label="Par ${pk||'not set'}"><span>Par</span><b>${pk||'?'}</b></div></div>`+yards(pk,r.yds&&+r.yds[i]);
   if(!pk)h+=`<p class="note">Set the par for this hole to start scoring.</p><div class="row parset">${[3,4,5,6].map(x=>`<button class="chip" data-par="${x}">Par ${x}</button>`).join('')}</div>`;
   r.keys.forEach(k=>{const sc=r.sc[k],cnt=sc.filter((v,j)=>v!=null&&r.par[j]).length,v=sc[i],nm=kname(r,k);
-   h+=`<div class="plw"><div class="pl"><div class="plwho">${face(r.pl[k].uid,nm)}<div><b>${knt(r,k)}</b>${r.pl[k].uid===me?' <span class="sub">(you)</span>':''}<br><span class="tot">${cnt?fmtPar(toPar(sc,r.par))+' thru '+cnt:'not started'}</span></div></div><span class="num pick-now">${v==null?'–':v}</span></div>${pk?picker(k,nm,v,pk):''}</div>`});
-  h+=`<p class="swipehint sub">Swipe left or right to change holes.</p><div class="holenav"><div class="hbin"><button class="hbtn" data-nav="-1" ${i?'':'disabled'} aria-label="Previous hole"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>${i?'Hole '+i:''}</button><span class="hbl"><b>Hole ${i+1}</b><small>of ${r.n}</small></span>${i===r.n-1&&allDone(r)?`<button class="hbtn nx" id="finish">${edit===r.id?'Save changes':'Save round'}</button>`:`<button class="hbtn nx" data-nav="${i<r.n-1?1:gap(r)-i}" aria-label="Next hole">Hole ${i<r.n-1?i+2:gap(r)+1}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`}</div></div></div>`;
+   h+=`<div class="plw"><div class="pl"><div class="plwho">${face(r.pl[k].uid,nm,'sm')}<div class="plnm"><b>${knt(r,k)}</b>${r.pl[k].uid===me?' <span class="sub">(you)</span>':''}</div></div><span class="tot">${cnt?fmtPar(toPar(sc,r.par))+' thru '+cnt:'not started'}</span></div>${pk?picker(k,nm,v,pk):''}</div>`});
+  h+=`${i?'':'<p class="swipehint sub">Swipe left or right to change holes.</p>'}<div class="holenav"><div class="hbin"><button class="hbtn" data-nav="-1" ${i?'':'disabled'} aria-label="Previous hole"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>${i?'Hole '+i:''}</button><span class="hbl"><b>Hole ${i+1}</b><small>of ${r.n}</small></span>${i===r.n-1&&allDone(r)?`<button class="hbtn nx" id="finish">${edit===r.id?'Save changes':'Save round'}</button>`:`<button class="hbtn nx" data-nav="${i<r.n-1?1:gap(r)-i}" aria-label="Next hole">Hole ${i<r.n-1?i+2:gap(r)+1}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`}</div></div></div>`;
  }
  const fr=friends().filter(p=>!r.pl[p.id]);
- h+=`<details class="addp"><summary>Add a player to this round</summary>${fr.length?`<div class="row" style="margin-top:8px">${fr.map(p=>`<button class="chip" data-addf="${p.id}">+ ${esc(pname(p.id))}</button>`).join('')}</div>`:''}<div class="row" style="margin-top:8px"><input id="gn2" placeholder="Guest without the app" maxlength="24" style="flex:1;margin:0;min-width:150px"><button class="btn alt" id="addg2">Add guest</button></div><p class="sub">Friends can also tap Join on their own Play tab.</p></details>`;
+ if(r.keys.length<4)h+=`<details class="addp"><summary>Add a player to this round</summary>${fr.length?`<div class="row" style="margin-top:8px">${fr.map(p=>`<button class="chip" data-addf="${p.id}">+ ${esc(pname(p.id))}</button>`).join('')}</div>`:''}<div class="row" style="margin-top:8px"><input id="gn2" placeholder="Guest without the app" maxlength="24" style="flex:1;margin:0;min-width:150px"><button class="btn alt" id="addg2">Add guest</button></div><p class="sub">Friends can also tap Join on their own Play tab.</p></details>`;
  return h+'</div>';
 }
 const holeDone=(r,j)=>!!r.par[j]&&r.keys.every(k=>r.sc[k][j]!=null);
