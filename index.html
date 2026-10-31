@@ -636,7 +636,10 @@ a.srow{text-decoration:none}
 .cegrid{width:100%;border-collapse:collapse;table-layout:fixed;margin-top:12px}
 .cegrid th{font:600 12px "Public Sans",sans-serif;color:var(--mute);padding:4px 0;text-align:center}.cegrid tr>th:first-child{width:38px;text-align:left}
 .cegrid td{padding:2px}.cegrid input{width:100%;margin:0;padding:8px 0;text-align:center;font-size:16px;border-radius:8px}
-.rtop{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin:-4px 0 10px}.rtop .iconbtn{margin:0 auto 0 -8px}.rtop .btn{margin:0;white-space:nowrap}
+.rtop{display:flex;align-items:center;gap:10px;margin:0 0 14px}.rtop .rinfo{flex:1;min-width:0;margin:0}.rtop .rinfo b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rtop .rinfo .sub{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rbtns{display:flex;gap:6px;flex:none}.rbtns .btn{margin:0;width:42px;min-height:40px!important;height:40px;padding:0;display:grid;place-items:center}.rbtns svg{width:20px;height:20px}.rbtns .rdel,html.glass .rbtns .rdel{color:#9A2E3A!important}:root[data-theme="dark"] .rbtns .rdel,html.glass:root[data-theme="dark"] .rbtns .rdel{color:#E58A92!important}
+.entrybox .entry{margin-top:0;padding-top:0;border-top:0}.entrybox .strip{margin-top:0}
+.box.sbox .cardwrap{margin-bottom:0}.box.sbox .strip{margin-bottom:0}
 .ceteeb+.ceteeb{margin-top:14px;padding-top:6px;border-top:1px solid var(--line)}
 .ygrid{margin-top:6px}.ygrid tr>th:first-child{width:30px}.ygrid td{padding:2px .5px}.ygrid input{font-size:16px;letter-spacing:-.05em}
 .cetee{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr) 34px;gap:6px;align-items:center;margin-top:8px}.cetee input{margin:0;min-width:0;padding-left:10px;padding-right:8px}
@@ -1636,10 +1639,11 @@ function scorecard(r){
  if(ask&&ask.k==='cur')return rateForm(r);
  let i=hole[r.id];if(i==null){i=r.par.findIndex((p,j)=>!r.keys.every(k=>r.sc[k][j]!=null));if(i<0)i=r.n-1;hole[r.id]=i}
  const host=r.host===me,solo=r.keys.length===1;
- let h=`<div class="box"><div class="rtop">${r.host===me||owner?`<button class="iconbtn" id="rnddrop" aria-label="${edit===r.id?'Delete round':'Discard round'}">${TRASH}</button>`:edit===r.id?'':`<button class="iconbtn" id="rnddrop" aria-label="Leave round">${TRASH}</button>`}<button class="btn" id="rndsave">Save</button><button class="btn alt" id="close">Close</button></div><div class="rinfo"><b>${esc(r.cn)}</b><br><span class="sub">${edit===r.id?'editing a saved round':`${r.tn?esc(r.tn)+' tees':'tees to add later'} · ${solo?'solo round':r.keys.length+' players · live for everyone'}`}</span></div>`;
- h+=card(r,true,true)+'<div class="entry">';
+ const lbl=edit===r.id?'Delete round':r.host===me||owner?'Discard round':'Leave round',drop=r.host===me||owner||edit!==r.id;
+ let h=`<div class="box sbox"><div class="rtop"><div class="rinfo"><b>${esc(r.cn)}</b><span class="sub">${edit===r.id?'editing a saved round':`${r.tn?esc(r.tn)+' tees':'tees to add later'} · ${solo?'solo round':r.keys.length+' players · live for everyone'}`}</span></div><div class="rbtns"><button class="btn" id="rndsave" aria-label="Save round" title="Save round">${CHECK}</button><button class="btn alt" id="close" aria-label="Close" title="Close">${XMARK}</button>${drop?`<button class="btn alt rdel" id="rnddrop" aria-label="${lbl}" title="${lbl}">${TRASH}</button>`:''}</div></div>`;
+ h+=card(r,true,true);
  {const done=j=>r.par[j]&&r.keys.every(k=>r.sc[k][j]!=null),pk=r.par[i];
-  h+=`<div class="strip">${r.par.map((_,j)=>`<button class="${done(j)?'done':''}" ${j===i?'aria-current="true"':''} data-h="${j}" aria-label="Hole ${j+1}">${j+1}</button>`).join('')}</div><div class="hole"><div class="hl"><span class="lbl">Hole</span><span class="num">${i+1}</span></div><div class="facts"><span>Par <b>${pk||'?'}</b></span>${r.yds?`<span><b>${r.yds[i]}</b> yds</span>`:''}${r.si?`<span>Index <b>${r.si[i]}</b></span>`:''}</div></div>`+yards(pk,r.yds&&+r.yds[i]);
+  h+=`<div class="strip">${r.par.map((_,j)=>`<button class="${done(j)?'done':''}" ${j===i?'aria-current="true"':''} data-h="${j}" aria-label="Hole ${j+1}">${j+1}</button>`).join('')}</div></div><div class="box entrybox"><div class="entry"><div class="hole"><div class="hl"><span class="lbl">Hole</span><span class="num">${i+1}</span></div><div class="facts"><span>Par <b>${pk||'?'}</b></span>${r.yds?`<span><b>${r.yds[i]}</b> yds</span>`:''}${r.si?`<span>Index <b>${r.si[i]}</b></span>`:''}</div></div>`+yards(pk,r.yds&&+r.yds[i]);
   if(!pk)h+=`<p class="note">Set the par for this hole to start scoring.</p><div class="row">${[3,4,5,6].map(x=>`<button class="chip" data-par="${x}">Par ${x}</button>`).join('')}</div>`;
   r.keys.forEach(k=>{const sc=r.sc[k],cnt=sc.filter((v,j)=>v!=null&&r.par[j]).length,v=sc[i],nm=kname(r,k);
    h+=`<div class="plw"><div class="pl"><div class="plwho">${face(r.pl[k].uid,nm)}<div><b>${knt(r,k)}</b>${r.pl[k].uid===me?' <span class="sub">(you)</span>':''}<br><span class="tot">${cnt?fmtPar(toPar(sc,r.par))+' thru '+cnt:'not started'}</span></div></div><span class="num pick-now">${v==null?'–':v}</span></div>${pk?picker(k,nm,v,pk):''}</div>`});
@@ -1666,6 +1670,8 @@ function confPaint(){const k=$('popr');if(!k)return;const r=tab==='play'&&curId&
 function saveRound(r){if(edit===r.id){setCur(null);openRound=r.id;go('rounds');say('Changes saved.');return}
  if(!r.rating){ask={k:'cur'};err='';render()}else finishRound(r)}
 let delConf=null;
+const CHECK='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const XMARK='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
 const TRASH='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9.5 7V4.8h5V7M6.5 7l1 12.2h9L17.5 7M10.3 10.5v5.5M13.7 10.5v5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const canDel=r=>canWrite&&(r.host===me||owner);
 function delBox(r){return `<div class="delc"><b>Delete this round for everyone?</b><p class="sub">All scores from ${esc(r.cn)} on ${r.date} will be removed, and it won’t count toward anyone’s handicap or the leaderboards. This can’t be undone.</p><div class="row"><button class="btn danger" data-delyes="${r.id}">Delete round</button><button class="btn alt" data-delno>Cancel</button></div></div>`}
