@@ -151,9 +151,7 @@ table.sc thead th{border-top:0}
 .box.note{box-shadow:none}
 .toast{width:max-content;position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:20;max-width:calc(100% - 32px);background:rgba(20,35,26,.88);color:#fff;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-radius:999px;padding:12px 20px;box-shadow:0 10px 30px rgba(0,0,0,.2);animation:pop .25s ease-out}
 @keyframes pop{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
-.view-in{animation:rise .28s ease-out}
-@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){.view-in,.toast{animation:none}*{transition:none!important}}
+@media (prefers-reduced-motion:reduce){.toast{animation:none}*{transition:none!important}}
 .hcp{font-size:42px;color:var(--green)}
 .addp summary{color:var(--green)}
 .legend{color:var(--mute)}
@@ -324,6 +322,13 @@ input,select,textarea{font-size:16px}
 .navbar{padding-top:env(safe-area-inset-top,0px)}
 .strip{flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:4px 2px 6px;margin:12px -2px 4px;scroll-padding:0 40%}
 .strip::-webkit-scrollbar{display:none}
+/* hole line: a track under the strip, brass up to the current hole, with a ball on it */
+.strip{position:relative;padding-bottom:16px}
+.strip i{position:absolute;bottom:6px;height:3px;border-radius:2px;pointer-events:none}
+.htrack{background:rgba(128,128,128,.22)}
+.hfill{background:#B8925A}
+:root[data-theme="dark"] .hfill{background:#D9B77E}
+.strip .hball{width:10px;height:10px;bottom:2.5px;margin-left:-5px;border-radius:50%;background:#fff;border:1px solid rgba(0,0,0,.35);box-sizing:border-box}
 .strip button{flex:none;width:42px;height:42px;scroll-snap-align:center}
 .holebar{position:fixed;left:0;right:0;bottom:0;z-index:15;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:rgba(243,245,242,.82);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-top:1px solid var(--line)}
 :root[data-theme="dark"] .holebar{background:rgba(13,20,16,.82)}
@@ -919,8 +924,6 @@ html.glass .amenu{background:rgba(24,32,24,.97)!important}
 html.glass[data-theme="light"] .amenu{background:rgba(250,248,242,.97)!important;color:#14201A!important;--g-ink:#14201A;--g-mute:rgba(20,32,26,.6)}
 html.glass[data-theme="light"] .amenu .atx small{color:rgba(20,32,26,.6)}
 
-/* no fade between pages: frosted glass can't blur while it's partly see-through, so a fade made every card flash sharp, then blurry */
-html.glass .view-in{animation:none}
 </style>
 </head>
 <body>
@@ -1215,6 +1218,21 @@ function pack(v){let run=[];
   w.className='mcols';c.forEach(x=>{x.className='mcol';w.append(x)});run[0].before(w);
   run.forEach((e,i)=>{const k=t[0]<=t[1]?0:1;c[k].append(e);t[k]+=hs[i]})}run=[]};
  [...v.children].forEach(e=>{if(e.classList.contains('box')&&!e.querySelector('.phero,.admlist'))run.push(e);else flush()});flush()}
+// Page-open motion: cards slide up one after another and stat numbers count up. Glass slides only (fading glass flashes sharp, then blurry)
+const calm=()=>matchMedia('(prefers-reduced-motion:reduce)').matches;
+function enter(){if(calm())return;const v=$('view'),glass=document.documentElement.classList.contains('glass');
+ [...v.querySelectorAll('.box,.hcard,.pstat')].filter(e=>!e.parentElement.closest('.box')).forEach((e,i)=>e.animate(glass?[{transform:'translateY(18px)'},{transform:'none'}]:[{opacity:0,transform:'translateY(12px)'},{opacity:1,transform:'none'}],{duration:480,delay:Math.min(i,8)*55,easing:'cubic-bezier(.2,.8,.2,1)',fill:'backwards'}));
+ v.querySelectorAll('.pv').forEach(e=>{const t=e.firstChild;if(!t||t.nodeType!==3||!/^\d+(\.\d+)?$/.test(t.data))return;
+  const end=+t.data,dp=(t.data.split('.')[1]||'').length,t0=performance.now(),D=900;
+  const step=now=>{const k=Math.min(1,(now-t0)/D),x=1-Math.pow(1-k,3);t.data=(end*x).toFixed(dp);if(k<1&&t.isConnected)requestAnimationFrame(step)};requestAnimationFrame(step)})}
+// In a round: a brass line runs under the hole strip to the current hole, and a ball rolls there from the last hole shown
+let lineAt={};
+function holeLine(strip,id){const bs=strip.querySelectorAll('button'),cur=strip.querySelector('[aria-current=true]');if(!cur||bs.length<2)return;
+ const c=b=>b.offsetLeft+b.offsetWidth/2,x0=c(bs[0]),x1=c(cur),xa=c(bs[bs.length-1]),was=lineAt[id];lineAt[id]=x1;
+ strip.insertAdjacentHTML('beforeend',`<i class="htrack" style="left:${x0}px;width:${xa-x0}px"></i><i class="hfill" style="left:${x0}px;width:${x1-x0}px"></i><i class="hball" style="left:${x1}px"></i>`);
+ if(was==null||was===x1||calm())return;const o={duration:520,easing:'cubic-bezier(.3,.9,.3,1)'};
+ strip.querySelector('.hfill').animate([{width:Math.max(0,was-x0)+'px'},{width:(x1-x0)+'px'}],o);
+ strip.querySelector('.hball').animate([{transform:`translateX(${was-x1}px) rotate(${(was-x1)*3}deg)`},{transform:'none'}],o)}
 let wasWide=wide();addEventListener('resize',()=>{if(wide()!==wasWide){wasWide=wide();lastView=null;render()}});
 // Shrinks the page title a little on narrow phones so it never overlaps the buttons beside it.
 function fitTtl(){const t=document.querySelector('#nav .ttl');if(!t)return;t.style.fontSize='';let f=22;while(t.scrollWidth>t.clientWidth+1&&f>16){f--;t.style.fontSize=f+'px'}}
@@ -1277,7 +1295,7 @@ function mainView(){
 function nameForm(first){return box(`<label for="myn"><b>${first?'What should your friends call you?':'Your name'}</b></label><p class="sub">This name shows on every scorecard you’re on.</p><input id="myn" maxlength="24" value="${esc(first?meName:pname(me))}">${err?`<p class="over">${esc(err)}</p>`:''}<button class="btn" id="mysave">Save</button>${first?'':' <button class="btn alt" id="mycancel">Cancel</button>'}`)}
 function importBox(){if(!OLD||!canWrite)return '';const ps=OLD.players||[];return box(`<b>Rounds saved on this device</b><p class="sub">${OLD.rounds.length} round${OLD.rounds.length===1?'':'s'} from the earlier version live only in this browser. Bring them in so they count toward your handicap. Which player was you?</p><div class="row">${ps.map(p=>`<button class="chip" aria-pressed="${impSel===p.id}" data-imp="${esc(p.id)}">${esc(p.name)}</button>`).join('')}</div><p><button class="btn" id="impgo" ${impSel?'':'disabled'}>Import rounds</button> <button class="btn alt" id="impno">Not now</button></p>`)}
 const PAGES={play:'Play',rounds:'Rounds',people:'Friends',leaders:'Leaderboards',range:'Range',settings:'Settings',admin:'Admin',profile:'My profile'};
-function go(t,push=true){menuOpen=false;profUid=null;admFb=null;admFbDel=false;rClub=null;rMode=null;rReset=false;admUid=null;admConf=false;admBlk=false;bagEdit=false;bagSel=null;tab=t;ask=null;err='';conf=null;if(push){try{history.pushState({t},'',t==='home'?location.pathname+location.search:'#'+t)}catch(e){}}window.scrollTo(0,0);lastView=null;render();const v=$('view');v.classList.remove('view-in');void v.offsetWidth;v.classList.add('view-in')}
+function go(t,push=true){menuOpen=false;profUid=null;admFb=null;admFbDel=false;rClub=null;rMode=null;rReset=false;admUid=null;admConf=false;admBlk=false;bagEdit=false;bagSel=null;tab=t;ask=null;err='';conf=null;if(push){try{history.pushState({t},'',t==='home'?location.pathname+location.search:'#'+t)}catch(e){}}window.scrollTo(0,0);lastView=null;render();enter()}
 window.addEventListener('popstate',e=>{const st=e.state||{},t=st.t||(location.hash.slice(1))||'home';go(PAGES[t]?t:'home',false);
  if(t==='admin'&&(st.adm||st.fb)){if(st.adm){admTab='players';admUid=st.adm}else{admTab='fb';admFb=st.fb}render()}
  if(t==='people'&&st.prof){profUid=st.prof;lastView=null;render()}});
@@ -1691,7 +1709,7 @@ async function delAccount(){if(VIEW){delAsk=null;fail({code:'view-as'});return}i
 }
 /* ---------- player profile ---------- */
 let profUid=null;
-function openProf(uid){profUid=uid;try{history.pushState({t:'people',prof:uid},'','#people')}catch(e){}window.scrollTo(0,0);lastView=null;render()}
+function openProf(uid){profUid=uid;try{history.pushState({t:'people',prof:uid},'','#people')}catch(e){}window.scrollTo(0,0);lastView=null;render();enter()}
 const fmtDate=d=>{const [y,m,x]=String(d||'').split('-').map(Number);return y?new Date(y,m-1,x).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}):''};
 // Back pill for sub-pages ("‹ All friends", "‹ All players"…); CRUMB says where each one goes
 const crumb=(k,label)=>`<button class="pback" data-crumb="${k}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>${label}</button>`;
@@ -1870,7 +1888,7 @@ function bind(){
  on('[data-cell]',b=>b.onclick=()=>{hole[r.id]=+b.dataset.cell;mode='hole';render()});
  on('[data-nav]',b=>b.onclick=()=>{hole[r.id]=Math.max(0,Math.min(r.n-1,hole[r.id]+ +b.dataset.nav));render()});
  document.body.classList.toggle('has-bar',!!$('view').querySelector('.holebar'));
- const strip=v.querySelector('.strip'),curH=strip&&strip.querySelector('[aria-current=true]');if(curH)strip.scrollLeft=curH.offsetLeft-strip.clientWidth/2+curH.offsetWidth/2;
+ const strip=v.querySelector('.strip'),curH=strip&&strip.querySelector('[aria-current=true]');if(curH){holeLine(strip,r.id);strip.scrollLeft=curH.offsetLeft-strip.clientWidth/2+curH.offsetWidth/2}
  const ent=v.querySelector('.entry');if(ent&&r){let sx=0,sy=0,tr=false;ent.addEventListener('touchstart',e=>{const t=e.touches[0];sx=t.clientX;sy=t.clientY;tr=!e.target.closest('.pkrow,input,select')},{passive:true});ent.addEventListener('touchend',e=>{if(!tr)return;const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)>60&&Math.abs(dy)<45){const n=hole[r.id]+(dx<0?1:-1);if(n>=0&&n<r.n){hole[r.id]=n;render()}}},{passive:true})}
  on('[data-par]',b=>b.onclick=()=>{const i=hole[r.id],p=+b.dataset.par;patch('rounds/'+r.id,{par:{[i]:p}})});
  const setScore=(k,v)=>{const i=hole[r.id];patch('rounds/'+r.id,{scores:{[k]:{[i]:v}}})};
