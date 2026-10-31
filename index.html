@@ -959,6 +959,59 @@ html.glass .amenu{background:rgba(24,32,24,.97)!important}
 html.glass[data-theme="light"] .amenu{background:rgba(250,248,242,.97)!important;color:#14201A!important;--g-ink:#14201A;--g-mute:rgba(20,32,26,.6)}
 html.glass[data-theme="light"] .amenu .atx small{color:rgba(20,32,26,.6)}
 
+/* round recap, sized to screenshot and post. Classic: a solid racing-green card. Glass: a frosted card over the course photo, dark in Night and bright in Day */
+html .pop.rcpop{overflow-y:auto;align-items:flex-start;background:radial-gradient(70% 50% at 50% 42%,var(--rc-glow),transparent 72%),linear-gradient(180deg,var(--rc-edge) 0,var(--rc-mid) 30%,var(--rc-mid) 70%,var(--rc-edge) 100%)}
+.rcpop.still,.rcpop.still .rc{animation:none}
+.rcwrap{width:100%;max-width:380px;margin:auto;display:flex;flex-direction:column;align-items:center;gap:12px}
+.rc{--g-ink:var(--rc-ink);--g-mute:var(--rc-mute);width:100%;background:var(--rc-bg);color:var(--rc-ink);border-radius:30px;padding:22px 20px 16px;box-shadow:var(--rc-ring),0 18px 48px rgba(0,0,0,.28);-webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);text-align:center;font-family:"Public Sans",sans-serif;animation:fbup .2s ease-out}
+.rck{display:flex;align-items:center;gap:10px;color:var(--rc-acc);font:700 12px "Public Sans",sans-serif;letter-spacing:.2em;text-transform:uppercase;white-space:nowrap}
+.rck::before,.rck::after{content:"";flex:1;height:1px;background:var(--rc-rule)}
+.rcn{display:block;margin-top:12px;font:700 30px/1.05 "Barlow Condensed","Arial Narrow",sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rcm{margin-top:5px;font-size:13px;color:var(--rc-mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rchero{margin:16px 0 6px;padding:14px;border-radius:18px;background:var(--rc-tile);box-shadow:inset 0 0 0 1px var(--rc-tedge);display:flex;align-items:center;gap:12px;text-align:left}
+.rc .fav{background:var(--rc-tile);color:var(--rc-ink)}
+.rchero .fav{width:56px;height:56px;font-size:27px;box-shadow:0 0 0 2px var(--rc-acc);background:var(--rc-av);color:var(--rc-avink)}
+.rchw{flex:1;min-width:0}
+.rchl{display:block;color:var(--rc-acc);font:700 11px "Public Sans",sans-serif;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap}
+.rchn{display:block;margin-top:2px;font:700 24px/1.1 "Barlow Condensed","Arial Narrow",sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rchw small{display:block;margin-top:2px;font-size:12px;color:var(--rc-mute);white-space:nowrap}
+.rchs{flex:none;text-align:right}
+.rchs b{display:block;font:700 48px/.9 "Barlow Condensed","Arial Narrow",sans-serif}
+.rchs span{font-weight:700;font-size:15px;color:var(--rc-acc)}
+.rclist{margin-top:6px}
+.rcrow{display:flex;align-items:center;gap:10px;padding:9px 2px;text-align:left}.rcrow+.rcrow{border-top:1px solid var(--rc-line)}
+.rcrk{flex:none;width:16px;text-align:center;font:700 17px "Barlow Condensed","Arial Narrow",sans-serif;color:var(--rc-acc)}
+.rcrow .fav{width:32px;height:32px;font-size:16px}
+.rcw{flex:1;min-width:0}.rcw b,.rcw small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rcw b{font-weight:600;font-size:15px}.rcw small{margin-top:1px;font-size:12px;color:var(--rc-mute)}
+.rct{flex:none;min-width:30px;text-align:right;font:700 24px/1 "Barlow Condensed","Arial Narrow",sans-serif}
+.rcp{flex:none;min-width:32px;text-align:right;font-weight:700;font-size:14px;color:var(--rc-acc)}
+.rcmix{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-top:8px}
+.rcmix div{padding:10px 0 8px;border-radius:12px;background:var(--rc-tile);box-shadow:inset 0 0 0 1px var(--rc-tedge)}
+.rcmix b{display:block;font:700 24px/1 "Barlow Condensed","Arial Narrow",sans-serif}
+.rcmix small{display:block;margin-top:3px;font-size:11px;color:var(--rc-mute);white-space:nowrap}
+.rcf{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--rc-rule);text-align:left}
+.rcf svg{flex:none;width:34px;height:34px}.rcf rect{fill:var(--rc-logo)}.rcf text{fill:var(--rc-logoink)}
+.rcf b{display:block;font:700 18px/1.1 "Barlow Condensed","Arial Narrow",sans-serif;white-space:nowrap}.rcf b span{color:var(--rc-acc)}
+.rcf small{display:block;font-size:12px;color:var(--rc-mute);white-space:nowrap}
+.rchint{margin:0;color:rgba(255,255,255,.78);font-size:14px;white-space:nowrap}
+.rcdone{width:100%;min-height:48px;border:0;border-radius:999px;background:#F7F3EA;color:#0F3D2E;font:700 16px "Public Sans",sans-serif;cursor:pointer}
+/* three color schemes, picked under the card: frosted glass over a calm gradient, the same in the glass and classic looks */
+.rcpop.night{--rc-edge:#0B1411;--rc-mid:#0F3D2E;--rc-glow:rgba(30,90,67,.95);
+ --rc-bg:rgba(14,26,19,.34);--rc-ink:#fff;--rc-mute:rgba(255,255,255,.7);--rc-acc:#D9B77E;--rc-tile:rgba(255,255,255,.1);--rc-tedge:rgba(255,255,255,.08);--rc-line:rgba(255,255,255,.13);--rc-rule:rgba(217,183,126,.45);
+ --rc-av:#F7F3EA;--rc-avink:#0F3D2E;--rc-logo:#F7F3EA;--rc-logoink:#0F3D2E;--rc-ring:inset 0 0 0 1px rgba(255,255,255,.16),inset 0 1px 0 rgba(255,255,255,.22)}
+.rcpop.day{--rc-edge:#0F3D2E;--rc-mid:#1E5A43;--rc-glow:rgba(86,150,116,.95);
+ --rc-bg:rgba(250,248,242,.66);--rc-ink:#14201A;--rc-mute:rgba(20,32,26,.62);--rc-acc:#7E6130;--rc-tile:rgba(255,255,255,.55);--rc-tedge:rgba(255,255,255,.75);--rc-line:rgba(15,40,30,.1);--rc-rule:rgba(126,97,48,.35);
+ --rc-av:#0F3D2E;--rc-avink:#F7F3EA;--rc-logo:#0F3D2E;--rc-logoink:#F7F3EA;--rc-ring:inset 0 0 0 1px rgba(255,255,255,.7)}
+.rcpop.sunset{--rc-edge:#2A1420;--rc-mid:#7E3A2C;--rc-glow:rgba(236,164,96,.9);
+ --rc-bg:rgba(44,16,14,.3);--rc-ink:#FFF6EA;--rc-mute:rgba(255,246,234,.74);--rc-acc:#F4CB8C;--rc-tile:rgba(255,255,255,.1);--rc-tedge:rgba(255,255,255,.1);--rc-line:rgba(255,255,255,.14);--rc-rule:rgba(244,203,140,.5);
+ --rc-av:#FFF6EA;--rc-avink:#7A2E25;--rc-logo:#FFF6EA;--rc-logoink:#7A2E25;--rc-ring:inset 0 0 0 1px rgba(255,255,255,.18),inset 0 1px 0 rgba(255,255,255,.25)}
+.rcpick{display:flex;gap:2px;padding:3px;border-radius:999px;background:rgba(255,255,255,.12)}
+.rcpick button{display:flex;align-items:center;gap:7px;height:36px;padding:0 14px;border:0;border-radius:999px;background:transparent;color:rgba(255,255,255,.88);font:600 14px "Public Sans",sans-serif;white-space:nowrap;cursor:pointer}
+.rcpick button[aria-pressed="true"]{background:#F7F3EA;color:#10201A}
+.rcpick i{width:12px;height:12px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
+.rbtns3{flex-wrap:nowrap}.rbtns3 .btn{flex:1 1 auto;min-width:0;padding-left:12px;padding-right:12px;white-space:nowrap}
+
 </style>
 </head>
 <body>
@@ -1079,7 +1132,7 @@ html.glass[data-theme="light"] .amenu .atx small{color:rgba(20,32,26,.6)}
 <main>
 <div id="note" role="status" aria-live="polite"></div><div id="view"></div>
 </main>
-<div id="fbk"></div><div id="popk"></div><div id="popa"></div><div id="popr"></div>
+<div id="fbk"></div><div id="popk"></div><div id="popa"></div><div id="popr"></div><div id="poprc"></div>
 <script src="courses.js?v=2"></script>
 <script>
 const LOW=[0,0,0,1,1,1,2,2,2,3,3,3,4,4,4,5,5,6,6,7,8],ADJ={3:-2,4:-1,6:-1};
@@ -1235,7 +1288,7 @@ function render(){
  const keep={};document.querySelectorAll('#view input[id]:not([type=file]),#view textarea[id]').forEach(i=>keep[i.id]=i.value);
  const navH=tab==='home'?'':`<div class="navl"><button class="back" data-go="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Home</button>${fbBtn()}</div><span class="ttl">${PAGES[tab]}</span>${toolsHTML()}`;
  if(navH!==lastNav){lastNav=navH;$('nav').innerHTML=navH;$('navbar').hidden=tab==='home';document.querySelector('.mast').classList.toggle('home',tab==='home');$('nav').querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));fitTtl()}
- paintTheme();rmPaint();delPaint();confPaint();
+ paintTheme();rmPaint();delPaint();confPaint();recapPaint();
  const noteH=note?`<p class="toast">${esc(note)}</p>`:'';if(noteH!==lastNote){lastNote=noteH;$('note').innerHTML=noteH}
  const html=main();if(html===lastView)return;lastView=html;
  const v=$('view');v.innerHTML=html;
@@ -1688,6 +1741,36 @@ function confPaint(){const k=$('popr');if(!k)return;const r=tab==='play'&&curId&
   else{patch('rounds/'+r.id,{players:{[me]:null}});setCur(null);render()}}}
 function saveRound(r){if(edit===r.id){setCur(null);openRound=r.id;go('rounds');say('Changes saved.');return}
  if(!r.rating){ask={k:'cur'};err='';render()}else finishRound(r)}
+// Round recap: shown once a round is saved with every hole scored for every golfer, sized to screenshot and post
+let recap=null; // id of the round whose recap is showing
+let rcScheme=null,rcStill=false; // color scheme picked on the recap (starts as the app's Day or Night) and whether to skip the pop-in when it changes
+const RCS=[['day','Day','#F7F3EA'],['night','Night','#0F3D2E'],['sunset','Sunset','#D9784A']],RCEDGE={day:'#0F3D2E',night:'#0B1411',sunset:'#2A1420'};
+// tints the iPhone strips around the page to match the recap's gradient while it's open, then puts them back
+function rcChrome(c){const R=document.documentElement,m=document.querySelector('meta[name=theme-color]');
+ if(c){if(!rcChrome.s)rcChrome.s=[R.style.backgroundColor,m&&m.content];R.style.backgroundColor=c;if(m)m.content=c}
+ else if(rcChrome.s){R.style.backgroundColor=rcChrome.s[0];if(m&&rcChrome.s[1]!=null)m.content=rcChrome.s[1];rcChrome.s=null}}
+const RCLOGO='<svg viewBox="0 0 100 100" aria-hidden="true"><rect x="2" y="2" width="96" height="96" rx="24" fill="#F7F3EA"/><text x="50" y="62.5" text-anchor="middle" textLength="64" lengthAdjust="spacingAndGlyphs" font-family="Barlow Condensed,Arial Narrow,sans-serif" font-weight="700" font-size="42" fill="#0F3D2E">B<tspan fill="#B8925A">2</tspan>B</text><circle cx="50" cy="77" r="2.6" fill="#B8925A"/></svg>';
+function recapHTML(r){
+ const ps=r.keys.map(k=>{const s=r.sc[k],m=[0,0,0,0,0];s.forEach((v,j)=>{const d=v-r.par[j];m[d<=-2?0:d===-1?1:d===0?2:d===1?3:4]++});
+  return{k,nm:kname(r,k),t:sum(s),p:toPar(s,r.par),out:sum(s.slice(0,9)),in:sum(s.slice(9)),m}}).sort((a,b)=>a.t-b.t);
+ ps.forEach(x=>x.rk=1+ps.filter(y=>y.t<x.t).length);
+ const top=ps[0],solo=ps.length===1,pp=sum(r.par),cn=String(r.cn||'');
+ const split=x=>r.n>9?`Out ${x.out} · In ${x.in}`:'';
+ const mix=x=>[['Eagle',x.m[0]],['Birdie',x.m[1]],['Par',x.m[2]]].filter(z=>z[1]).map(([l,n])=>n+' '+l.toLowerCase()+(n===1?'':'s')).slice(0,1).join('');
+ const lbl=solo?'Final score':ps[1].t===top.t?'Tied for low':'Low round';
+ let h=`<div class="rc" id="rccard"><div class="rck">Round recap</div><b class="rcn">${esc(cn)}</b><div class="rcm">${fmtDate(r.date)} · ${r.tn?esc(r.tn)+' tees · ':''}${r.n} holes · par ${pp}</div>`;
+ h+=`<div class="rchero">${face(r.pl[top.k].uid,top.nm)}<div class="rchw"><span class="rchl">${lbl}</span><b class="rchn">${esc(top.nm)}</b>${split(top)?`<small>${split(top)}</small>`:''}</div><div class="rchs"><b>${top.t}</b><span>${fmtPar(top.p)}</span></div></div>`;
+ if(solo)h+=`<div class="rcmix">${[['Eagle+',0],['Birdie',1],['Par',2],['Bogey',3],['Double+',4]].map(([l,i])=>`<div><b>${top.m[i]}</b><small>${l}</small></div>`).join('')}</div>`;
+ else h+=`<div class="rclist">${ps.map(x=>{const sub=[r.n>9?x.out+'–'+x.in:'',mix(x)].filter(Boolean).join(' · ');return `<div class="rcrow"><span class="rcrk">${x.rk}</span>${face(r.pl[x.k].uid,x.nm)}<span class="rcw"><b>${esc(x.nm)}</b>${sub?`<small>${sub}</small>`:''}</span><span class="rct">${x.t}</span><span class="rcp">${fmtPar(x.p)}</span></div>`}).join('')}</div>`;
+ return h+`<div class="rcf">${RCLOGO}<div><b>Bro 2 Bro <span>Golf Club</span></b><small>Made by Bros, for Bros.</small></div></div></div>`}
+function recapPaint(){const k=$('poprc');if(!k)return;const r=recap&&state==='ok'&&R(recap),a=r&&allDone(r)?r:null;
+ const sc=rcScheme||(theme==='light'?'day':'night');
+ const h=a?`<div class="pop rcpop ${sc}${rcStill?' still':''}" id="rcbg"><div class="rcwrap" role="dialog" aria-modal="true" aria-label="Round recap">${recapHTML(a)}<div class="rcpick" role="group" aria-label="Colors">${RCS.map(([k,l,c])=>`<button data-rcs="${k}" aria-pressed="${k===sc}"><i style="background:${c}"></i>${l}</button>`).join('')}</div><p class="rchint">Take a screenshot to share it.</p><button class="rcdone" id="rcdone">Done</button></div></div>`:'';
+ if(k.dataset.h===h)return;k.dataset.h=h;k.innerHTML=h;rcChrome(a&&RCEDGE[sc]);if(!a)return;
+ const close=()=>{recap=null;rcStill=false;render()};
+ k.querySelectorAll('[data-rcs]').forEach(b=>b.onclick=()=>{rcScheme=b.dataset.rcs;rcStill=true;render()});
+ {const n=k.querySelector('.rcn');let f=30;while(n.scrollWidth>n.clientWidth&&f>18)n.style.fontSize=--f+'px'}
+ $('rcdone').onclick=close;$('rcbg').onclick=e=>{if(e.target.id==='rcbg'||e.target.classList.contains('rcwrap'))close()}}
 let delConf=null;
 const CHECK='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const XMARK='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
@@ -1704,7 +1787,7 @@ function roundsView(){
  if(unf.length)h+=`<h2 class="sect">Saved</h2>`;
  if(!rs.length)return h+box('<p class="empty">No finished rounds yet. Save one from the Play page and it shows up here for the whole group.</p>');
  return h+rs.map(r=>{const pp=sum(r.par),full=r.par.every(Boolean),open=openRound===r.id,inc=r.keys.some(k=>r.sc[k].some(v=>v==null));
-  return box(`<div class="rhead"><div><b>${esc(r.cn)}</b>${inc?' <span class="pill">Incomplete</span>':''}<br><span class="sub">${r.date} · ${r.rating?esc(r.tn||'Tees')+' · '+r.rating+' / '+r.slope:'no rating yet'}</span></div>${canDel(r)?`<button class="iconbtn" data-del="${r.id}" aria-label="Delete this round">${TRASH}</button>`:''}</div>${delConf===r.id?delBox(r):`${r.rating||!canWrite?'':`<div style="margin:8px 0"><button class="btn alt" data-fix="${r.id}">Add rating and slope</button></div>`}${r.n!==18?`<p class="sub">Only 18-hole rounds count toward handicap.</p>`:''}${open?card(r,false):`<table>${r.keys.map(k=>{const sc=r.sc[k],f=sc.every(v=>v!=null),t=sum(sc);return `<tr><td>${knt(r,k)}</td><td class="r num">${f?t:'incomplete'}</td><td class="r ${full&&t>pp?'over':''}">${f&&full?fmtPar(t-pp):''}</td></tr>`}).join('')}</table>`}<div class="row"><button class="btn alt" data-card="${r.id}">${open?'Hide scorecard':'Scorecard'}</button>${canWrite&&r.pl[me]?`<button class="btn${inc?'':' alt'}" data-edit="${r.id}">${inc?'Finish scores':'Edit scores'}</button>`:''}</div>`}`)}).join('');
+  return box(`<div class="rhead"><div><b>${esc(r.cn)}</b>${inc?' <span class="pill">Incomplete</span>':''}<br><span class="sub">${r.date} · ${r.rating?esc(r.tn||'Tees')+' · '+r.rating+' / '+r.slope:'no rating yet'}</span></div>${canDel(r)?`<button class="iconbtn" data-del="${r.id}" aria-label="Delete this round">${TRASH}</button>`:''}</div>${delConf===r.id?delBox(r):`${r.rating||!canWrite?'':`<div style="margin:8px 0"><button class="btn alt" data-fix="${r.id}">Add rating and slope</button></div>`}${r.n!==18?`<p class="sub">Only 18-hole rounds count toward handicap.</p>`:''}${open?card(r,false):`<table>${r.keys.map(k=>{const sc=r.sc[k],f=sc.every(v=>v!=null),t=sum(sc);return `<tr><td>${knt(r,k)}</td><td class="r num">${f?t:'incomplete'}</td><td class="r ${full&&t>pp?'over':''}">${f&&full?fmtPar(t-pp):''}</td></tr>`}).join('')}</table>`}<div class="row rbtns3"><button class="btn alt" data-card="${r.id}">${open?'Hide scorecard':'Scorecard'}</button>${allDone(r)?`<button class="btn alt" data-recap="${r.id}">Recap</button>`:''}${canWrite&&r.pl[me]?`<button class="btn${inc?'':' alt'}" data-edit="${r.id}">${inc?'Finish scores':'Edit scores'}</button>`:''}</div>`}`)}).join('');
 }
 let fq='',rmConf=null;
 /* ---------- admin: view as another player (read-only) ---------- */
@@ -1854,7 +1937,7 @@ async function startRound(){
  if(!D['rounds/'+ref.id])D['rounds/'+ref.id]=body;
  setCur(ref.id);hole[ref.id]=0;mode='hole';sel.clear();guests=[];pick=null;q='';render();
 }
-function finishRound(r){patch('rounds/'+r.id,{status:'done',finished:Date.now()});setCur(null);ask=null;err='';openRound=r.id;go('rounds')}
+function finishRound(r){patch('rounds/'+r.id,{status:'done',finished:Date.now()});setCur(null);ask=null;err='';openRound=r.id;if(allDone(r))recap=r.id;go('rounds')}
 async function importOld(){
  const b=$('impgo');if(b)b.disabled=true;
  for(const r of OLD.rounds){const pl={},scores={};
@@ -1973,6 +2056,7 @@ function bind(){
  click('rskip',()=>{if(ask.k==='cur')finishRound(r);else{ask=null;err='';render()}});
  // rounds + people
  on('[data-scope]',b=>b.onclick=()=>{scope=b.dataset.scope;render()});
+ on('[data-recap]',b=>b.onclick=()=>{recap=b.dataset.recap;render()});
  on('[data-card]',b=>b.onclick=()=>{openRound=openRound===b.dataset.card?null:b.dataset.card;render()});
  on('[data-del]',b=>b.onclick=()=>{delConf=b.dataset.del;render()});
  on('[data-delno]',b=>b.onclick=()=>{delConf=null;render()});
