@@ -629,6 +629,8 @@ a.srow{text-decoration:none}
 .cegrid{width:100%;border-collapse:collapse;table-layout:fixed;margin-top:12px}
 .cegrid th{font:600 12px "Public Sans",sans-serif;color:var(--mute);padding:4px 0;text-align:center}.cegrid tr>th:first-child{width:38px;text-align:left}
 .cegrid td{padding:2px}.cegrid input{width:100%;margin:0;padding:8px 0;text-align:center;font-size:16px;border-radius:8px}
+.ceteeb+.ceteeb{margin-top:14px;padding-top:6px;border-top:1px solid var(--line)}
+.ygrid{margin-top:6px}.ygrid tr>th:first-child{width:30px}.ygrid td{padding:2px .5px}.ygrid input{font-size:16px;letter-spacing:-.05em}
 .cetee{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr) 34px;gap:6px;align-items:center;margin-top:8px}.cetee input{margin:0;min-width:0;padding-left:10px;padding-right:8px}
 .geohd{display:flex;align-items:center;gap:6px;margin:14px 0 4px;flex-wrap:wrap}.geohd svg{width:16px;height:16px;flex:none;color:var(--accent)}
 .credit a{color:inherit;text-underline-offset:2px}
@@ -736,6 +738,16 @@ select{-webkit-appearance:none;appearance:none;min-height:46px;line-height:1.25;
 :root[data-theme="dark"] .vtag{background:rgba(217,183,126,.18);color:#E6C996}
 .atag{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;vertical-align:2px;background:#B8925A;color:#fff;font:700 10.5px/1.4 "Public Sans",sans-serif;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
 :root[data-theme="dark"] .atag{background:#D9B77E;color:#0B1411}
+/* Your yards: the signed-in player's own Range averages on the hole, one line that swipes sideways */
+.yrds{display:flex;align-items:center;gap:10px;margin:0 0 12px;min-width:0}
+.ylab{flex:none;font:700 13px "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--metal);white-space:nowrap}
+.yscroll{display:flex;gap:6px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.yscroll::-webkit-scrollbar{display:none}
+.yc{flex:none;display:flex;flex-direction:column;align-items:center;min-width:46px;padding:5px 8px 4px;border-radius:10px;background:var(--fill);line-height:1.1;white-space:nowrap}
+.yc small{font-size:11px;font-weight:600;color:var(--mute)}
+.yc b{font-size:18px}
+.yc.on{background:#0F3D2E;color:#F7F3EA}.yc.on small{color:inherit;opacity:.8}
+:root[data-theme="dark"] .yc.on{background:#D9B77E;color:#0B1411}
 /* ---- "Glass" look: the main design (html.glass). ?look=classic in the address turns it off ----
    Frosted panels over a course photo, styled after iOS materials.
    Night (dark theme) is dark glass with white text; Day (light theme) is bright glass with dark text. */
@@ -813,6 +825,7 @@ html.glass .srow+.srow::before{content:"";position:absolute;top:0;left:14px;righ
 html.glass .frow{border-color:var(--g-sep)!important}
 html.glass .ctile,html.glass .pk{background:var(--g-inner)!important;color:var(--g-ink)}
 html.glass .pk.on{background:var(--g-btn)!important;color:var(--g-btnink)!important}
+html.glass .yc{background:var(--g-inner)}html.glass .yc.on{background:var(--g-btn);color:var(--g-btnink)}
 html.glass .pill:not(.bug):not([class*="fbst-"]){background:color-mix(in srgb,var(--g-acc) 22%,transparent);color:var(--g-ink)}
 
 /* fields */
@@ -1161,14 +1174,15 @@ const gone=id=>!!(doc('courseinfo/'+id)||{}).gone;
 function cdata(c){const u=doc('courseinfo/'+c.id)||{};
  if(u.ad){// Verified by the admin in Admin → Courses: these replace the built-in details
   const n=holesN(u.pn||c.hc||18),a=nums(u.par,n),hh=nums(u.h,n);
-  const tees=Object.entries(u.tees||{}).filter(([,v])=>v).map(([k,v])=>{const b=c.tees.find(t=>t.n===k);return{n:k,c:b?b.c:'',r:num(v.r),s:num(v.s),y:b&&b.y&&b.y.length===n?b.y:null,o:num(v.o)}}).sort((x,y)=>(x.o==null?99:x.o)-(y.o==null?99:y.o));
-  return{par:a.some(Boolean)?a:null,h:hh.every(Boolean)?hh:null,tees,n,ad:u.ad}}
+  const tees=Object.entries(u.tees||{}).filter(([,v])=>v).map(([k,v])=>{const b=c.tees.find(t=>t.n===k),yy=nums(v.y,n);return{n:k,c:b?b.c:'',r:num(v.r),s:num(v.s),y:yy.every(Boolean)?yy:b&&b.y&&b.y.length===n?b.y:null,o:num(v.o)}}).sort((x,y)=>(x.o==null?99:x.o)-(y.o==null?99:y.o));
+  // ok: every hole has a par and a handicap, and every tee has all its yardages. Only then is it shown as Verified
+  return{par:a.some(Boolean)?a:null,h:hh.every(Boolean)?hh:null,tees,n,ad:u.ad,ok:a.every(Boolean)&&hh.every(Boolean)&&tees.length>0&&tees.every(t=>t.y)}}
  const ct=Object.entries(u.tees||{}).filter(([k,v])=>v&&!c.tees.some(t=>t.n===k)).map(([k,v])=>({n:k,c:'',r:num(v.r),s:num(v.s),y:null}));
  let par=c.p;if(!par&&u.par&&u.pn){const a=nums(u.par,holesN(u.pn));if(a.some(Boolean))par=a}
  return{par,h:c.h,tees:c.tees.concat(ct),n:null}}
 const STD=['Red','White','Blue','Black','Gold'];
 // Shown to everyone on courses the admin verified in Admin → Courses (exact tees, ratings and pars).
-const VTAG='<span class="vtag" title="Tees, ratings and pars confirmed by the club"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>Verified</span>';
+const VTAG='<span class="vtag" title="Pars, hole handicaps and yardages confirmed by the club"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>Verified</span>';
 // Tees to offer when starting a round. A course the admin verified in Admin → Courses shows exactly the tees
 // entered there, in that order. Every other course shows the five standard colors, with a rating and slope
 // only where the built-in data has one for that color.
@@ -1350,6 +1364,10 @@ const CLUBS=[['dr','Driver','Driver'],['3w','3 Wood','3W'],['5w','5 Wood','5W'],
  ['2i','2 Iron','2i'],['3i','3 Iron','3i'],['4i','4 Iron','4i'],['5i','5 Iron','5i'],['6i','6 Iron','6i'],['7i','7 Iron','7i'],['8i','8 Iron','8i'],['9i','9 Iron','9i'],
  ['pw','Pitching Wedge','PW'],['gw','Gap Wedge','GW'],['sw','Sand Wedge','SW'],['lw','Lob Wedge','LW'],['pt','Putter','Putter']];
 const CLUB=Object.fromEntries(CLUBS.map(([k,n,sh])=>[k,{n,sh}])),MAXBAG=14,SHOTS=5;
+// The signed-in player's own Range averages for the hole screen (bags are private, so a friend's never load). On a par 3 with a known yardage, the closest club is highlighted
+function yards(par,yds){const b=bag(),ks=b.clubs.filter(k=>k!=='pt'&&b.dist[k]&&Math.round(+b.dist[k].avg)>0);if(!ks.length)return'';
+ const av=k=>Math.round(+b.dist[k].avg),best=par===3&&yds>0?ks.reduce((a,k)=>Math.abs(av(k)-yds)<Math.abs(av(a)-yds)?k:a):null;
+ return `<div class="yrds" role="group" aria-label="Your Range distances"><span class="ylab">Your yards</span><div class="yscroll">${ks.map(k=>`<span class="yc${k===best?' on':''}" aria-label="${CLUB[k].n}: ${av(k)} yards${k===best?', closest to this hole':''}"><small>${CLUB[k].sh}</small><b class="num">${av(k)}</b></span>`).join('')}</div></div>`}
 const bag=()=>{const d=me&&doc('bags/'+me)||{};return{clubs:(d.clubs||[]).filter(k=>CLUB[k]).sort((a,b)=>CLUBS.findIndex(c=>c[0]===a)-CLUBS.findIndex(c=>c[0]===b)),dist:d.dist||{}}};
 let bagEdit=false,bagSel=null,rClub=null,rMode=null,rReset=false;/* rMode: null (choosing), 'merge' or 'fresh' */
 const MAXSHOTS=100;/* merged averages keep the most recent 100 shots */
@@ -1439,34 +1457,43 @@ function fbAdmin(){
 /* ---------- admin ---------- */
 let admUid=null,admConf=false,admQ='',admBlk=false;
 /* ---------- admin: course editor ---------- */
-// ceId: the course being edited ('new' for a new one); ce: its draft {n,t,s,holes,par[],h[],tees:[{k,n,r,s}]}
+// ceId: the course being edited ('new' for a new one); ce: its draft {n,t,s,holes,par[],h[],tees:[{k,n,r,s,y[]}]}
 let ceQ='',ceId=null,ce=null,ceDel=false,ceGone=false;
 const ceKey=()=>Math.random().toString(36).slice(2,8);
 function ceOpen(id){const c=id==='new'?null:course(id);ceDel=false;ceGone=false;err='';
- if(!c){ce={n:'',t:'',s:st||'AZ',holes:18,par:[],h:[],tees:[{k:ceKey(),n:'White',r:'',s:''}],isNew:true,added:true};ceId='new';render();return}
+ if(!c){ce={n:'',t:'',s:st||'AZ',holes:18,par:[],h:[],tees:[{k:ceKey(),n:'White',r:'',s:'',y:[]}],isNew:true,added:true};ceId='new';render();return}
  const d=cdata(c),n=d.par?d.par.length:(d.n||c.hc||18);
- ce={n:c.n,t:c.t,s:c.s,holes:n>=18?18:9,par:(d.par||[]).slice(),h:(d.h||[]).slice(),tees:d.tees.map(t=>({k:ceKey(),n:t.n,r:t.r==null?'':t.r,s:t.s==null?'':t.s})),added:!!(doc('courseinfo/'+id)||{}).added};
- if(!ce.tees.length)ce.tees.push({k:ceKey(),n:'White',r:'',s:''});
+ const ut=(doc('courseinfo/'+id)||{}).tees||{},ty=t=>{const a=nums(ut[t.n]&&ut[t.n].y,n);return a.some(Boolean)?a.map(x=>x??''):(t.y||[]).slice()};
+ ce={n:c.n,t:c.t,s:c.s,holes:n>=18?18:9,par:(d.par||[]).slice(),h:(d.h||[]).slice(),tees:d.tees.map(t=>({k:ceKey(),n:t.n,r:t.r==null?'':t.r,s:t.s==null?'':t.s,y:ty(t)})),added:!!(doc('courseinfo/'+id)||{}).added};
+ if(!ce.tees.length)ce.tees.push({k:ceKey(),n:'White',r:'',s:'',y:[]});
  ceId=id;window.scrollTo(0,0);render()}
 // Copies what's typed into the draft, so re-drawing the page never loses it
 function ceRead(){if(!ce)return;const v=id=>{const e=$(id);return e?e.value.trim():null};
  if(ce.added){ce.n=v('ce-n')??ce.n;ce.t=v('ce-t')??ce.t;ce.s=v('ce-s')??ce.s}
  for(let i=0;i<ce.holes;i++){const a=v('ce-p'+i),b=v('ce-h'+i);if(a!=null)ce.par[i]=a;if(b!=null)ce.h[i]=b}
- ce.tees.forEach(t=>{t.n=v('ce-tn-'+t.k)??t.n;t.r=v('ce-tr-'+t.k)??t.r;t.s=v('ce-ts-'+t.k)??t.s})}
+ ce.tees.forEach(t=>{t.n=v('ce-tn-'+t.k)??t.n;t.r=v('ce-tr-'+t.k)??t.r;t.s=v('ce-ts-'+t.k)??t.s;for(let i=0;i<ce.holes;i++){const y=v('ce-y'+t.k+'-'+i);if(y!=null)t.y[i]=y}})}
 function courseAdmin(){
  if(ceId&&ce){const c=ceId==='new'?null:course(ceId),ci=c&&doc('courseinfo/'+c.id),hasPar=ce.par.slice(0,ce.holes).some(x=>x!==''&&x!=null);
   const nine=(f)=>`<table class="cegrid"><tr><th>Hole</th>${[...Array(9)].map((_,j)=>`<th>${f+j+1}</th>`).join('')}</tr><tr><th>Par</th>${[...Array(9)].map((_,j)=>{const i=f+j;return `<td><input id="ce-p${i}" inputmode="numeric" maxlength="1" aria-label="Hole ${i+1} par" value="${esc(ce.par[i]??'')}"></td>`}).join('')}</tr><tr><th>Hcp</th>${[...Array(9)].map((_,j)=>{const i=f+j;return `<td><input id="ce-h${i}" inputmode="numeric" maxlength="2" aria-label="Hole ${i+1} handicap" value="${esc(ce.h[i]??'')}"></td>`}).join('')}</tr></table>`;
-  let h=box(`${crumb('admcourses','All courses')}${ce.added?`<b>${ce.isNew?'Add a course':'Course details'}</b><label for="ce-n">Course name</label><input id="ce-n" maxlength="60" value="${esc(ce.n)}"><div class="row" style="flex-wrap:nowrap"><div style="flex:2;min-width:0"><label for="ce-t">City</label><input id="ce-t" maxlength="40" value="${esc(ce.t)}"></div><div style="flex:1;min-width:0"><label for="ce-s">State</label><select id="ce-s">${STATES.map(x=>`<option ${x===ce.s?'selected':''}>${x}</option>`).join('')}</select></div></div>`:`<b class="an">${esc(ce.n)}</b><p class="sub" style="margin:2px 0 0">${esc(ce.t)}${ce.t&&ce.s?', ':''}${esc(ce.s)}${ci&&ci.ad?' · <span class="pill">Verified</span>':''}</p>`}<p style="margin:14px 0 6px"><b>Holes</b></p><div class="row">${[9,18].map(x=>`<button class="chip" aria-pressed="${ce.holes===x}" data-ceh="${x}">${x}</button>`).join('')}</div>`);
+  let h=box(`${crumb('admcourses','All courses')}${ce.added?`<b>${ce.isNew?'Add a course':'Course details'}</b><label for="ce-n">Course name</label><input id="ce-n" maxlength="60" value="${esc(ce.n)}"><div class="row" style="flex-wrap:nowrap"><div style="flex:2;min-width:0"><label for="ce-t">City</label><input id="ce-t" maxlength="40" value="${esc(ce.t)}"></div><div style="flex:1;min-width:0"><label for="ce-s">State</label><select id="ce-s">${STATES.map(x=>`<option ${x===ce.s?'selected':''}>${x}</option>`).join('')}</select></div></div>`:`<b class="an">${esc(ce.n)}</b><p class="sub" style="margin:2px 0 0">${esc(ce.t)}${ce.t&&ce.s?', ':''}${esc(ce.s)}${ci&&ci.ad?` · <span class="pill">${cdata(c).ok?'Verified':'Incomplete'}</span>`:''}</p>`}<p style="margin:14px 0 6px"><b>Holes</b></p><div class="row">${[9,18].map(x=>`<button class="chip" aria-pressed="${ce.holes===x}" data-ceh="${x}">${x}</button>`).join('')}</div>`);
   h+=box(`<b>Pars and hole handicaps</b><p class="sub" style="margin-top:4px">Hcp is the hole’s handicap from the scorecard, 1 for the hardest. Leave it blank if you don’t know it.</p>${nine(0)}${ce.holes===18?nine(9):''}<p class="sub" id="ce-tot" style="margin:8px 0 0">${ceTot()}</p>`);
-  h+=box(`<b>Tees</b><p class="sub" style="margin-top:4px">Rating and slope are printed on the scorecard for each set of tees. They’re used for handicaps.</p>${ce.tees.map(t=>`<div class="cetee"><input id="ce-tn-${t.k}" maxlength="20" placeholder="Tee name" aria-label="Tee name" value="${esc(t.n)}"><input id="ce-tr-${t.k}" inputmode="decimal" maxlength="5" placeholder="Rating" aria-label="Course rating" value="${esc(t.r)}"><input id="ce-ts-${t.k}" inputmode="numeric" maxlength="3" placeholder="Slope" aria-label="Slope" value="${esc(t.s)}"><button class="iconbtn sm" data-cetx="${t.k}" aria-label="Remove tee">×</button></div>`).join('')}<button class="btn alt sm" id="ce-addtee" style="margin-top:10px">Add tees</button>`);
-  h+=box(`${err?`<p class="over" style="margin:0 0 10px">${esc(err)}</p>`:''}<button class="btn" id="ce-save" style="width:100%">Save for everyone</button><p class="sub" style="margin:8px 0 0">Saving marks the course as verified. New rounds use these pars, handicaps and ratings; rounds already played keep theirs.</p>${ceId==='new'?'':ceDel?`<div class="delc" style="margin:14px 0 0"><b>${ce.added?'Delete this course?':'Undo your edits?'}</b><p class="sub">${ce.added?'It disappears from the course list. Rounds already played keep their scores.':'The course goes back to the details it came with.'}</p><div class="row"><button class="btn danger" id="ce-delyes">${ce.added?'Delete course':'Undo edits'}</button><button class="btn alt" id="ce-delno">Cancel</button></div></div>`:ce.added||(ci&&ci.ad)?`<button class="btn alt" id="ce-del" style="width:100%;margin-top:12px">${ce.added?'Delete course':'Undo my edits'}</button>`:''}`);
+  h+=box(`<b>Tees</b><p class="sub" style="margin-top:4px">Rating, slope and hole yardages are printed on the scorecard for each set of tees. Rating and slope are used for handicaps.</p>${ce.tees.map(t=>`<div class="ceteeb"><div class="cetee"><input id="ce-tn-${t.k}" maxlength="20" placeholder="Tee name" aria-label="Tee name" value="${esc(t.n)}"><input id="ce-tr-${t.k}" inputmode="decimal" maxlength="5" placeholder="Rating" aria-label="Course rating" value="${esc(t.r)}"><input id="ce-ts-${t.k}" inputmode="numeric" maxlength="3" placeholder="Slope" aria-label="Slope" value="${esc(t.s)}"><button class="iconbtn sm" data-cetx="${t.k}" aria-label="Remove tee">×</button></div>${ygrid(t,0)}${ce.holes===18?ygrid(t,9):''}<p class="sub" id="ce-yt-${t.k}" style="margin:6px 0 0">${yTot(t)}</p></div>`).join('')}<button class="btn alt sm" id="ce-addtee" style="margin-top:10px">Add tees</button>`);
+  h+=box(`${err?`<p class="over" style="margin:0 0 10px">${esc(err)}</p>`:''}<button class="btn" id="ce-save" style="width:100%">Save for everyone</button><p class="sub" id="ce-ver" style="margin:8px 0 0">${ceVer()}</p><p class="sub" style="margin:6px 0 0">New rounds use these pars, handicaps, ratings and yardages; rounds already played keep theirs.</p>${ceId==='new'?'':ceDel?`<div class="delc" style="margin:14px 0 0"><b>${ce.added?'Delete this course?':'Undo your edits?'}</b><p class="sub">${ce.added?'It disappears from the course list. Rounds already played keep their scores.':'The course goes back to the details it came with.'}</p><div class="row"><button class="btn danger" id="ce-delyes">${ce.added?'Delete course':'Undo edits'}</button><button class="btn alt" id="ce-delno">Cancel</button></div></div>`:ce.added||(ci&&ci.ad)?`<button class="btn alt" id="ce-del" style="width:100%;margin-top:12px">${ce.added?'Delete course':'Undo my edits'}</button>`:''}`);
   if(ceId!=='new'&&!ce.added)h+=box(ci&&ci.gone?`<b>Removed from the course list</b><p class="sub" style="margin-top:4px">Players can’t pick it. Rounds already played keep their scores.</p><button class="btn alt" id="ce-back" style="width:100%">Put it back</button>`:ceGone?`<div class="delc" style="margin:0"><b>Remove this course?</b><p class="sub">Players won’t see it when picking a course. Rounds already played keep their scores${ci&&ci.ad?', and the details you saved for it are cleared':''}. You can put it back here.</p><div class="row"><button class="btn danger" id="ce-goneyes">Remove course</button><button class="btn alt" id="ce-goneno">Cancel</button></div></div>`:`<button class="btn alt" id="ce-gone" style="width:100%">Remove from course list</button>`);
   return h}
  const k=ceQ.toLowerCase().trim(),edited=Object.keys(D).filter(x=>x.startsWith('courseinfo/')&&(doc(x).ad||doc(x).added||doc(x).gone)).map(x=>course(x.slice(11))).filter(Boolean);
  const list=k?all().filter(c=>c.k.includes(k)).slice(0,25):edited;
- const row=c=>{const u=doc('courseinfo/'+c.id)||{};return `<button class="frow admrow" data-ce="${c.id}"><span class="fwho"><b>${esc(c.n)}${u.ad?' <span class="pill">Verified</span>':''}${u.gone?' <span class="pill">Removed</span>':''}</b><small>${esc(c.t)}${c.t&&c.s?', ':''}${esc(c.s)} · ${cdata(c).par?'pars':'no pars'} · ${cdata(c).tees.some(t=>t.r)?'rating':'no rating'}</small></span><span class="chev2"></span></button>`};
+ const row=c=>{const u=doc('courseinfo/'+c.id)||{};return `<button class="frow admrow" data-ce="${c.id}"><span class="fwho"><b>${esc(c.n)}${u.ad?` <span class="pill">${cdata(c).ok?'Verified':'Incomplete'}</span>`:''}${u.gone?' <span class="pill">Removed</span>':''}</b><small>${esc(c.t)}${c.t&&c.s?', ':''}${esc(c.s)} · ${cdata(c).par?'pars':'no pars'} · ${cdata(c).tees.some(t=>t.r)?'rating':'no rating'}</small></span><span class="chev2"></span></button>`};
  return box(`<div class="rhead"><div><b>Courses</b><br><span class="sub">${COURSES.length.toLocaleString()} built in · only you can change them</span></div><button class="btn alt sm" id="ce-new" style="white-space:nowrap;flex:none">Add course</button></div><input id="ceq" type="search" placeholder="Search by name or city" value="${esc(ceQ)}" autocomplete="off" style="margin-top:12px">${k?'':`<p class="sub" style="margin:12px 0 0">${edited.length?'Courses you’ve added or verified':'Search to find a course, then set its pars, hole handicaps and tees.'}</p>`}<div class="admlist">${list.map(row).join('')}</div>${k&&!list.length?'<p class="empty">No course matches.</p>':''}`)+'<p class="sub">Players can tap pars and enter ratings during their own rounds, but only your edits here change a course for everyone.</p>';
 }
+function ygrid(t,f){return `<table class="cegrid ygrid"><tr><th>Hole</th>${[...Array(9)].map((_,j)=>`<th>${f+j+1}</th>`).join('')}</tr><tr><th>Yds</th>${[...Array(9)].map((_,j)=>{const i=f+j;return `<td><input id="ce-y${t.k}-${i}" inputmode="numeric" maxlength="3" aria-label="${esc(t.n||'Tee')} hole ${i+1} yards" value="${esc(t.y[i]??'')}"></td>`}).join('')}</tr></table>`}
+function yTot(t){const y=t.y.slice(0,ce.holes).map(Number),out=y.slice(0,9).reduce((a,b)=>a+(b||0),0),inn=y.slice(9).reduce((a,b)=>a+(b||0),0),f=x=>x?x.toLocaleString():'–';return ce.holes===18?`Out ${f(out)} · In ${f(inn)} · ${f(out+inn)} yds`:`${f(out)} yds`}
+// What's still missing before the course shows as Verified (same test as ok in cdata)
+function ceVer(){const n=ce.holes,blank=a=>[...Array(n)].filter((_,i)=>!String(a[i]??'').trim()).length,miss=[];
+ const p=blank(ce.par),h=blank(ce.h);if(p)miss.push(`pars on ${p} hole${p>1?'s':''}`);if(h)miss.push(`handicaps on ${h} hole${h>1?'s':''}`);
+ const ts=ce.tees.filter(t=>t.n||t.r||t.s||t.y.some(x=>String(x??'').trim()));if(!ts.length)miss.push('a set of tees');
+ ts.forEach(t=>{const y=blank(t.y);if(y)miss.push(`${t.n||'unnamed'} yardages on ${y} hole${y>1?'s':''}`)});
+ return miss.length?`Not verified yet. Still missing: ${miss.join(', ')}. You can save now and finish later.`:'✓ Complete. Saving marks the course as Verified.'}
 function ceTot(){const p=ce.par.slice(0,ce.holes).map(Number),out=p.slice(0,9).reduce((a,b)=>a+(b||0),0),inn=p.slice(9).reduce((a,b)=>a+(b||0),0);return ce.holes===18?`Out ${out||'–'} · In ${inn||'–'} · Par ${out+inn||'–'}`:`Par ${out||'–'}`}
 async function ceSave(){ceRead();const n=ce.holes,par={},hh={},tees={};err='';
  if(ce.added&&!ce.n){err='Enter the course name.';return render()}
@@ -1475,13 +1502,14 @@ async function ceSave(){ceRead();const n=ce.holes,par={},hh={},tees={};err='';
  if(hv.some(Boolean)){if(hv.some(x=>!x)){err='Fill in a handicap for every hole, or leave them all blank.';return render()}
   const xs=hv.map(Number);if(xs.some(x=>!(Number.isInteger(x)&&x>=1&&x<=18))||new Set(xs).size!==n){err='Hole handicaps should be different whole numbers from 1 to 18.';return render()}
   xs.forEach((x,i)=>hh[i]=x)}
- for(const [o,t] of ce.tees.entries()){if(!t.n&&!t.r&&!t.s)continue;if(!t.n){err='Give each set of tees a name.';return render()}
+ for(const [o,t] of ce.tees.entries()){const yv=[...Array(n)].map((_,i)=>String(t.y[i]??'').trim());if(!t.n&&!t.r&&!t.s&&!yv.some(Boolean))continue;if(!t.n){err='Give each set of tees a name.';return render()}
   if(tees[t.n]){err='Two tees are both called '+t.n+'.';return render()}
   const r=t.r===''?null:parseFloat(t.r),sl=t.s===''?null:parseInt(t.s,10);
   if((r==null)!==(sl==null)){err=t.n+': enter both the rating and the slope, or neither.';return render()}
   if(r!=null&&!(r>=25&&r<=85)){err=t.n+': course rating is usually between 25 and 85.';return render()}
   if(sl!=null&&!(sl>=55&&sl<=155)){err=t.n+': slope is a whole number from 55 to 155.';return render()}
-  tees[t.n]=r==null?{o}:{r,s:sl,o}}
+  const y={};for(const [i,x] of yv.entries()){if(!x)continue;const z=+x;if(!(Number.isInteger(z)&&z>=40&&z<=800)){err=`${t.n}, hole ${i+1}: yards should be a whole number from 40 to 800.`;return render()}y[i]=z}
+  tees[t.n]={...(r==null?{o}:{r,s:sl,o}),...(Object.keys(y).length?{y}:{})}}
  const id=ceId==='new'?'x'+Date.now().toString(36):ceId,body={par,pn:n,h:hh,tees,ad:Date.now()};
  if(ce.added)body.added={n:ce.n.slice(0,60),t:(ce.t||'').slice(0,40),s:ce.s||'',hc:n};
  const b=$('ce-save');if(b)b.disabled=true;
@@ -1554,13 +1582,13 @@ function setup(){
  if(adding)return h+addForm()+'</div>';
  h+=`<label for="q"><b>Course</b></label><div class="row"><input id="q" type="search" style="flex:2;min-width:150px" placeholder="Name or city" value="${esc(q)}"><select id="st" style="flex:1;min-width:110px" aria-label="State"><option value="">All states</option>${STATES.map(s=>`<option ${s===st?'selected':''}>${s}</option>`).join('')}</select></div>`;
  if(pick&&course(pick)){const c=course(pick),d=cdata(c),n=d.par?d.par.length:(d.n||c.hc);
-  h+=`<p><b>${esc(c.n)}</b>${d.ad?VTAG:''}<br><span class="sub">${esc(c.t)}${c.t&&c.s?', ':''}${esc(c.s)}${n?' · '+n+' holes':''}${d.par&&d.par.every(Boolean)?' · par '+sum(d.par):''}</span></p>`;
+  h+=`<p><b>${esc(c.n)}</b>${d.ok?VTAG:''}<br><span class="sub">${esc(c.t)}${c.t&&c.s?', ':''}${esc(c.s)}${n?' · '+n+' holes':''}${d.par&&d.par.every(Boolean)?' · par '+sum(d.par):''}</span></p>`;
   if(!d.par)h+=`<p class="note">This course has no pars on file yet. You’ll set each hole’s par as you play, and it’s saved with your round.</p>`;
   if(!n)h+=`<p><b>Holes</b></p><div class="row">${[9,18].map(x=>`<button class="chip" aria-pressed="${holes===x}" data-holes="${x}">${x}</button>`).join('')}</div>`;
   h+=`<label for="tee"><b>Tees</b></label>${(()=>{const L=teeList(c),cur=pickTee(L);return `<div class="teepick"><span class="dot big" style="background:${teeColor(cur)}"></span><select id="tee">${L.map(t=>`<option value="${esc(t.n)}" ${t===cur?'selected':''}>${esc(t.n)}${t.y?' · '+sum(t.y).toLocaleString()+' yds':''}${t.r&&t.s?' · '+Number(t.r).toFixed(1)+' / '+t.s:''}</option>`).join('')}</select></div><p class="sub" style="margin-top:-2px">${cur.r?`Course rating ${Number(cur.r).toFixed(1)} and slope ${cur.s} count toward your handicap.`:'No rating on file for these tees yet. When you finish, you can add the rating and slope from the scorecard so the round counts toward handicap.'}</p>`})()}<button class="btn" id="start">Start ${sel.size||guests.length?'group':'solo'} round</button> <button class="btn alt" id="back">Change course</button>`;
  }else{
   const k=q.toLowerCase().trim();locate();
-  const row=c=>`<button class="course" data-c="${c.id}">${esc(c.n)}${cdata(c).ad?VTAG:''}<br><small>${esc(c.t)}${c.t&&c.s?', ':''}${esc(c.s)}${c.mi!=null?' · '+(c.mi<10?c.mi.toFixed(1):Math.round(c.mi))+' mi':''} · ${c.p||cdata(c).par?'pars':'pars needed'} · ${cdata(c).ad?cdata(c).tees.length+' tees':cdata(c).tees.length?'rating on file':'rating needed'}</small></button>`;
+  const row=c=>`<button class="course" data-c="${c.id}">${esc(c.n)}${cdata(c).ok?VTAG:''}<br><small>${esc(c.t)}${c.t&&c.s?', ':''}${esc(c.s)}${c.mi!=null?' · '+(c.mi<10?c.mi.toFixed(1):Math.round(c.mi))+' mi':''} · ${c.p||cdata(c).par?'pars':'pars needed'} · ${cdata(c).ad?cdata(c).tees.length+' tees':cdata(c).tees.length?'rating on file':'rating needed'}</small></button>`;
   const near=!k&&geo.pos?nearby():null;
   if(near&&near.length){
    h+=`<p class="sub geohd">${GEOI}Courses within ${NEAR_MI} miles of you</p>`+near.slice(0,25).map(row).join('');
@@ -1569,7 +1597,7 @@ function setup(){
    if(!k)h+=geo.st==='asking'?`<p class="sub geohd">${GEOI}Finding courses near you…</p>`:near?`<p class="sub geohd">${GEOI}No courses within ${NEAR_MI} miles. Search above or pick a state.</p>`:geo.st==='denied'||geo.st==='error'?`<p class="sub geohd">${GEOI}${geo.st==='denied'?'Location is off for this site, so':'Couldn’t find your location, so'} here are ${st?esc(st):'all'} courses. <button class="linkbtn" id="geoask">Try again</button></p>`:'';
    let m=all().filter(c=>!gone(c.id)&&(!st||c.s===st)&&(!k||c.k.includes(k)));
    if(geo.pos)m=m.map(c=>({...c,mi:c.la!=null?miles(geo.pos,[c.la,c.lo]):null})).sort((a,b)=>(a.mi==null)-(b.mi==null)||a.mi-b.mi);
-   if(k){const v=c=>cdata(c).ad?0:1;m=m.map((c,i)=>[c,i]).sort((a,b)=>v(a[0])-v(b[0])||a[1]-b[1]).map(x=>x[0])}// verified courses first when searching
+   if(k){const v=c=>cdata(c).ok?0:1;m=m.map((c,i)=>[c,i]).sort((a,b)=>v(a[0])-v(b[0])||a[1]-b[1]).map(x=>x[0])}// verified courses first when searching
    h+=m.slice(0,25).map(row).join('')||'<p class="empty">No course matches. Try fewer letters, or add it yourself below.</p>';
    if(m.length>25)h+=`<p class="sub">Showing 25 of ${m.length.toLocaleString()}. Keep typing or pick a state to narrow it.</p>`;
   }
@@ -1603,7 +1631,7 @@ function scorecard(r){
  let h=`<div class="box"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><div><b>${esc(r.cn)}</b><br><span class="sub">${edit===r.id?'editing a saved round':`${r.tn?esc(r.tn)+' tees':'tees to add later'} · ${solo?'solo round':r.keys.length+' players · live for everyone'}`}</span></div><div class="row" style="flex-wrap:nowrap;gap:4px"><button class="iconbtn" id="rmenu" aria-label="Round options" style="margin:0">${DOTS}</button><button class="btn alt" id="close">Close</button></div></div>`;
  h+=card(r,true,true)+'<div class="entry">';
  {const done=j=>r.par[j]&&r.keys.every(k=>r.sc[k][j]!=null),pk=r.par[i];
-  h+=`<div class="strip">${r.par.map((_,j)=>`<button class="${done(j)?'done':''}" ${j===i?'aria-current="true"':''} data-h="${j}" aria-label="Hole ${j+1}">${j+1}</button>`).join('')}</div><div class="hole"><div class="hl"><span class="lbl">Hole</span><span class="num">${i+1}</span></div><div class="facts"><span>Par <b>${pk||'?'}</b></span>${r.yds?`<span><b>${r.yds[i]}</b> yds</span>`:''}${r.si?`<span>Index <b>${r.si[i]}</b></span>`:''}</div></div>`;
+  h+=`<div class="strip">${r.par.map((_,j)=>`<button class="${done(j)?'done':''}" ${j===i?'aria-current="true"':''} data-h="${j}" aria-label="Hole ${j+1}">${j+1}</button>`).join('')}</div><div class="hole"><div class="hl"><span class="lbl">Hole</span><span class="num">${i+1}</span></div><div class="facts"><span>Par <b>${pk||'?'}</b></span>${r.yds?`<span><b>${r.yds[i]}</b> yds</span>`:''}${r.si?`<span>Index <b>${r.si[i]}</b></span>`:''}</div></div>`+yards(pk,r.yds&&+r.yds[i]);
   if(!pk)h+=`<p class="note">Set the par for this hole to start scoring.</p><div class="row">${[3,4,5,6].map(x=>`<button class="chip" data-par="${x}">Par ${x}</button>`).join('')}</div>`;
   r.keys.forEach(k=>{const sc=r.sc[k],cnt=sc.filter((v,j)=>v!=null&&r.par[j]).length,v=sc[i],nm=kname(r,k);
    h+=`<div class="plw"><div class="pl"><div class="plwho">${face(r.pl[k].uid,nm)}<div><b>${knt(r,k)}</b>${r.pl[k].uid===me?' <span class="sub">(you)</span>':''}<br><span class="tot">${cnt?fmtPar(toPar(sc,r.par))+' thru '+cnt:'not started'}</span></div></div><span class="num pick-now">${v==null?'–':v}</span></div>${pk?picker(k,nm,v,pk):''}</div>`});
@@ -1893,7 +1921,8 @@ function bind(){
  on('[data-nav]',b=>b.onclick=()=>{hole[r.id]=Math.max(0,Math.min(r.n-1,hole[r.id]+ +b.dataset.nav));render()});
  document.body.classList.toggle('has-bar',!!$('view').querySelector('.holebar'));
  const strip=v.querySelector('.strip'),curH=strip&&strip.querySelector('[aria-current=true]');if(curH)strip.scrollLeft=curH.offsetLeft-strip.clientWidth/2+curH.offsetWidth/2;
- const ent=v.querySelector('.entry');if(ent&&r){let sx=0,sy=0,tr=false;ent.addEventListener('touchstart',e=>{const t=e.touches[0];sx=t.clientX;sy=t.clientY;tr=!e.target.closest('.pkrow,input,select')},{passive:true});ent.addEventListener('touchend',e=>{if(!tr)return;const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)>60&&Math.abs(dy)<45){const n=hole[r.id]+(dx<0?1:-1);if(n>=0&&n<r.n){hole[r.id]=n;render()}}},{passive:true})}
+ const ysc=v.querySelector('.yscroll'),yOn=ysc&&ysc.querySelector('.on');if(yOn)ysc.scrollLeft=yOn.offsetLeft-ysc.offsetLeft-ysc.clientWidth/2+yOn.offsetWidth/2;
+ const ent=v.querySelector('.entry');if(ent&&r){let sx=0,sy=0,tr=false;ent.addEventListener('touchstart',e=>{const t=e.touches[0];sx=t.clientX;sy=t.clientY;tr=!e.target.closest('.pkrow,.yscroll,input,select')},{passive:true});ent.addEventListener('touchend',e=>{if(!tr)return;const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)>60&&Math.abs(dy)<45){const n=hole[r.id]+(dx<0?1:-1);if(n>=0&&n<r.n){hole[r.id]=n;render()}}},{passive:true})}
  on('[data-par]',b=>b.onclick=()=>{const i=hole[r.id],p=+b.dataset.par;patch('rounds/'+r.id,{par:{[i]:p}})});
  const setScore=(k,v)=>{const i=hole[r.id];patch('rounds/'+r.id,{scores:{[k]:{[i]:v}}})};
  on('[data-set]',b=>b.onclick=()=>{const k=b.dataset.set,v=+b.dataset.v,c=R(r.id).sc[k][hole[r.id]];setScore(k,c===v&&!b.classList.contains('more')?null:v)});
@@ -1928,8 +1957,8 @@ function bind(){
  {const i=$('ceq');if(i)i.oninput=()=>{ceQ=i.value;render()}}
  on('[data-ceh]',b=>b.onclick=()=>{ceRead();ce.holes=+b.dataset.ceh;render()});
  on('[data-cetx]',b=>b.onclick=()=>{ceRead();ce.tees=ce.tees.filter(t=>t.k!==b.dataset.cetx);lastView=null;render()});
- click('ce-addtee',()=>{ceRead();ce.tees.push({k:ceKey(),n:'',r:'',s:''});render();const t=ce.tees[ce.tees.length-1];const e=$('ce-tn-'+t.k);if(e)e.focus()});
- v.querySelectorAll('.cegrid input').forEach(e=>e.oninput=()=>{ceRead();const t=$('ce-tot');if(t)t.textContent=ceTot()});
+ click('ce-addtee',()=>{ceRead();ce.tees.push({k:ceKey(),n:'',r:'',s:'',y:[]});render();const t=ce.tees[ce.tees.length-1];const e=$('ce-tn-'+t.k);if(e)e.focus()});
+ v.querySelectorAll('.cegrid input,.cetee input').forEach(e=>e.oninput=()=>{ceRead();const t=$('ce-tot');if(t)t.textContent=ceTot();ce.tees.forEach(x=>{const e=$('ce-yt-'+x.k);if(e)e.textContent=yTot(x)});const w=$('ce-ver');if(w)w.textContent=ceVer()});
  click('ce-save',ceSave);
  click('ce-del',()=>{ceRead();ceDel=true;render()});click('ce-delno',()=>{ceDel=false;render()});
  click('ce-delyes',async()=>{const id=ceId,n=ce.n;$('ce-delyes').disabled=true;try{await db.doc('courseinfo/'+id).delete()}catch(e){fail(e);return}delete D['courseinfo/'+id];say(ce.added?n+' was deleted.':n+' is back to its original details.');ceId=null;ce=null;ceDel=false;render()});
